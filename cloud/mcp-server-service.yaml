@@ -1,0 +1,52 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: malloy-mcp-server
+  annotations:
+    run.googleapis.com/ingress: all
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/execution-environment: gen2
+        run.googleapis.com/cpu-throttling: "false"
+    spec:
+      containerConcurrency: 80
+      timeoutSeconds: 300
+      containers:
+      - image: gcr.io/jss89-coursera/malloy-publisher:latest
+        ports:
+        - name: http1
+          containerPort: 4000
+        env:
+        - name: MCP_PORT
+          value: "4040"
+        - name: NODE_ENV
+          value: "production"
+        - name: PUBLISHER_HOST
+          value: "0.0.0.0"
+        - name: MCP_HOST
+          value: "0.0.0.0"
+        resources:
+          limits:
+            cpu: "1"
+            memory: "1Gi"
+          requests:
+            cpu: "0.5"
+            memory: "512Mi"
+        startupProbe:
+          httpGet:
+            path: /
+            port: 4000
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+          periodSeconds: 10
+          failureThreshold: 6
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 4000
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+          periodSeconds: 30
+        # No liveness probe - rely on startup probe and Cloud Run's default monitoring 
