@@ -81,6 +81,7 @@ const isDevelopment = process.env["NODE_ENV"] === "development";
 const app = express();
 app.use(loggerMiddleware);
 app.use(cors());
+app.use(bodyParser.json());
 
 const projectStore = new ProjectStore(SERVER_ROOT);
 const connectionController = new ConnectionController(projectStore);
@@ -90,13 +91,7 @@ const databaseController = new DatabaseController(projectStore);
 const queryController = new QueryController(projectStore);
 const scheduleController = new ScheduleController(projectStore);
 
-const mcpApp = express();
-
-initProjects();
-mcpApp.use(MCP_ENDPOINT, express.json());
-mcpApp.use(MCP_ENDPOINT, cors());
-
-mcpApp.all(MCP_ENDPOINT, async (req, res) => {
+app.all(MCP_ENDPOINT, async (req, res) => {
    logger.info(`[MCP Debug] Handling ${req.method} (Stateless)`);
 
    try {
@@ -630,11 +625,7 @@ mainServer.listen(PUBLISHER_PORT, PUBLISHER_HOST, () => {
    }
 });
 
-const mcpHttpServer = mcpApp.listen(MCP_PORT, PUBLISHER_HOST, () => {
-   logger.info(`MCP server listening at http://${PUBLISHER_HOST}:${MCP_PORT}`);
-});
-
-export { app, mainServer as httpServer, mcpApp, mcpHttpServer };
+export { app, mainServer as httpServer };
 
 // Warm up the packages
 function initProjects() {

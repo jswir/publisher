@@ -11,6 +11,7 @@
    },
    "scripts": {
       "test": "bun test ./**/*.spec.ts",
+      "build:server-only": "NODE_ENV=production && bun build src/server.ts --outdir dist --target node --format cjs --external='@malloydata/db-duckdb' --external='@malloydata/malloy' --external='@malloydata/malloy-sql' --external='@malloydata/render' --external='@malloydata/db-bigquery' --external='@malloydata/db-mysql' --external='@malloydata/db-postgres' --external='@malloydata/db-snowflake' --external='@malloydata/db-trino' && echo '#!/usr/bin/env node' | cat - dist/server.js > temp && mv temp dist/server.js && chmod +x dist/server.js",
       "build": "bun generate-api-types && NODE_ENV=production && bun build:app && bun build src/server.ts --outdir dist --target node --format cjs --external='@malloydata/db-duckdb' --external='@malloydata/malloy' --external='@malloydata/malloy-sql' --external='@malloydata/render' --external='@malloydata/db-bigquery' --external='@malloydata/db-mysql' --external='@malloydata/db-postgres' --external='@malloydata/db-snowflake' --external='@malloydata/db-trino' && NODE_ENV=production bun build src/instrumentation.ts --outdir dist --target node --format cjs && bun run build:app && echo '#!/usr/bin/env node' | cat - dist/server.js > temp && mv temp dist/server.js && chmod +x dist/server.js",
       "start": "NODE_ENV=production node ./dist/server.js",
       "start:dev": "NODE_ENV=development bun --watch src/server.ts",

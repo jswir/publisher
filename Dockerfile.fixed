@@ -1,0 +1,89 @@
+# ---- Stage 1: Build ----
+# Use the official Bun image as a base for building
+FROM oven/bun:1.2 AS builder
+
+# Install build-time dependencies including ca-certificates
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    bash \
+    libc6 \
+    wget \
+    apt-transport-https \
+    gnupg \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Java 21, required by Malloy
+RUN wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor | tee /usr/share/keyrings/adoptium.gpg > /dev/null && \
+    echo "deb [signed-by=/usr/share/keyrings/adoptium.gpg] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME=/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list && \
+    apt-get update && apt-get install -y --no-install-recommends temurin-21-jdk && \
+    rm -rf /var/lib/apt/lists/*
+ENV JAVA_HOME=/usr/lib/jvm/temurin-21-jdk
+ENV PATH=$JAVA_HOME/bin:$PATH
+
+# Set up the working directory
+WORKDIR /app
+
+# Copy package manifests to leverage Docker cache
+# This layer only changes if dependencies change
+COPY package.json ./
+COPY packages/server/package.json ./packages/server/
+
+# Install all dependencies. This is the slow step that will now be cached.
+RUN bun install
+
+# Copy the rest of the source code
+COPY . .
+
+# Build only the server code
+RUN cd packages/server && bun run build:server-only
+
+# ---- Stage 2: Final Image ----
+# Use the official Node.js slim image for better Cloud Run compatibility
+FROM node:20-slim
+
+# Install runtime dependencies including ca-certificates and Java
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    wget \
+    gnupg \
+    && wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor | tee /usr/share/keyrings/adoptium.gpg > /dev/null \
+    && echo "deb [signed-by=/usr/share/keyrings/adoptium.gpg] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME=/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list \
+    && apt-get update && apt-get install -y --no-install-recommends temurin-21-jdk \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV JAVA_HOME=/usr/lib/jvm/temurin-21-jdk
+ENV PATH=$JAVA_HOME/bin:$PATH
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV PUBLISHER_HOST=0.0.0.0
+ENV SERVER_ROOT=/app/server_root
+
+# Copy build artifacts and production node_modules from the 'builder' stage
+COPY --from=builder /app/packages/server/dist ./packages/server/dist
+COPY --from=builder /app/node_modules ./node_modules
+
+# Copy malloy-samples data and configuration (following official pattern)
+# Copy the malloy-samples data and config, but only valid packages
+COPY --from=builder /app/packages/server/publisher.config.json ./server_root/
+# Copy only directories that contain publisher.json (valid Malloy packages)
+RUN mkdir -p ./server_root/malloy-samples
+COPY --from=builder /app/packages/server/malloy-samples/auto_recalls ./server_root/malloy-samples/auto_recalls
+COPY --from=builder /app/packages/server/malloy-samples/bigquery-ga_sessions ./server_root/malloy-samples/bigquery-ga_sessions
+COPY --from=builder /app/packages/server/malloy-samples/bigquery-ga4 ./server_root/malloy-samples/bigquery-ga4
+COPY --from=builder /app/packages/server/malloy-samples/bigquery-hackernews ./server_root/malloy-samples/bigquery-hackernews
+COPY --from=builder /app/packages/server/malloy-samples/bigquery-the_met ./server_root/malloy-samples/bigquery-the_met
+COPY --from=builder /app/packages/server/malloy-samples/ecommerce ./server_root/malloy-samples/ecommerce
+COPY --from=builder /app/packages/server/malloy-samples/faa ./server_root/malloy-samples/faa
+COPY --from=builder /app/packages/server/malloy-samples/ga4 ./server_root/malloy-samples/ga4
+COPY --from=builder /app/packages/server/malloy-samples/imdb ./server_root/malloy-samples/imdb
+COPY --from=builder /app/packages/server/malloy-samples/names ./server_root/malloy-samples/names
+COPY --from=builder /app/packages/server/malloy-samples/patterns ./server_root/malloy-samples/patterns
+
+# Expose the single port that Cloud Run will use
+EXPOSE 4000
+
+# The command to run our fixed and merged server using the stable Node runtime
+CMD ["node", "packages/server/dist/server.js", "--port", "4000", "--server_root", "/app/server_root"] 
