@@ -33,9 +33,13 @@ logger = logging.getLogger(__name__)
 def parse_args():
     """Parse command line arguments for model selection"""
     parser = argparse.ArgumentParser(description='Malloy Slack Bot')
-    parser.add_argument('--model', choices=['gpt-4o', 'gpt-4o-mini', 'gemini-1.5-pro', 'gemini-2.5-flash'], 
-                       default='gpt-4o', help='LLM model to use')
-    parser.add_argument('--provider', choices=['openai', 'vertex'], 
+    parser.add_argument('--model', choices=[
+        'gpt-4o', 'gpt-4o-mini', 
+        'gemini-1.5-pro', 'gemini-2.5-flash',
+        'claude-4', 'claude-4-sonnet', 'claude-4-opus',
+        'claude-3.7-sonnet', 'claude-3.5-sonnet', 'claude-3.5-haiku'
+    ], default='gpt-4o', help='LLM model to use')
+    parser.add_argument('--provider', choices=['openai', 'vertex', 'anthropic'], 
                        help='LLM provider (auto-detected from model if not specified)')
     return parser.parse_args()
 
@@ -45,6 +49,8 @@ def get_provider_from_model(model_name: str) -> str:
         return 'openai'
     elif model_name.startswith('gemini'):
         return 'vertex'
+    elif model_name.startswith('claude'):
+        return 'anthropic'
     else:
         return 'openai'  # Default
 
@@ -71,6 +77,9 @@ def init_bot(model: str = 'gpt-4o', provider: str = None):
         OPENAI_API_KEY = os.environ["OPENAI_API_KEY"].strip()
         MCP_URL = os.environ.get("MCP_URL", "http://localhost:4040/mcp")
         
+        # Anthropic configuration  
+        ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
+        
         # Vertex AI configuration
         VERTEX_PROJECT_ID = os.environ.get("VERTEX_PROJECT_ID")
         VERTEX_LOCATION = os.environ.get("VERTEX_LOCATION", "us-central1")
@@ -86,6 +95,8 @@ def init_bot(model: str = 'gpt-4o', provider: str = None):
     if LLM_PROVIDER == "vertex":
         logger.info(f"   - Vertex Project: {VERTEX_PROJECT_ID}")
         logger.info(f"   - Vertex Location: {VERTEX_LOCATION}")
+    elif LLM_PROVIDER == "anthropic":
+        logger.info(f"   - Anthropic API Key: {'configured' if ANTHROPIC_API_KEY else 'NOT SET'}")
 
     # Initialize LangChain Malloy Agent
     malloy_agent = LangChainCompatibilityAdapter(
@@ -93,6 +104,7 @@ def init_bot(model: str = 'gpt-4o', provider: str = None):
         mcp_url=MCP_URL,
         llm_provider=LLM_PROVIDER,
         model_name=LLM_MODEL,
+        anthropic_api_key=ANTHROPIC_API_KEY,
         vertex_project_id=VERTEX_PROJECT_ID,
         vertex_location=VERTEX_LOCATION
     )

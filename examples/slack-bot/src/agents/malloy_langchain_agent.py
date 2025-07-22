@@ -13,6 +13,7 @@ from langchain.memory import ConversationBufferMemory
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_openai import ChatOpenAI
 from langchain_google_vertexai import ChatVertexAI
+from langchain_anthropic import ChatAnthropic
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.tools import BaseTool
 from langchain.callbacks.base import BaseCallbackHandler
@@ -57,10 +58,12 @@ class MalloyLangChainAgent:
         memory_db_path: str = "sqlite:///malloy_conversations.db",
         llm_provider: str = "openai",
         openai_api_key: Optional[str] = None,
+        anthropic_api_key: Optional[str] = None,
         vertex_project_id: Optional[str] = None,
         vertex_location: str = "us-central1"
     ):
         self.openai_api_key = openai_api_key
+        self.anthropic_api_key = anthropic_api_key
         self.mcp_url = mcp_url
         self.auth_token = auth_token
         self.model_name = model_name
@@ -75,6 +78,7 @@ class MalloyLangChainAgent:
             "llm_provider": self.llm_provider,
             "model_name": self.model_name,
             "openai_api_key": self.openai_api_key,
+            "anthropic_api_key": self.anthropic_api_key,
             "vertex_project_id": self.vertex_project_id,
             "vertex_location": self.vertex_location
         }
@@ -168,9 +172,39 @@ class MalloyLangChainAgent:
                 max_output_tokens=2000
             )
         
+        elif self.llm_provider == "anthropic":
+            if not self.anthropic_api_key:
+                raise ValueError("Anthropic API key required for Anthropic provider")
+            
+            # Map Claude model names to specific Anthropic model IDs
+            anthropic_model_map = {
+                # Claude 4 models (latest generation)
+                "claude-4": "claude-sonnet-4-20250514",
+                "claude-4-sonnet": "claude-sonnet-4-20250514", 
+                "claude-4-opus": "claude-opus-4-20250514",
+                "claude-sonnet-4": "claude-sonnet-4-20250514",
+                "claude-opus-4": "claude-opus-4-20250514",
+                # Claude 3.7 models
+                "claude-3.7": "claude-3-7-sonnet-20250219",
+                "claude-3.7-sonnet": "claude-3-7-sonnet-20250219",
+                # Claude 3.5 models (latest versions)
+                "claude-3.5": "claude-3-5-sonnet-20241022",
+                "claude-3.5-sonnet": "claude-3-5-sonnet-20241022",
+                "claude-3.5-haiku": "claude-3-5-haiku-20241022"
+            }
+            
+            anthropic_model = anthropic_model_map.get(self.model_name, self.model_name)
+            
+            return ChatAnthropic(
+                api_key=self.anthropic_api_key,
+                model=anthropic_model,
+                temperature=0.1,
+                max_tokens=2000
+            )
+        
         else:
             raise ValueError(f"Unsupported LLM provider: {self.llm_provider}. "
-                           f"Supported providers: openai, vertex, gemini")
+                           f"Supported providers: openai, vertex, gemini, anthropic")
         
     async def setup(self) -> bool:
         """Setup the agent with dynamic tools from MCP discovery"""
@@ -616,6 +650,7 @@ async def create_malloy_agent(
     session_id: Optional[str] = None,
     llm_provider: str = "openai",
     openai_api_key: Optional[str] = None,
+    anthropic_api_key: Optional[str] = None,
     vertex_project_id: Optional[str] = None,
     vertex_location: str = "us-central1"
 ) -> MalloyLangChainAgent:
@@ -628,6 +663,7 @@ async def create_malloy_agent(
         session_id=session_id,
         llm_provider=llm_provider,
         openai_api_key=openai_api_key,
+        anthropic_api_key=anthropic_api_key,
         vertex_project_id=vertex_project_id,
         vertex_location=vertex_location
     )
