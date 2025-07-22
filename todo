@@ -1,0 +1,9 @@
+- clean up tests - probably don't need 80 of them
+- make slack connection more reliable - restart in case of failure
+- simplify agent logic - let the LLM think. Update prompt to think, tool call, think, repeat
+- update max iterations to be 20
+- check that everything works if building from scratch
+- ensure that local works - not just cloud. local should still be at localhost:4000
+- latency - don't reinitialize every time
+- add claude as an option
+- feature backlog: passive listening, , etc.
