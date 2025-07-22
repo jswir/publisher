@@ -4,15 +4,22 @@ metadata:
   name: malloy-slack-bot
   annotations:
     run.googleapis.com/ingress: all
+    # Prevent scale-to-zero to maintain persistent connections
+    run.googleapis.com/execution-environment: gen2
+    run.googleapis.com/cpu-throttling: "false"
 spec:
   template:
     metadata:
       annotations:
         run.googleapis.com/execution-environment: gen2
         run.googleapis.com/cpu-throttling: "false"
+        # Improved scaling configuration
+        autoscaling.knative.dev/minScale: "1"  # Always keep at least one instance
+        autoscaling.knative.dev/maxScale: "3"  # Limit max scaling
+        run.googleapis.com/timeout: "3600"     # 1 hour timeout for long-running connections
     spec:
-      containerConcurrency: 80
-      timeoutSeconds: 300
+      containerConcurrency: 100  # Increased for better throughput
+      timeoutSeconds: 3600       # 1 hour timeout
       containers:
       - image: gcr.io/jss89-coursera/malloy-slack-bot:latest
         ports:
@@ -23,6 +30,8 @@ spec:
           value: "https://malloy-mcp-server-fixed-234201753528.us-central1.run.app/mcp"
         - name: PYTHONUNBUFFERED
           value: "1"
+        - name: ENVIRONMENT
+          value: "production"
         - name: SLACK_BOT_TOKEN
           valueFrom:
             secretKeyRef:
@@ -44,23 +53,35 @@ spec:
           value: "us-central1"
         resources:
           limits:
-            cpu: "1"
-            memory: "1Gi"
+            cpu: "2"      # Increased CPU for better performance
+            memory: "2Gi" # Increased memory for conversation cache
           requests:
-            cpu: "0.5"
-            memory: "512Mi"
+            cpu: "1"      # Higher baseline CPU
+            memory: "1Gi" # Higher baseline memory
+        # Enhanced startup probe for reliable initialization
         startupProbe:
           httpGet:
-            path: /health
+            path: /ready
             port: 8080
-          initialDelaySeconds: 45  # Slightly longer for Python startup
-          timeoutSeconds: 5
-          periodSeconds: 10
-          failureThreshold: 6
+          initialDelaySeconds: 60  # More time for Python + dependencies startup
+          timeoutSeconds: 10
+          periodSeconds: 15
+          failureThreshold: 8      # More tolerant of slow startup
+        # Liveness probe to restart unhealthy instances
         livenessProbe:
           httpGet:
             path: /health
             port: 8080
-          initialDelaySeconds: 15
+          initialDelaySeconds: 120  # Allow time for full initialization
+          timeoutSeconds: 10
+          periodSeconds: 60         # Check every minute
+          failureThreshold: 3       # Restart after 3 consecutive failures
+        # Readiness probe for load balancing
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 30
           timeoutSeconds: 5
-          periodSeconds: 30 
+          periodSeconds: 30
+          failureThreshold: 2 

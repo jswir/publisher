@@ -1,37 +1,46 @@
-# /malloy-slack-bot/requirements.txt
+# Core Slack Bot Dependencies
+slack_sdk==3.23.0
+python-dotenv==1.0.0
+flask==3.0.0
 
-# Slack Integration
-slack_sdk
-python-dotenv
+# LangChain and AI
+langchain==0.1.0
+langchain-openai==0.0.2
+langchain-google-vertexai==0.0.1
+langchain-anthropic==0.1.1
+langchain-community==0.0.10
 
-# LLM Integration
-openai
-anthropic
+# HTTP Client and async support
+aiohttp==3.9.1
+requests==2.31.0
 
-# HTTP Clients & Web Framework
-requests  # Legacy - will migrate to aiohttp
-aiohttp   # New async HTTP client
-flask     # Health check endpoints for cloud deployment
+# Data visualization
+matplotlib==3.8.2
+seaborn==0.13.0
+pandas==2.1.4
+numpy==1.26.2
 
-# Data Processing & Visualization
-pandas
-matplotlib
+# Additional utilities
+Pillow==10.1.0
+python-multipart==0.0.6
 
-# Async Support
-asyncio  # Built-in, but listed for clarity
+# Async support
+asyncio-mqtt==0.13.0
 
-# LangChain Integration - Phase 2
-langchain
-langchain-openai
-langchain-community
-langchain-google-vertexai
-pydantic
+# Development and testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
 
-# Testing & Development
-pytest
-pytest-asyncio
-pytest-mock
-pytest-cov
-black
-flake8
-mypy
+# Production monitoring
+psutil==5.9.6
+
+# JSON schema validation
+jsonschema==4.20.0
+
+# Environment and configuration
+pydantic==2.5.2
+pydantic-settings==2.1.0
+
+# Logging and monitoring
+structlog==23.2.0
+colorlog==6.8.0
