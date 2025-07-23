@@ -1,46 +1,51 @@
 # Core Slack Bot Dependencies
-slack_sdk==3.23.0
-python-dotenv==1.0.0
-flask==3.0.0
+slack_sdk>=3.23.0
+python-dotenv>=1.0.0
+flask>=3.0.0
 
-# LangChain and AI
-langchain==0.1.0
-langchain-openai==0.0.2
-langchain-google-vertexai==0.0.1
-langchain-anthropic==0.1.1
-langchain-community==0.0.10
+# LangChain and AI Dependencies
+langchain>=0.1.0
+langchain-openai>=0.0.2
+langchain-google-vertexai>=0.0.1
+langchain-anthropic>=0.1.1
+langchain-community>=0.0.10
 
-# HTTP Client and async support
-aiohttp==3.9.1
-requests==2.31.0
+# HTTP and Async Support
+aiohttp>=3.9.1
+requests>=2.31.0
 
-# Data visualization
-matplotlib==3.8.2
-seaborn==0.13.0
-pandas==2.1.4
-numpy==1.26.2
+# Data Processing and Visualization - Use latest compatible versions
+matplotlib>=3.8.0
+seaborn>=0.13.0
+pandas>=2.2.0  # Use newer version compatible with Python 3.13
+numpy>=1.24.0
 
-# Additional utilities
-Pillow==10.1.0
-python-multipart==0.0.6
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
 
-# Async support
-asyncio-mqtt==0.13.0
+# Optional: Data Science Ecosystem
+scipy>=1.11.0
+pillow>=10.0.0
 
-# Development and testing
-pytest==7.4.3
-pytest-asyncio==0.21.1
+# Development Dependencies
+pydantic>=2.0.0
+dataclasses-json>=0.6.0
 
-# Production monitoring
-psutil==5.9.6
+# JSON Schema Support  
+jsonschema>=4.19.0
 
-# JSON schema validation
-jsonschema==4.20.0
+# Type hints for older Python compatibility
+typing-extensions>=4.7.0
 
-# Environment and configuration
-pydantic==2.5.2
-pydantic-settings==2.1.0
+# Async HTTP session management
+httpx>=0.25.0
 
-# Logging and monitoring
-structlog==23.2.0
-colorlog==6.8.0
+# Better environment variable management
+python-decouple>=3.8
+
+# Structured logging
+structlog>=23.1.0
+
+# Better async tools
+anyio>=4.0.0

@@ -577,6 +577,9 @@ def reconnect_socket_client():
 # --- Main Execution ---
 
 if __name__ == "__main__":
+    # Load environment variables from .env file
+    load_dotenv()
+    
     logger.info("🤖 Enhanced Malloy Bot is starting...")
     
     # Parse command line arguments only when running as main
