@@ -242,8 +242,17 @@ class MalloyLangChainAgent:
             
             print(f"🔍 DEBUG: Running agent with {len(augmented_history)} augmented history messages...")
             fresh_llm = self._initialize_llm()
-            agent = create_openai_tools_agent(fresh_llm, self.tools, self.prompt_template)
-            agent_executor = AgentExecutor(agent=agent, tools=self.tools, verbose=True, max_iterations=8)
+            
+            # Use appropriate agent creation based on LLM provider
+            if self.llm_provider == "anthropic":
+                # For Claude models, use the tool calling agent with proper format
+                from langchain.agents import create_tool_calling_agent
+                agent = create_tool_calling_agent(fresh_llm, self.tools, self.prompt_template)
+            else:
+                # For OpenAI and other providers
+                agent = create_openai_tools_agent(fresh_llm, self.tools, self.prompt_template)
+                
+            agent_executor = AgentExecutor(agent=agent, tools=self.tools, verbose=True, max_iterations=25)
             
             input_data = {"input": question, "chat_history": augmented_history}
             result = await agent_executor.ainvoke(input_data)
@@ -252,24 +261,67 @@ class MalloyLangChainAgent:
             print(f"🔍 DEBUG: Agent result keys: {list(result.keys())}")
             print(f"🔍 DEBUG: Agent output: '{result.get('output', 'NO OUTPUT KEY')}'")
             print(f"🔍 DEBUG: Agent output type: {type(result.get('output'))}")
+            print(f"🔍 DEBUG: Has intermediate_steps: {'intermediate_steps' in result}")
+            if 'intermediate_steps' in result:
+                print(f"🔍 DEBUG: Number of intermediate steps: {len(result['intermediate_steps'])}")
             
             output = result['output']
             
+            # Handle different output formats (Claude returns list, OpenAI returns string)
+            if isinstance(output, list) and len(output) > 0:
+                # Claude format: [{'text': '...', 'type': 'text', 'index': 0}]
+                if isinstance(output[0], dict) and 'text' in output[0]:
+                    output = output[0]['text']
+                else:
+                    # Fallback: join list elements
+                    output = ' '.join(str(item) for item in output)
+            elif not isinstance(output, str):
+                # Convert other types to string
+                output = str(output)
+            
             # 🎯 POST-PROCESS CHART RESPONSES (Simple Approach)
-            # If generate_chart was called, extract its JSON response for the bot
-            chart_json = self._extract_chart_json_response(result)
-            if chart_json:
-                print(f"🔍 DEBUG: Chart detected, using JSON response instead of agent output")
-                output = chart_json
-            else:
-                # Fallback: Check if agent output mentions charts but didn't return JSON
-                if output and ('chart' in output.lower() or 'png' in output.lower() or 'files.slack.com' in output.lower()):
-                    print(f"🔍 DEBUG: Agent mentioned charts but didn't return JSON format")
-                    # Try to construct proper response from chart tool result
-                    fallback_json = self._construct_chart_fallback(result)
-                    if fallback_json:
-                        print(f"🔍 DEBUG: Using fallback chart JSON: {fallback_json}")
-                        output = fallback_json
+            # For Claude agents (create_tool_calling_agent), check for recent chart files
+            if self.llm_provider == "anthropic" and output and ('chart' in output.lower() or 'png' in output.lower()):
+                print(f"🔍 DEBUG: Claude agent mentioned charts, checking for recent chart files...")
+                import glob
+                import os
+                import time
+                
+                # Look for PNG files created in the last 30 seconds
+                current_time = time.time()
+                recent_charts = []
+                for png_file in glob.glob("*.png"):
+                    file_time = os.path.getmtime(png_file)
+                    if current_time - file_time < 30:  # Created within last 30 seconds
+                        recent_charts.append(png_file)
+                
+                if recent_charts:
+                    # Use the most recent chart
+                    most_recent = max(recent_charts, key=os.path.getmtime)
+                    full_path = os.path.abspath(most_recent)
+                    print(f"🔍 DEBUG: Found recent chart file: {full_path}")
+                    chart_json = json.dumps({
+                        "text": "Chart created successfully!",
+                        "file_info": {"status": "success", "filepath": full_path}
+                    })
+                    output = chart_json
+                    print(f"🔍 DEBUG: Using Claude chart detection: {chart_json}")
+            
+            # For OpenAI agents, use traditional intermediate_steps approach
+            elif "intermediate_steps" in result:
+                print(f"🔍 DEBUG: Found {len(result['intermediate_steps'])} intermediate steps")
+                chart_json = self._extract_chart_json_response(result)
+                if chart_json:
+                    print(f"🔍 DEBUG: Chart detected via intermediate_steps")
+                    output = chart_json
+                else:
+                    # Fallback for OpenAI agents
+                    if output and ('chart' in output.lower() or 'png' in output.lower() or 'files.slack.com' in output.lower()):
+                        print(f"🔍 DEBUG: Agent mentioned charts but didn't return JSON format")
+                        fallback_json = self._construct_chart_fallback(result)
+                        if fallback_json:
+                            print(f"🔍 DEBUG: Using fallback chart JSON: {fallback_json}")
+                            output = fallback_json
             
             # Handle empty output from agent (more common with certain models like Gemini)
             if not output or output.strip() == "":

@@ -259,14 +259,43 @@ def process_slack_events(client: BaseSocketModeClient, req: SocketModeRequest):
         event_type = event.get("type")
         
         # Check if this is an event we should respond to
-        if event_type == "app_mention" or (event_type == "message" and event.get("thread_ts")):
+        should_respond = False
+        
+        if event_type == "app_mention":
+            should_respond = True
+        elif event_type == "message" and event.get("thread_ts"):
+            # Only respond to threaded messages if:
+            # 1. Bot was mentioned in this message, OR
+            # 2. Bot has an existing conversation in this thread
+            text = event.get("text", "").strip()
+            thread_ts = event.get("thread_ts")
+            bot_user_id = None
+            
+            try:
+                bot_user_id = web_client.auth_test()["user_id"]
+            except Exception as e:
+                logger.warning(f"Failed to get bot user ID: {e}")
+                return
+            
+            # Check if bot was mentioned in this threaded message
+            if f"<@{bot_user_id}>" in text:
+                should_respond = True
+            # Check if bot has existing conversation in this thread
+            elif thread_ts in CONVERSATION_CACHE:
+                should_respond = True
+                logger.info(f"Continuing conversation in thread {thread_ts}")
+            else:
+                logger.debug(f"Ignoring threaded message - bot not mentioned and no existing conversation")
+        
+        if should_respond:
             text = event.get("text", "").strip()
             channel_id = event.get("channel")
             user_id = event.get("user")
             
             # Skip bot's own messages
             try:
-                if user_id == web_client.auth_test()["user_id"]:
+                bot_user_id = web_client.auth_test()["user_id"]
+                if user_id == bot_user_id:
                     return
             except Exception as e:
                 logger.warning(f"Failed to check bot user ID: {e}")
@@ -283,8 +312,11 @@ def process_slack_events(client: BaseSocketModeClient, req: SocketModeRequest):
                 # Remove the bot's mention from the text (e.g., "<@U123456> question" -> "question")
                 user_question = text.split(">", 1)[-1].strip()
             else:
-                # For thread messages, use the text as-is
-                user_question = text
+                # For thread messages, use the text as-is (but remove mention if present)
+                if f"<@{bot_user_id}>" in text:
+                    user_question = text.replace(f"<@{bot_user_id}>", "").strip()
+                else:
+                    user_question = text
             
             # Determine conversation ID and retrieve history
             if thread_ts:
@@ -344,7 +376,7 @@ def process_slack_events(client: BaseSocketModeClient, req: SocketModeRequest):
                                         file=filepath,
                                         title="Malloy Chart",
                                         initial_comment=response_data.get("text", "Here's your chart:"),
-                                        thread_ts=thread_ts
+                                        thread_ts=conversation_id
                                     )
                                     logger.info(f"Successfully uploaded chart for user {user_id}")
                                     

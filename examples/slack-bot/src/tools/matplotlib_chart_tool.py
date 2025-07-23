@@ -28,16 +28,28 @@ class MatplotlibChartTool(BaseTool):
 
     name: str = "generate_chart"
     description: str = (
-        "Generates and saves a data visualization by executing Python code. "
-        "The code should parse any necessary data from the conversation context and create charts using matplotlib. "
-        "The `filepath` variable is automatically available to save the chart."
+        "Generates data visualizations by executing Python code with matplotlib. "
+        "When chart generation fails, returns detailed error information to help with debugging. "
+        "Use this tool after getting data from queries to create charts and graphs. "
+        
+        "Guidelines for successful charts:"
+        "- Parse the data from previous tool results"
+        "- Use matplotlib.pyplot for visualization" 
+        "- Always call plt.savefig(filepath) to save the chart"
+        "- Handle different data formats gracefully"
+        "- Choose appropriate chart types (bar, line, pie, etc.)"
+        "- Add clear titles and axis labels"
     )
     args_schema: type[BaseModel] = MatplotlibChartInput
 
     def _run(self, python_code: str) -> str:
-        """Execute matplotlib code to generate chart"""
+        """Execute matplotlib code to generate chart with better error handling"""
         try:
             filepath = f"/tmp/{uuid.uuid4()}.png"
+            
+            # Get list of PNG files before execution to detect new ones
+            import glob
+            existing_pngs = set(glob.glob("*.png"))
             
             safe_globals = {
                 "pd": pd,
@@ -49,25 +61,58 @@ class MatplotlibChartTool(BaseTool):
             local_vars = {}
             exec(python_code, safe_globals, local_vars)
             
+            # Check if file was saved to expected path
             if os.path.exists(filepath):
                 return json.dumps({
-                    "text": "Chart generated successfully!",
+                    "text": "Chart created successfully!",
                     "file_info": {"status": "success", "filepath": filepath}
+                })
+            
+            # Check for new PNG files in current directory
+            current_pngs = set(glob.glob("*.png"))
+            new_pngs = current_pngs - existing_pngs
+            
+            if new_pngs:
+                # Found a new chart file in current directory
+                chart_file = list(new_pngs)[0]  # Take the first new PNG
+                full_path = os.path.abspath(chart_file)
+                return json.dumps({
+                    "text": "Chart created successfully!",
+                    "file_info": {"status": "success", "filepath": full_path}
                 })
             else:
                 return json.dumps({
-                    "text": "Chart generation failed",
+                    "text": "Chart generation failed - no file was created",
                     "file_info": {
                         "status": "error",
-                        "message": "No chart file was created. Make sure your code calls plt.savefig(filepath)."
+                        "error_type": "no_file_created",
+                        "message": "The code executed but no chart file was saved. Make sure to call plt.savefig(filepath) or plt.savefig('filename.png').",
+                        "suggestion": "Add plt.savefig(filepath) at the end of your plotting code"
                     }
                 })
                 
+        except SyntaxError as e:
+            return json.dumps({
+                "text": "Chart generation failed due to syntax error",
+                "file_info": {
+                    "status": "error",
+                    "error_type": "syntax_error", 
+                    "message": f"Python syntax error: {str(e)}",
+                    "line_number": getattr(e, 'lineno', None),
+                    "suggestion": "Check your Python code for syntax errors"
+                }
+            })
         except Exception as e:
             plt.close('all')
+            error_type = type(e).__name__
             return json.dumps({
-                "text": "Chart generation failed",
-                "file_info": {"status": "error", "message": f"Error executing chart code: {str(e)}"}
+                "text": f"Chart generation failed: {error_type}",
+                "file_info": {
+                    "status": "error",
+                    "error_type": error_type.lower(),
+                    "message": str(e),
+                    "suggestion": "Check your data format and plotting code. Make sure the data exists and is in the expected format."
+                }
             })
         
         finally:
