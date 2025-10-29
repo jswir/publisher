@@ -44,3 +44,4 @@ site/
 
 malloy_publisher_sdk/*
 !malloy_publisher_sdk/__init__.py
+!malloy_publisher_sdk/utils.py

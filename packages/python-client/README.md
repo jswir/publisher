@@ -54,6 +54,75 @@ asyncio.run(main())
 
 ---
 
+## Working with Pandas DataFrames
+
+The SDK includes utilities to convert Malloy query results into pandas DataFrames for easy data analysis:
+
+```python
+from malloy_publisher_sdk import Client, to_dataframe
+from malloy_publisher_sdk.api.queryresults import execute_query
+
+client = Client(base_url="http://localhost:4000/api/v0")
+
+# Execute a query
+result = execute_query.sync(
+    client=client,
+    project_name="malloy-samples",
+    package_name="faa",
+    path="airports.malloy",
+    query="""
+    run: airports -> {
+        group_by: state
+        aggregate: airport_count is count()
+        limit: 10
+    }
+    """
+)
+
+# Convert to pandas DataFrame
+df = to_dataframe(result)
+print(df.head())
+
+# Now use all pandas functionality
+top_states = df.sort_values("airport_count", ascending=False)
+print(top_states)
+```
+
+### Available Utilities
+
+- `to_dataframe(result)` - Convert QueryResult to pandas DataFrame
+- `to_dict(result)` - Convert QueryResult to list of dictionaries
+- `get_schema(result)` - Extract schema information from QueryResult
+
+### Jupyter Notebook Example
+
+```python
+# Perfect for data exploration in notebooks
+from malloy_publisher_sdk import Client, to_dataframe
+from malloy_publisher_sdk.api.queryresults import execute_query
+
+client = Client(base_url="http://localhost:4000/api/v0")
+
+result = execute_query.sync(
+    client=client,
+    project_name="malloy-samples",
+    package_name="faa",
+    path="flights.malloy",
+    query="run: flights -> { select: * limit: 100 }"
+)
+
+df = to_dataframe(result)
+
+# Explore with pandas
+df.describe()
+df.plot()
+df.to_csv("my_results.csv")
+```
+
+See [examples/pandas_notebook_example.py](examples/pandas_notebook_example.py) for a complete example.
+
+---
+
 ## Development
 
 ### Regenerating the SDK
