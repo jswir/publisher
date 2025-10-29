@@ -54,6 +54,50 @@ asyncio.run(main())
 
 ---
 
+## Authentication
+
+If your Malloy Publisher server requires authentication, use `AuthenticatedClient` with a bearer token:
+
+```python
+from malloy_publisher_sdk import AuthenticatedClient
+from malloy_publisher_sdk.api.queryresults import execute_query
+
+# Initialize with bearer token
+client = AuthenticatedClient(
+    base_url="http://localhost:4000/api/v0",
+    token="your-bearer-token-here"  # JWT or API token
+)
+
+# Or use environment variable (more secure)
+import os
+client = AuthenticatedClient(
+    base_url="http://localhost:4000/api/v0",
+    token=os.environ.get("MALLOY_TOKEN")
+)
+
+# Use the client normally - authentication happens automatically
+result = execute_query.sync(
+    client=client,
+    project_name="demo",
+    package_name="mypackage",
+    path="model.malloy",
+    query="run: source -> { select: * }"
+)
+```
+
+The `AuthenticatedClient` automatically adds the `Authorization: Bearer <token>` header to all requests. You can customize the prefix and header name if needed:
+
+```python
+client = AuthenticatedClient(
+    base_url="http://localhost:4000/api/v0",
+    token="your-token",
+    prefix="Bearer",  # Default, can be changed
+    auth_header_name="Authorization"  # Default, can be changed
+)
+```
+
+---
+
 ## Working with Pandas DataFrames
 
 The SDK includes utilities to convert Malloy query results into pandas DataFrames for easy data analysis:

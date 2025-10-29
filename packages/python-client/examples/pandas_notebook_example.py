@@ -7,13 +7,23 @@ and work with the results in pandas DataFrames.
 
 # %%
 # Import the SDK and utilities
-from malloy_publisher_sdk import Client, to_dataframe, to_dict
+from malloy_publisher_sdk import Client, AuthenticatedClient, to_dataframe, to_dict
 from malloy_publisher_sdk.api.queryresults import execute_query
+import os
 
 # %%
 # Initialize the client
 # Point this to your Malloy Publisher server
+
+# Option 1: Unauthenticated client (for local/dev servers)
 client = Client(base_url="http://localhost:4000/api/v0")
+
+# Option 2: Authenticated client (for production servers)
+# Uncomment and use this if your server requires authentication:
+# client = AuthenticatedClient(
+#     base_url="http://localhost:4000/api/v0",
+#     token=os.environ.get("MALLOY_TOKEN", "")
+# )
 
 # %%
 # Execute a query against a Malloy model
