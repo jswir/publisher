@@ -3,6 +3,7 @@ import { useQueryWithApiError } from "../../hooks/useQueryWithApiError";
 import { parseResourceUri } from "../../utils/formatting";
 import { ApiErrorDisplay } from "../ApiErrorDisplay";
 import { Loading } from "../Loading";
+import type { VegaConfigOverride } from "../RenderedResult/RenderedResult";
 import ResultContainer from "../RenderedResult/ResultContainer";
 import { useServer } from "../ServerProvider";
 
@@ -12,6 +13,7 @@ interface QueryResultProps {
    queryName?: string;
    resourceUri?: string;
    height?: number;
+   vegaConfigOverride?: VegaConfigOverride;
 }
 
 export function createEmbeddedQueryResult(props: QueryResultProps): string {
@@ -34,8 +36,10 @@ export function createEmbeddedQueryResult(props: QueryResultProps): string {
  */
 export function EmbeddedQueryResult({
    embeddedQueryResult,
+   vegaConfigOverride,
 }: {
    embeddedQueryResult: string;
+   vegaConfigOverride?: VegaConfigOverride;
 }): React.ReactElement {
    const { query, sourceName, queryName, resourceUri, height } = JSON.parse(
       embeddedQueryResult,
@@ -55,6 +59,7 @@ export function EmbeddedQueryResult({
          queryName={queryName}
          resourceUri={resourceUri}
          height={height}
+         vegaConfigOverride={vegaConfigOverride}
       />
    );
 }
@@ -65,6 +70,7 @@ export default function QueryResult({
    queryName,
    resourceUri,
    height = 400,
+   vegaConfigOverride,
 }: QueryResultProps) {
    const { modelPath, projectName, packageName, versionId } =
       parseResourceUri(resourceUri);
@@ -99,7 +105,11 @@ export default function QueryResult({
          )}
          {isSuccess && (
             <Suspense fallback={<div>Loading...</div>}>
-               <ResultContainer result={data.data.result} maxHeight={height} />
+               <ResultContainer
+                  result={data.data.result}
+                  maxHeight={height}
+                  vegaConfigOverride={vegaConfigOverride}
+               />
             </Suspense>
          )}
          {isError && (

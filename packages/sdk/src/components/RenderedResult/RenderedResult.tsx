@@ -2,6 +2,10 @@ import React, { Suspense, useLayoutEffect, useRef } from "react";
 
 type MalloyRenderElement = HTMLElement & Record<string, unknown>;
 
+export type VegaConfigOverride = (
+   chartType: string,
+) => Record<string, unknown> | undefined;
+
 declare global {
    // eslint-disable-next-line @typescript-eslint/no-namespace
    namespace JSX {
@@ -20,11 +24,13 @@ interface RenderedResultProps {
    isFillElement?: (boolean) => void;
    onSizeChange?: (height: number) => void;
    onDrill?: (element: unknown) => void;
+   vegaConfigOverride?: VegaConfigOverride;
 }
 
-// Simple dynamic import function
-const createRenderer = async (onDrill?: (element: unknown) => void) => {
-   // Only import when we're in a browser environment
+const createRenderer = async (
+   onDrill?: (element: unknown) => void,
+   vegaConfigOverride?: VegaConfigOverride,
+) => {
    if (typeof window === "undefined") {
       throw new Error("MalloyRenderer can only be used in browser environment");
    }
@@ -32,6 +38,7 @@ const createRenderer = async (onDrill?: (element: unknown) => void) => {
    const { MalloyRenderer } = await import("@malloydata/render");
    const renderer = new MalloyRenderer({
       onClick: onDrill,
+      vegaConfigOverride,
       onError: (error) => {
          console.error("Error rendering visualization:", typeof error, error);
       },
@@ -45,6 +52,7 @@ function RenderedResultInner({
    height: inputHeight,
    onDrill,
    onSizeChange,
+   vegaConfigOverride,
 }: RenderedResultProps) {
    const ref = useRef<HTMLDivElement>(null);
    const hasMeasuredRef = useRef(false);
@@ -99,7 +107,7 @@ function RenderedResultInner({
          }
       };
 
-      createRenderer(onDrill)
+      createRenderer(onDrill, vegaConfigOverride)
          .then((viz) => {
             if (!isMounted) return;
 
@@ -137,7 +145,7 @@ function RenderedResultInner({
          observer?.disconnect();
          if (measureTimeout) clearTimeout(measureTimeout);
       };
-   }, [result, onDrill, onSizeChange]);
+   }, [result, onDrill, onSizeChange, vegaConfigOverride]);
 
    // Malloy renderer requires explicit pixel height to render visualizations
    return (

@@ -20,6 +20,7 @@ import React, { useEffect, useState } from "react";
 import { highlight } from "../highlighter";
 import { ModelExplorerDialog } from "../Model/ModelExplorerDialog";
 import { createEmbeddedQueryResult } from "../QueryResult/QueryResult";
+import type { VegaConfigOverride } from "../RenderedResult/RenderedResult";
 import ResultContainer from "../RenderedResult/ResultContainer";
 import ResultsDialog from "../ResultsDialog";
 import { CleanMetricCard, CleanNotebookCell } from "../styles";
@@ -35,6 +36,7 @@ interface NotebookCellProps {
    index: number;
    maxResultSize?: number;
    isExecuting?: boolean;
+   vegaConfigOverride?: VegaConfigOverride;
 }
 
 export function NotebookCell({
@@ -45,6 +47,7 @@ export function NotebookCell({
    index,
    maxResultSize,
    isExecuting,
+   vegaConfigOverride,
 }: NotebookCellProps) {
    const [codeDialogOpen, setCodeDialogOpen] = React.useState<boolean>(false);
    const [embeddingDialogOpen, setEmbeddingDialogOpen] =
@@ -443,6 +446,7 @@ export function NotebookCell({
                         result={cell.result}
                         maxHeight={700}
                         maxResultSize={maxResultSize}
+                        vegaConfigOverride={vegaConfigOverride}
                      />
                   </Box>
 

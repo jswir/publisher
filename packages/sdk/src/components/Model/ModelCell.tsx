@@ -5,6 +5,7 @@ import React, { useEffect } from "react";
 import { useQueryWithApiError } from "../../hooks/useQueryWithApiError";
 import { parseResourceUri } from "../../utils/formatting";
 import { highlight } from "../highlighter";
+import type { VegaConfigOverride } from "../RenderedResult/RenderedResult";
 import ResultContainer from "../RenderedResult/ResultContainer";
 import ResultsDialog from "../ResultsDialog";
 import { useServer } from "../ServerProvider";
@@ -18,6 +19,7 @@ interface ModelCellProps {
    resourceUri: string;
    runOnDemand?: boolean;
    maxResultSize?: number;
+   vegaConfigOverride?: VegaConfigOverride;
 }
 
 export function ModelCell({
@@ -26,6 +28,7 @@ export function ModelCell({
    resourceUri,
    runOnDemand = false,
    maxResultSize = 0,
+   vegaConfigOverride,
 }: ModelCellProps) {
    const [highlightedAnnotations, setHighlightedAnnotations] =
       React.useState<string>();
@@ -177,6 +180,7 @@ export function ModelCell({
                      result={queryData.data.result}
                      maxHeight={600}
                      maxResultSize={maxResultSize}
+                     vegaConfigOverride={vegaConfigOverride}
                   />
                )}
          </CleanMetricCard>

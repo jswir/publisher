@@ -2,6 +2,7 @@ import { Warning } from "@mui/icons-material";
 import { Box, Button, Typography } from "@mui/material";
 import { lazy, Suspense, useRef, useState } from "react";
 import { Loading } from "../Loading";
+import type { VegaConfigOverride } from "./RenderedResult";
 
 const RenderedResult = lazy(() => import("../RenderedResult/RenderedResult"));
 
@@ -12,6 +13,7 @@ interface ResultContainerProps {
    // this is to prevent performance issues with large results.
    // the default is 0, which means no warning will be shown.
    maxResultSize?: number;
+   vegaConfigOverride?: VegaConfigOverride;
 }
 
 // ResultContainer is a component that renders a result, with a toggle button to expand/collapse the result.
@@ -22,6 +24,7 @@ export default function ResultContainer({
    result,
    maxHeight,
    maxResultSize = 0,
+   vegaConfigOverride,
 }: ResultContainerProps) {
    const containerRef = useRef<HTMLDivElement>(null);
    const [measuredHeight, setMeasuredHeight] = useState(maxHeight);
@@ -87,6 +90,7 @@ export default function ResultContainer({
                   result={result}
                   height={renderedHeight}
                   onSizeChange={setMeasuredHeight}
+                  vegaConfigOverride={vegaConfigOverride}
                />
             </Suspense>
          )}

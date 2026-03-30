@@ -26,6 +26,7 @@ import {
 
 import { parseResourceUri } from "../../utils/formatting";
 import { Loading } from "../Loading";
+import type { VegaConfigOverride } from "../RenderedResult/RenderedResult";
 import { useServer } from "../ServerProvider";
 import { CleanNotebookContainer, CleanNotebookSection } from "../styles";
 import { NotebookCell } from "./NotebookCell";
@@ -39,6 +40,7 @@ interface NotebookProps {
    maxResultSize?: number;
    /** Optional retrieval function for semantic search filters */
    retrievalFn?: RetrievalFunction;
+   vegaConfigOverride?: VegaConfigOverride;
 }
 
 // Requires PackageProvider
@@ -46,6 +48,7 @@ export default function Notebook({
    resourceUri,
    maxResultSize = 0,
    retrievalFn,
+   vegaConfigOverride,
 }: NotebookProps) {
    const { apiClients } = useServer();
    const {
@@ -473,6 +476,7 @@ export default function Notebook({
                         resourceUri={resourceUri}
                         maxResultSize={maxResultSize}
                         isExecuting={isExecuting}
+                        vegaConfigOverride={vegaConfigOverride}
                      />
                   ))}
 

@@ -24,6 +24,7 @@ import {
    QueryExplorerResult,
    SourceAndPath,
 } from "../Model/SourcesExplorer";
+import type { VegaConfigOverride } from "../RenderedResult/RenderedResult";
 import ResultContainer from "../RenderedResult/ResultContainer";
 import { StyledCard } from "../styles";
 import { EditableMalloyCell } from "./EditableMalloyCell";
@@ -40,6 +41,7 @@ interface NotebookCellProps {
    onEdit: () => void;
    onDelete: () => void;
    addButtonCallback: (isMarkdown: boolean) => React.ReactNode;
+   vegaConfigOverride?: VegaConfigOverride;
 }
 
 export function MutableCell({
@@ -53,6 +55,7 @@ export function MutableCell({
    onEdit,
    onDelete,
    addButtonCallback,
+   vegaConfigOverride,
 }: NotebookCellProps) {
    const [value, setValue] = useState(cell.value);
    const [codeExpanded, setCodeExpanded] = React.useState<boolean>(false);
@@ -423,7 +426,11 @@ export function MutableCell({
                   ))}
                {!editingMalloy && cell.result && (
                   <StyledCard variant="outlined" sx={{ borderRadius: 0 }}>
-                     <ResultContainer result={cell.result} maxHeight={800} />
+                     <ResultContainer
+                        result={cell.result}
+                        maxHeight={800}
+                        vegaConfigOverride={vegaConfigOverride}
+                     />
                   </StyledCard>
                )}
                {!editingMalloy && !cell.result && (
