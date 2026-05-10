@@ -61,6 +61,11 @@ export class Environment {
    private environmentName: string;
    public metadata: ApiEnvironment;
 
+   /** Absolute path on disk where this environment's package files live. */
+   public getEnvironmentPath(): string {
+      return this.environmentPath;
+   }
+
    constructor(
       environmentName: string,
       environmentPath: string,

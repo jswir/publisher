@@ -93,6 +93,26 @@ export default function Package({
          ),
    });
 
+   // List of HTML pages bundled inside the package (in-package data apps).
+   // Hits the new /pages endpoint directly via fetch — not part of the
+   // OpenAPI client yet, so we don't go through apiClients here.
+   const pagesQuery = useQueryWithApiError({
+      queryKey: ["pages", environmentName, packageName, versionId],
+      queryFn: async () => {
+         const url = `/api/v0/environments/${encodeURIComponent(
+            environmentName,
+         )}/packages/${encodeURIComponent(packageName)}/pages`;
+         const res = await fetch(url, { credentials: "include" });
+         if (!res.ok) {
+            // Don't blow up the whole package page if the endpoint isn't
+            // available (e.g. when running against an older Publisher).
+            return { data: { pages: [] } };
+         }
+         return { data: (await res.json()) as { pages: { path: string; title: string }[] } };
+      },
+   });
+   const pages = pagesQuery.data?.data?.pages ?? [];
+
    const notebooks = (notebooksQuery.data?.data ?? [])
       .slice()
       .sort((a, b) => a.path.localeCompare(b.path));
@@ -212,6 +232,32 @@ export default function Package({
                   ))}
                   {databases.length === 0 && <EmptyRow label="No data files" />}
                </PackageSection>
+
+               {pages.length > 0 && (
+                  <PackageSection title="Pages" count={pages.length}>
+                     {pages.map((page) => (
+                        <PackageItemRow
+                           key={page.path}
+                           icon={<ContentTypeIcon type="report" />}
+                           tint={MALLOY_BRAND.teal}
+                           label={page.title || page.path}
+                           rightLabel={page.path}
+                           onClick={(event) => {
+                              const url = `/environments/${encodeURIComponent(
+                                 environmentName,
+                              )}/packages/${encodeURIComponent(
+                                 packageName,
+                              )}/${page.path}`;
+                              if (event && (event.metaKey || event.ctrlKey)) {
+                                 window.open(url, "_blank");
+                              } else {
+                                 window.location.href = url;
+                              }
+                           }}
+                        />
+                     ))}
+                  </PackageSection>
+               )}
 
                <Box sx={{ mb: 4 }}>
                   <Connections resourceUri={resourceUri} />

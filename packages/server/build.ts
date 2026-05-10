@@ -29,6 +29,9 @@ await build({
 
 fs.cpSync("../app/dist", "./dist/app", { recursive: true });
 
+// Copy hand-authored vanilla-JS runtime served at /sdk/publisher.js.
+fs.cpSync("./src/runtime", "./dist/runtime", { recursive: true });
+
 // Rename ESM outputs to .mjs so both Node and Bun can execute them
 fs.renameSync("./dist/server.js", "./dist/server.mjs");
 fs.renameSync("./dist/instrumentation.js", "./dist/instrumentation.mjs");

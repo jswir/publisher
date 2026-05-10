@@ -245,6 +245,211 @@ mcpApp.all(MCP_ENDPOINT, async (req, res) => {
    }
 });
 
+// ---------------------------------------------------------------------------
+// In-package HTML data apps
+// ---------------------------------------------------------------------------
+// These routes must come before the SPA catch-all and (in dev) the Vite proxy
+// so that:
+//   - `/sdk/publisher.js`     → Publisher runtime helper
+//   - `/environments/<env>/packages/<pkg>/<file.ext>` → static file from
+//                                                       inside the package dir
+//   - `/api/v0/.../watch`     → live-reload SSE (registered in API routes
+//                                below; this comment is the cross-reference)
+
+// Serve the runtime helper that in-package HTML pages load via
+// <script src="/sdk/publisher.js">. Read once at module load for speed.
+const PUBLISHER_RUNTIME_PATH = path.join(
+   path.dirname(__filename_esm),
+   "runtime",
+   "publisher.js",
+);
+app.get("/sdk/publisher.js", (_req, res) => {
+   res.type("application/javascript");
+   // Short cache so live edits during local dev show up quickly. In
+   // production this file is content-stable per release.
+   res.setHeader("cache-control", "public, max-age=60");
+   res.sendFile(PUBLISHER_RUNTIME_PATH, (err) => {
+      if (err) {
+         logger.error("Failed to send publisher.js runtime", { error: err });
+         if (!res.headersSent) res.status(500).end();
+      }
+   });
+});
+
+// Serve files from inside a package directory at
+//   /environments/<env>/packages/<pkg>/<relative-path>
+//
+// This route fully owns its prefix — it does NOT fall through to the SPA on
+// missing files, because doing so would mask 404s (and in dev mode the SPA
+// catch-all errors out before it can reply). Behavior:
+//   - `/environments/<env>/packages/<pkg>`      → 302 to `…/<pkg>/`
+//   - `/environments/<env>/packages/<pkg>/`     → serve `<pkgRoot>/index.html`
+//   - `/environments/<env>/packages/<pkg>/foo/` → serve `<pkgRoot>/foo/index.html`
+//   - `/environments/<env>/packages/<pkg>/<file>` → serve that file, or 404
+//   - `…/publisher.json` → 404 (manifest is private)
+async function serveFromPackage(
+   req: express.Request,
+   res: express.Response,
+): Promise<void> {
+   const subPathRaw = (req.params as Record<string, string>)["0"] ?? "";
+   try {
+      const environment = await environmentStore.getEnvironment(
+         req.params.environmentName,
+         false,
+      );
+      const pkg = await environment.getPackage(req.params.packageName, false);
+      const pkgRoot = pkg.getPackagePath();
+
+      // Directory-style fallback: empty path or trailing slash → look for
+      // index.html within that directory.
+      let subPath = subPathRaw;
+      if (subPath === "" || subPath.endsWith("/")) {
+         subPath = subPath + "index.html";
+      }
+
+      const fullPath = path.resolve(pkgRoot, subPath);
+      const rel = path.relative(pkgRoot, fullPath);
+      if (rel.startsWith("..") || path.isAbsolute(rel)) {
+         res.status(403).end();
+         return;
+      }
+      if (rel === "publisher.json") {
+         res.status(404).end();
+         return;
+      }
+      // Allow these pages to be embedded from any origin. A stricter allowlist
+      // could be added later via env var; for now permit all so Tier-1
+      // same-tenant embeds work out of the box across subdomains.
+      res.setHeader("Content-Security-Policy", "frame-ancestors *");
+      res.removeHeader("X-Frame-Options");
+      res.sendFile(fullPath, (err) => {
+         if (err) {
+            // Own the 404 instead of letting Express fall through to a
+            // catch-all that may error.
+            if (!res.headersSent) {
+               res
+                  .status(404)
+                  .type("text/plain")
+                  .send(
+                     `Not found in package ${req.params.packageName}: ${subPath}`,
+                  );
+            }
+         }
+      });
+   } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (!res.headersSent) {
+         res.status(404).type("text/plain").send(msg);
+      }
+   }
+}
+
+// `/environments/<env>/packages/<pkg>` (no trailing slash, no path) — redirect
+// so relative URLs in the served HTML resolve as expected. Express's default
+// loose matching also catches the trailing-slash form here, so guard the
+// redirect to only fire on URLs that don't already end with `/`.
+app.get(
+   "/environments/:environmentName/packages/:packageName",
+   (req, res, next) => {
+      // The trailing-slash variant should fall through to the wildcard route
+      // below where it is served as the package's index.html.
+      const idx = req.originalUrl.indexOf("?");
+      const pathPart = idx === -1 ? req.originalUrl : req.originalUrl.slice(0, idx);
+      if (pathPart.endsWith("/")) return next();
+      res.redirect(308, req.originalUrl + "/");
+   },
+);
+
+app.get(
+   "/environments/:environmentName/packages/:packageName/*",
+   serveFromPackage,
+);
+
+// List the static HTML pages bundled inside a package. Used by the SPA's
+// package-detail view to surface a clickable list, and by anyone who wants
+// to discover pages programmatically without scraping the directory.
+//
+// Returns: { pages: [{ path: "index.html", title: "Title from <title> tag" }] }
+// Recursive depth is capped to keep this cheap for huge package directories.
+const PAGES_DEPTH_CAP = 3;
+async function listPackagePages(pkgRoot: string): Promise<
+   { path: string; title: string }[]
+> {
+   const fs = await import("fs/promises");
+   const out: { path: string; title: string }[] = [];
+
+   async function walk(dir: string, depth: number) {
+      if (depth > PAGES_DEPTH_CAP) return;
+      let entries: import("fs").Dirent[];
+      try {
+         entries = await fs.readdir(dir, { withFileTypes: true });
+      } catch {
+         return;
+      }
+      for (const entry of entries) {
+         if (entry.name.startsWith(".") || entry.name === "node_modules")
+            continue;
+         const full = path.join(dir, entry.name);
+         if (entry.isDirectory()) {
+            await walk(full, depth + 1);
+         } else if (
+            entry.isFile() &&
+            (entry.name.endsWith(".html") || entry.name.endsWith(".htm"))
+         ) {
+            const rel = path.relative(pkgRoot, full).replace(/\\/g, "/");
+            // Cheap title extraction: read first 4KB and grep for <title>.
+            let title = rel;
+            try {
+               const fh = await fs.open(full, "r");
+               try {
+                  const buf = Buffer.alloc(4096);
+                  const { bytesRead } = await fh.read(buf, 0, 4096, 0);
+                  const head = buf.slice(0, bytesRead).toString("utf8");
+                  const m = head.match(/<title[^>]*>([^<]+)<\/title>/i);
+                  if (m) title = m[1].trim();
+               } finally {
+                  await fh.close();
+               }
+            } catch {
+               // ignore; fall back to relative path as title
+            }
+            out.push({ path: rel, title });
+         }
+      }
+   }
+
+   await walk(pkgRoot, 0);
+   out.sort((a, b) => {
+      // Surface index.html first, then alphabetical.
+      if (a.path === "index.html") return -1;
+      if (b.path === "index.html") return 1;
+      return a.path.localeCompare(b.path);
+   });
+   return out;
+}
+
+app.get(
+   `${API_PREFIX}/environments/:environmentName/packages/:packageName/pages`,
+   async (req, res) => {
+      try {
+         const environment = await environmentStore.getEnvironment(
+            req.params.environmentName,
+            false,
+         );
+         const pkg = await environment.getPackage(
+            req.params.packageName,
+            false,
+         );
+         const pages = await listPackagePages(pkg.getPackagePath());
+         res.json({ pages });
+      } catch (error) {
+         logger.error("Failed to list package pages", { error });
+         const { json, status } = internalErrorToHttpError(error as Error);
+         res.status(status).json(json);
+      }
+   },
+);
+
 // Only serve static files in production mode
 // Otherwise we proxy to the React dev server
 if (!isDevelopment) {
@@ -316,6 +521,48 @@ app.get(`${API_PREFIX}/status`, async (_req, res) => {
 app.get(`${API_PREFIX}/watch-mode/status`, watchModeController.getWatchStatus);
 app.post(`${API_PREFIX}/watch-mode/start`, watchModeController.startWatching);
 app.post(`${API_PREFIX}/watch-mode/stop`, watchModeController.stopWatchMode);
+
+// Live-reload Server-Sent Events stream for in-package HTML dashboards.
+// Auto-starts watch-mode for the requested environment on first connection,
+// so the out-of-the-box developer experience is "open the page, edits hot-reload."
+app.get(
+   `${API_PREFIX}/environments/:environmentName/packages/:packageName/watch`,
+   async (req, res) => {
+      const env = req.params.environmentName;
+      const pkg = req.params.packageName;
+      try {
+         await watchModeController.ensureWatching(env);
+      } catch (error) {
+         logger.error("watch SSE: failed to start watcher", { error, env });
+         res.status(500).end();
+         return;
+      }
+      res.set({
+         "content-type": "text/event-stream",
+         "cache-control": "no-cache",
+         connection: "keep-alive",
+         // Disable proxy/CDN buffering so events flush immediately.
+         "x-accel-buffering": "no",
+      });
+      res.flushHeaders();
+      res.write("event: hello\ndata: connected\n\n");
+      const key = `${env}/${pkg}`;
+      const send = () => {
+         res.write("event: changed\ndata: changed\n\n");
+      };
+      watchModeController.events.on(key, send);
+      // Keep the connection alive through idle proxies (heartbeat every 25s).
+      const heartbeat = setInterval(() => {
+         res.write(": heartbeat\n\n");
+      }, 25000);
+      const cleanup = () => {
+         clearInterval(heartbeat);
+         watchModeController.events.off(key, send);
+      };
+      req.on("close", cleanup);
+      req.on("aborted", cleanup);
+   },
+);
 
 app.get(`${API_PREFIX}/environments`, async (_req, res) => {
    try {
@@ -1382,7 +1629,28 @@ registerLegacyRoutes(app, {
 
 // Modify the catch-all route to only serve index.html in production
 if (!isDevelopment) {
-   app.get("*", (_req, res) => res.sendFile(path.resolve(ROOT, "index.html")));
+   const SPA_INDEX = path.resolve(ROOT, "index.html");
+   app.get("*", (req, res) => {
+      res.sendFile(SPA_INDEX, (err) => {
+         if (!err) return;
+         // The SPA bundle isn't built. This happens when running directly
+         // from source (`bun run src/server.ts`) without first running
+         // `bun run build:app`. Return a friendly placeholder rather than
+         // a 500, and surface package URLs the user might be looking for.
+         if (res.headersSent) return;
+         res.status(404).type("text/html").send(
+            `<!doctype html><meta charset="utf-8">
+<title>Publisher</title>
+<style>body{font:14px/1.4 -apple-system,system-ui,sans-serif;margin:40px;max-width:720px;color:#222}</style>
+<h1>Publisher is running, but the SPA bundle isn't built.</h1>
+<p>You requested <code>${req.path.replace(/[<>&]/g, (c) => ({"<":"&lt;",">":"&gt;","&":"&amp;"})[c] ?? c)}</code>.
+The Publisher API is available at <a href="/api/v0/environments">/api/v0/environments</a>.</p>
+<p>To get the Publisher web UI, run <code>cd packages/app &amp;&amp; bunx vite build</code>
+or start the server with <code>NODE_ENV=development</code> after launching Vite on <code>:5173</code>.</p>
+<p>For in-package HTML data apps, browse to <code>/environments/&lt;env&gt;/packages/&lt;pkg&gt;/&lt;file&gt;</code> directly.</p>`,
+         );
+      });
+   });
 }
 
 app.use(
