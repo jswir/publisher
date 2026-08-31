@@ -1568,6 +1568,45 @@ app.get(
 );
 
 app.get(
+   `${API_PREFIX}/environments/:environmentName/packages/:packageName/dashboards/:dashboardName/source`,
+   async (req, res) => {
+      try {
+         res.status(200).json(
+            await dashboardController.getDashboardSource(
+               req.params.environmentName,
+               req.params.packageName,
+               req.params.dashboardName,
+            ),
+         );
+      } catch (error) {
+         logger.error(error);
+         const { json, status } = internalErrorToHttpError(error as Error);
+         res.status(status).json(json);
+      }
+   },
+);
+
+app.put(
+   `${API_PREFIX}/environments/:environmentName/packages/:packageName/dashboards/:dashboardName/source`,
+   async (req, res) => {
+      try {
+         res.status(200).json(
+            await dashboardController.putDashboardSource(
+               req.params.environmentName,
+               req.params.packageName,
+               req.params.dashboardName,
+               req.body.source,
+            ),
+         );
+      } catch (error) {
+         logger.error(error);
+         const { json, status } = internalErrorToHttpError(error as Error);
+         res.status(status).json(json);
+      }
+   },
+);
+
+app.get(
    `${API_PREFIX}/environments/:environmentName/packages/:packageName/notebooks`,
    async (req, res) => {
       if (req.query.versionId) {
@@ -1763,6 +1802,7 @@ app.post(
             req.body.source,
             req.body.includeSql === true,
             req.body.givens as Record<string, GivenValue> | undefined,
+            req.body.scope === "file" ? "file" : "append",
          );
          res.status(200).json(result);
       } catch (error) {

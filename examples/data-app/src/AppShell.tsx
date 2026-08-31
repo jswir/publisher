@@ -19,7 +19,11 @@ import type { AppView } from "./types/view";
 export default function AppShell() {
   const [mode, setMode] = useState<PaletteMode>("light");
   const defaultTheme = useMemo(
-    () => createTheme({ palette: { mode } }),
+    () =>
+      createTheme({
+        cssVariables: { nativeColor: true },
+        palette: { mode },
+      }),
     [mode],
   );
   const [selectedView, setSelectedView] = useState<AppView>("storefront");

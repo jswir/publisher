@@ -15,6 +15,7 @@ export class CompileController {
       source: string,
       includeSql: boolean = false,
       givens?: Record<string, GivenValue>,
+      scope: "append" | "file" = "append",
    ): Promise<{ status: string; problems: LogMessage[]; sql?: string }> {
       const environment = await this.environmentStore.getEnvironment(
          environmentName,
@@ -26,6 +27,7 @@ export class CompileController {
          source,
          includeSql,
          givens,
+         { replace: scope === "file" },
       );
 
       // Determine overall status based on presence of errors

@@ -1775,6 +1775,91 @@ paths:
         "503":
           $ref: "#/components/responses/ServiceUnavailable"
 
+  /environments/{environmentName}/packages/{packageName}/dashboards/{dashboardName}/source:
+    get:
+      tags:
+        - dashboards
+      operationId: get-dashboard-source
+      summary: Get dashboard Malloy source
+      description: |
+        Returns the raw text of `dashboards/{dashboardName}.malloy`. Local-dir
+        packages only need this to populate the in-app editor.
+      parameters:
+        - name: environmentName
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/IdentifierPattern"
+        - name: packageName
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/IdentifierPattern"
+        - name: dashboardName
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/IdentifierPattern"
+      responses:
+        "200":
+          description: The dashboard file text
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSource"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    put:
+      tags:
+        - dashboards
+      operationId: put-dashboard-source
+      summary: Write dashboard Malloy source
+      description: |
+        Compiles `source` as `dashboards/{dashboardName}.malloy`, then writes
+        the file and reloads the package in place. Remote (github/gcs/s3)
+        packages are rejected. A compile error does not write.
+      parameters:
+        - name: environmentName
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/IdentifierPattern"
+        - name: packageName
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/IdentifierPattern"
+        - name: dashboardName
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/IdentifierPattern"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DashboardSource"
+      responses:
+        "200":
+          description: The written source and compile problems
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSourceWriteResult"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
   /environments/{environmentName}/packages/{packageName}/notebooks:
     get:
       tags:
@@ -3240,6 +3325,30 @@ components:
             given is ignored. Absent when the tile expression is not one
             discovery can resolve, in which case send the whole control row.
 
+    DashboardSource:
+      type: object
+      description: Raw Malloy text of a dashboard file
+      required:
+        - source
+      properties:
+        source:
+          type: string
+          description: Full contents of `dashboards/{name}.malloy`
+
+    DashboardSourceWriteResult:
+      type: object
+      description: Result of writing a dashboard file
+      required:
+        - source
+        - problems
+      properties:
+        source:
+          type: string
+        problems:
+          type: array
+          items:
+            $ref: "#/components/schemas/CompileProblem"
+
     GivenSuggest:
       type: object
       description:
@@ -4386,6 +4495,14 @@ components:
             runnable query).
         givens:
           $ref: "#/components/schemas/GivenValues"
+        scope:
+          type: string
+          enum: ["append", "file"]
+          default: append
+          description: |
+            `append` (default) concatenates `source` onto the on-disk model.
+            `file` compiles `source` as the whole file — required to validate
+            an edit of `dashboards/*.malloy`.
       required:
         - source
 

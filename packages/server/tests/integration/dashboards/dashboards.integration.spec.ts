@@ -786,4 +786,95 @@ describe("Dashboard discovery (E2E)", () => {
          );
       });
    });
+
+   describe("dashboard source GET/PUT", () => {
+      const authoredPath = path.join(fixtureDir, "dashboards", "authored.malloy");
+
+      afterAll(async () => {
+         await Bun.write(authoredPath, "").catch(() => {});
+         try {
+            const { unlink } = await import("fs/promises");
+            await unlink(authoredPath);
+         } catch {
+            // best-effort cleanup of the write-test artifact
+         }
+      });
+
+      it("returns the on-disk Malloy for an existing dashboard", async () => {
+         const res = await fetch(apiUrl("/dashboards/overview/source"));
+         expect(res.status).toBe(200);
+         const body = (await res.json()) as { source: string };
+         expect(body.source).toContain("# artifact");
+         expect(body.source).toContain("query: overview is orders");
+      });
+
+      it("writes a new dashboard that then appears in the list", async () => {
+         const source = `##! experimental.givens
+import { orders } from '../orders.malloy'
+# artifact { title="Authored" } dashboard { columns=12 }
+query: authored is orders -> {
+  aggregate: order_count
+}
+`;
+         const put = await fetch(apiUrl("/dashboards/authored/source"), {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ source }),
+         });
+         expect(put.status).toBe(200);
+         const written = (await put.json()) as { source: string };
+         expect(written.source).toBe(source);
+
+         const list = await fetch(apiUrl("/dashboards"));
+         expect(list.status).toBe(200);
+         const names = ((await list.json()) as DashboardItem[]).map((d) => d.name);
+         expect(names).toContain("authored");
+      });
+
+      it("does not write when compile fails", async () => {
+         const put = await fetch(apiUrl("/dashboards/overview/source"), {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ source: "not malloy at all" }),
+         });
+         expect(put.status).toBe(400);
+
+         const get = await fetch(apiUrl("/dashboards/overview/source"));
+         expect(get.status).toBe(200);
+         const body = (await get.json()) as { source: string };
+         expect(body.source).toContain("query: overview is orders");
+      });
+
+      it("compiles a full file with scope=file instead of appending", async () => {
+         const get = await fetch(apiUrl("/dashboards/overview/source"));
+         const { source } = (await get.json()) as { source: string };
+
+         const append = await fetch(
+            `${baseUrl}/api/v0/environments/${ENV_NAME}/packages/${PACKAGE_NAME}/models/dashboards/overview.malloy/compile`,
+            {
+               method: "POST",
+               headers: { "Content-Type": "application/json" },
+               body: JSON.stringify({ source, scope: "append" }),
+            },
+         );
+         expect(append.status).toBe(200);
+         const appendBody = (await append.json()) as {
+            status: string;
+            problems: { severity?: string; message?: string }[];
+         };
+         expect(appendBody.status).toBe("error");
+
+         const file = await fetch(
+            `${baseUrl}/api/v0/environments/${ENV_NAME}/packages/${PACKAGE_NAME}/models/dashboards/overview.malloy/compile`,
+            {
+               method: "POST",
+               headers: { "Content-Type": "application/json" },
+               body: JSON.stringify({ source, scope: "file" }),
+            },
+         );
+         expect(file.status).toBe(200);
+         const fileBody = (await file.json()) as { status: string };
+         expect(fileBody.status).toBe("success");
+      });
+   });
 });

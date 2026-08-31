@@ -134,6 +134,8 @@ function SourceExplorerComponentInner({
       ResizableCollapsiblePanel,
       ResultPanel,
       SourcePanel,
+      CodeEditorContext,
+      malloyToQuery,
    } = explorerComponents;
 
    React.useEffect(() => {
@@ -250,6 +252,7 @@ function SourceExplorerComponentInner({
             overflow: "hidden",
          }}
       >
+         <CodeEditorContext.Provider value={{ malloyToQuery }}>
          <MalloyExplorerProvider
             source={sourceAndPath.sourceInfo}
             query={query?.malloyQuery}
@@ -307,6 +310,7 @@ function SourceExplorerComponentInner({
                />
             </div>
          </MalloyExplorerProvider>
+         </CodeEditorContext.Provider>
       </StyledExplorerContent>
    );
 }

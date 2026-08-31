@@ -14,8 +14,10 @@ import {
    README_NAME,
 } from "../constants";
 import {
+   AccessDeniedError,
    BadRequestError,
    ConnectionNotFoundError,
+   DashboardNotFoundError,
    EnvironmentNotFoundError,
    PackageNotFoundError,
    ServiceUnavailableError,
@@ -46,6 +48,8 @@ import {
 import { ApiConnection } from "./model";
 import { Package } from "./package";
 import type { PackageMemoryGovernor } from "./package_memory_governor";
+import { DASHBOARDS_DIR, isDashboardModelPath } from "./dashboard";
+import { isRemotePackageLocation } from "./package_location";
 
 /**
  * Sibling dirs under `environmentPath` used by the install/delete pipeline so
@@ -347,6 +351,7 @@ export class Environment {
       source: string,
       includeSql: boolean = false,
       givens?: Record<string, GivenValue>,
+      options?: { replace?: boolean },
    ): Promise<{ problems: LogMessage[]; sql?: string }> {
       assertSafePackageName(packageName);
       assertSafeRelativeModelPath(modelName);
@@ -391,18 +396,24 @@ export class Environment {
          );
          const virtualUri = virtualUrl.toString();
 
-         // Read the full model file so the submitted source inherits the model's
-         // complete namespace — imports, source definitions, queries, etc.
-         let modelContent = "";
-         try {
-            modelContent = await fs.promises.readFile(modelPath, "utf8");
-         } catch {
-            // If the model file can't be read, proceed with empty content
-            // and let compilation surface any errors naturally.
+         // Default /compile appends so the submitted fragment inherits the
+         // model's namespace. `replace` compiles the submitted text AS the
+         // file — required to validate an edit (append collides with
+         // "Cannot redefine") or a new `dashboards/*.malloy`.
+         const replace = options?.replace === true;
+         let fullSource = source;
+         if (!replace) {
+            let modelContent = "";
+            try {
+               modelContent = await fs.promises.readFile(modelPath, "utf8");
+            } catch {
+               // If the model file can't be read, proceed with empty content
+               // and let compilation surface any errors naturally.
+            }
+            fullSource = modelContent
+               ? `${modelContent}\n${source}`
+               : source;
          }
-         const fullSource = modelContent
-            ? `${modelContent}\n${source}`
-            : source;
 
          // Create a URL Reader that serves the source string for the virtual file,
          // but falls back to the disk for everything else (imports).
@@ -428,7 +439,11 @@ export class Environment {
          // `given:` block + authorize annotations), independent of the virtual
          // compile below. If the model isn't loaded, there's nothing to enforce
          // and compilation surfaces its own error.
-         const gateModel = pkg.getModel(modelName);
+         // A dashboard file compiled as itself is not an ad-hoc query against
+         // a curated model; skip the explore/authorize gate (runtime query
+         // still enforces it). Append-compile against a real model is unchanged.
+         const skipGate = replace && isDashboardModelPath(modelName);
+         const gateModel = skipGate ? undefined : pkg.getModel(modelName);
          if (gateModel) {
             // Query boundary first (the *what* axis): /compile compiles ad-hoc
             // text against a model, so gate it like an ad-hoc query — a
@@ -1614,6 +1629,104 @@ export class Environment {
       });
    }
 
+   /**
+    * Raw text of `dashboards/{name}.malloy` from disk. The file can exist as
+    * a shared include (no `# artifact`) and still be readable here — listing
+    * is a different question.
+    */
+   public async getDashboardSource(
+      packageName: string,
+      dashboardName: string,
+   ): Promise<{ source: string }> {
+      assertSafePackageName(packageName);
+      const modelPath = dashboardModelPath(dashboardName);
+      return this.withPackageLock(packageName, async () => {
+         const pkg = this.packages.get(packageName);
+         if (!pkg) {
+            throw new PackageNotFoundError(
+               `Package ${packageName} is not loaded`,
+            );
+         }
+         const fullPath = safeJoinUnderRoot(
+            this.environmentPath,
+            packageName,
+            modelPath,
+         );
+         try {
+            const source = await fs.promises.readFile(fullPath, "utf8");
+            return { source };
+         } catch (error) {
+            const code = (error as NodeJS.ErrnoException).code;
+            if (code === "ENOENT") {
+               throw new DashboardNotFoundError(
+                  `Dashboard ${dashboardName} does not exist in package ${packageName}`,
+               );
+            }
+            throw error;
+         }
+      });
+   }
+
+   /**
+    * Compile `source` as `dashboards/{name}.malloy`, then write it and
+    * reload in place. Remote (github/gcs/s3) packages are rejected: a later
+    * reinstall would overwrite the write. Failed compile does not touch disk.
+    */
+   public async writeDashboardSource(
+      packageName: string,
+      dashboardName: string,
+      source: string,
+   ): Promise<{ source: string; problems: LogMessage[] }> {
+      assertSafePackageName(packageName);
+      const modelPath = dashboardModelPath(dashboardName);
+      if (typeof source !== "string") {
+         throw new BadRequestError("source is required");
+      }
+
+      const pkg = await this.getPackage(packageName, false);
+      if (isRemotePackageLocation(pkg.getPackageMetadata().location)) {
+         throw new AccessDeniedError(
+            `Cannot write dashboards in package ${packageName}: its location is remote (github/gcs/s3). Author on a local-dir package.`,
+         );
+      }
+
+      const { problems } = await this.compileSource(
+         packageName,
+         modelPath,
+         source,
+         false,
+         undefined,
+         { replace: true },
+      );
+      const errors = problems.filter((p) => p.severity === "error");
+      if (errors.length > 0) {
+         throw new BadRequestError(
+            errors.map((p) => p.message).join("\n") ||
+               "Dashboard source failed to compile",
+         );
+      }
+
+      await this.withPackageLock(packageName, async () => {
+         const dir = safeJoinUnderRoot(
+            this.environmentPath,
+            packageName,
+            DASHBOARDS_DIR,
+         );
+         const fullPath = safeJoinUnderRoot(
+            this.environmentPath,
+            packageName,
+            modelPath,
+         );
+         await fs.promises.mkdir(dir, { recursive: true });
+         await fs.promises.writeFile(fullPath, source, "utf8");
+      });
+
+      // In-place reload only — never reinstall. A failed reload keeps the
+      // last-good compiled model serving; the new file is already on disk.
+      await this.getPackage(packageName, true);
+      return { source, problems };
+   }
+
    private async writePackageManifest(
       packageName: string,
       metadata: {
@@ -2094,6 +2207,16 @@ export class Environment {
          `Removed DuckLake connection ${connectionName} from environment ${this.environmentName}`,
       );
    }
+}
+
+function dashboardModelPath(dashboardName: string): string {
+   assertSafePackageName(dashboardName);
+   const modelPath = `${DASHBOARDS_DIR}/${dashboardName}.malloy`;
+   assertSafeRelativeModelPath(modelPath);
+   if (!isDashboardModelPath(modelPath)) {
+      throw new BadRequestError(`Invalid dashboard name`);
+   }
+   return modelPath;
 }
 
 /**

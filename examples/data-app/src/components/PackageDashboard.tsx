@@ -1,9 +1,20 @@
 import {
   Dashboard,
+  DashboardSourceEditor,
   encodeResourceUri,
   type DrillNavigation,
 } from "@malloy-publisher/sdk";
-import { Alert, Box, Stack, Tab, Tabs, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Button,
+  Dialog,
+  DialogContent,
+  Stack,
+  Tab,
+  Tabs,
+  Typography,
+} from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import Header from "./Header";
 import type { AppView } from "../types/view";
@@ -38,14 +49,14 @@ export default function PackageDashboard({
   const [selected, setSelected] = useState<string>();
   const [givens, setGivens] = useState<Record<string, string>>({});
   const [error, setError] = useState<string>();
+  const [editing, setEditing] = useState(false);
+  const [viewerKey, setViewerKey] = useState(0);
 
-  useEffect(() => {
+  const refreshList = useCallback(() => {
     fetch(`/api/v0/environments/${ENVIRONMENT}/packages/${PACKAGE}/dashboards`)
       .then((res) => (res.ok ? res.json() : Promise.reject(res.statusText)))
       .then((list: DashboardSummary[]) => {
         setDashboards(list);
-        // The listing is alphabetical, which would open on "Category Detail"
-        // with no category picked. This package's overview is the landing page.
         setSelected(
           (current) =>
             current ??
@@ -55,6 +66,10 @@ export default function PackageDashboard({
       })
       .catch((err) => setError(String(err)));
   }, []);
+
+  useEffect(() => {
+    refreshList();
+  }, [refreshList]);
 
   // A drill carries both halves: where to go, and the given to arrive with.
   const onNavigate = useCallback((target: DrillNavigation) => {
@@ -80,12 +95,22 @@ export default function PackageDashboard({
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
             Could not list dashboards: {error}. Is Publisher running on port
-            4000 with the <code>storefront</code> package loaded?
+            4020 with the <code>storefront</code> package loaded?
           </Alert>
         )}
 
         {dashboards.length > 0 && selected && (
           <>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                mb: 2,
+                borderBottom: 1,
+                borderColor: "divider",
+              }}
+            >
             <Tabs
               value={selected}
               onChange={(_, next: string) => {
@@ -94,14 +119,22 @@ export default function PackageDashboard({
                 // send a given the next one may not declare.
                 setGivens({});
               }}
-              sx={{ mb: 2, borderBottom: 1, borderColor: "divider" }}
             >
               {dashboards.map((d) => (
                 <Tab key={d.name} value={d.name} label={d.title ?? d.name} />
               ))}
             </Tabs>
+              <Button
+                size="small"
+                onClick={() => setEditing(true)}
+                sx={{ mb: 1 }}
+              >
+                Edit Malloy
+              </Button>
+            </Box>
 
             <Dashboard
+              key={`${selected}-${viewerKey}`}
               resourceUri={encodeResourceUri({
                 environmentName: ENVIRONMENT,
                 packageName: PACKAGE,
@@ -111,6 +144,29 @@ export default function PackageDashboard({
               onGivensChange={setGivens}
               onNavigate={onNavigate}
             />
+
+            <Dialog
+              open={editing}
+              onClose={() => setEditing(false)}
+              maxWidth="md"
+              fullWidth
+            >
+              <DialogContent>
+                <DashboardSourceEditor
+                  resourceUri={encodeResourceUri({
+                    environmentName: ENVIRONMENT,
+                    packageName: PACKAGE,
+                  })}
+                  dashboard={selected}
+                  onCancel={() => setEditing(false)}
+                  onSaved={() => {
+                    setEditing(false);
+                    setViewerKey((n) => n + 1);
+                    refreshList();
+                  }}
+                />
+              </DialogContent>
+            </Dialog>
           </>
         )}
       </Box>

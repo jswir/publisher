@@ -52,4 +52,33 @@ export class DashboardController {
       }
       return dashboard;
    }
+
+   public async getDashboardSource(
+      environmentName: string,
+      packageName: string,
+      dashboardName: string,
+   ): Promise<{ source: string }> {
+      const environment = await this.environmentStore.getEnvironment(
+         environmentName,
+         false,
+      );
+      return environment.getDashboardSource(packageName, dashboardName);
+   }
+
+   public async putDashboardSource(
+      environmentName: string,
+      packageName: string,
+      dashboardName: string,
+      source: string,
+   ): Promise<{ source: string; problems: unknown[] }> {
+      const environment = await this.environmentStore.getEnvironment(
+         environmentName,
+         false,
+      );
+      return environment.writeDashboardSource(
+         packageName,
+         dashboardName,
+         source,
+      );
+   }
 }

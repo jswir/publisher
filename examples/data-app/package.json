@@ -12,7 +12,7 @@
     "@auth0/auth0-react": "^2.2.4",
     "@emotion/react": "latest",
     "@emotion/styled": "latest",
-    "@malloy-publisher/sdk": "^0.0.227",
+    "@malloy-publisher/sdk": "file:../../packages/sdk",
     "@malloydata/malloy-explorer": "0.0.338-dev260215172810",
     "@malloydata/malloy-interfaces": "^0.0.422",
     "@malloydata/malloy-query-builder": "^0.0.422",
