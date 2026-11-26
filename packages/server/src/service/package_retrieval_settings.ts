@@ -25,18 +25,6 @@ import { pathToFileURL } from "url";
 import { callerVisibleText } from "../package_relative_text";
 
 /**
- * The variants of the prompt the fcj index build sends to write a node's
- * search rows (`retrieval.fcj.questionsPrompt`); the text of each is in
- * retrieval/llm/prompts/questions.ts. Declared here, with the rest of the
- * manifest settings, so validating publisher.json needs no retrieval code.
- */
-export const QUESTIONS_PROMPTS = ["questions", "phrases", "values"] as const;
-export type QuestionsPrompt = (typeof QUESTIONS_PROMPTS)[number];
-
-/** Rows a node gets by default; also the count the default text was written for. */
-export const DEFAULT_QUESTIONS_PER_NODE = 3;
-
-/**
  * `auto`: on when the operator has an LLM configured, off otherwise.
  * `true`: always on; a package that says so on a server with no LLM does not
  * load. `false`: off.

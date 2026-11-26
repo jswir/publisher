@@ -3,12 +3,11 @@
 
 /**
  * Three short questions per field and per view that the node answers, written
- * by the chat model from the node's derived text at index time (the count is
- * `retrieval.fcj.questionsPerNode`, and the wording a variant of
- * llm/prompts/questions.ts). Each question
- * is embedded as its own row (facets `q1` to `q3`), and the best row of a node
- * is its closeness at search time, so a node can be found by how a person
- * asks for it as well as by what it is called.
+ * by the chat model from the node's derived text at index time (the wording is
+ * llm/prompts/questions.ts, or the package's `retrieval.prompts.questions`).
+ * Each question is embedded as its own row (facets `q1` to `q3`), and the best
+ * row of a node is its closeness at search time, so a node can be found by how
+ * a person asks for it as well as by what it is called.
  *
  * They replace keyphrases, which compress a doc and lose its qualifiers;
  * questions sit beside the doc and lose nothing. The modeller never sees or
@@ -19,7 +18,6 @@
 import type { ChatModel } from "../llm/types";
 import type { DuckDBConnection } from "../../storage/duckdb/DuckDBConnection";
 import type { SyncRequestBudget } from "../llm/llm_calls";
-import { DEFAULT_QUESTIONS_PER_NODE } from "../../service/package_retrieval_settings";
 import type { CatalogNode } from "../model/catalog";
 import {
    generateCached,
@@ -29,8 +27,8 @@ import {
    type CachedRun,
 } from "../llm/llm_cache";
 
-/** Rows a node gets unless `retrieval.fcj.questionsPerNode` says otherwise. */
-export const QUESTIONS_PER_NODE = DEFAULT_QUESTIONS_PER_NODE;
+/** Rows a node gets; the default instructions ask for this many. */
+export const QUESTIONS_PER_NODE = 3;
 
 /** Nodes per LLM call. */
 const QUESTIONS_BATCH_SIZE = 15;
@@ -81,31 +79,15 @@ function validateQuestions(
    return out;
 }
 
-/** Most values a node's line shows (the `values` variant). */
-export const QUESTION_LINE_MAX_VALUES = 8;
-
-/**
- * The line a node is shown as: its kind, type and derived text, then its
- * values when the variant uses them and the node has any. With no values the
- * line is what it has always been, so the default variant's rows stay cached.
- */
-function questionLine(
-   node: CatalogNode,
-   derived: string,
-   values: readonly string[] = [],
-): string {
+/** The line a node is shown as: its kind, type and derived text. */
+function questionLine(node: CatalogNode, derived: string): string {
    const kind = node.dataType ? `${node.kind}, ${node.dataType}` : node.kind;
-   const shown = values.slice(0, QUESTION_LINE_MAX_VALUES);
-   return shown.length > 0
-      ? `(${kind}) ${derived} Values: ${shown.join(", ")}.`
-      : `(${kind}) ${derived}`;
+   return `(${kind}) ${derived}`;
 }
 
 export async function resolveQuestions(args: {
    nodes: readonly CatalogNode[];
    derivedOf: (node: CatalogNode) => string;
-   /** The values a node's line shows; absent: none (every variant but `values`). */
-   valuesOf?: (node: CatalogNode) => readonly string[];
    /** Rows per node; QUESTIONS_PER_NODE when absent. */
    perNode?: number;
    db: DuckDBConnection;
@@ -119,11 +101,7 @@ export async function resolveQuestions(args: {
 }): Promise<CachedRun<string[]>> {
    const perNode = args.perNode ?? QUESTIONS_PER_NODE;
    const items = args.nodes.filter(wantsQuestions).map((node) => {
-      const line = questionLine(
-         node,
-         args.derivedOf(node),
-         args.valuesOf?.(node) ?? [],
-      );
+      const line = questionLine(node, args.derivedOf(node));
       return { key: node.key, inputHash: sha256(line), line };
    });
    return generateCached<string[]>({

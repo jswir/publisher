@@ -21,10 +21,7 @@
  */
 
 import type { ChatModel, EmbeddingModel } from "../llm/types";
-import type {
-   FcjSettings,
-   QuestionsPrompt,
-} from "../../service/package_retrieval_settings";
+import type { FcjSettings } from "../../service/package_retrieval_settings";
 import type { PackageLookup } from "../../service/environment_ports";
 import type { DuckDBConnection } from "../../storage/duckdb/DuckDBConnection";
 import { logger } from "../../logger";
@@ -50,12 +47,8 @@ import {
 } from "./doc_parts";
 import { getDimensionValueSettings } from "../config";
 import { KeywordIndex } from "./keyword";
+import { QUESTIONS_INSTRUCTIONS } from "../llm/prompts/questions";
 import {
-   promptShowsValues,
-   questionsInstructions,
-} from "../llm/prompts/questions";
-import {
-   QUESTION_LINE_MAX_VALUES,
    QUESTIONS_PER_NODE,
    resolveQuestions,
    wantsQuestions,
@@ -150,43 +143,6 @@ interface FcjLlm {
    maxCallsPerSync: number;
    docPartsInstructions?: string;
    questionsInstructions?: string;
-}
-
-/**
- * The values each dimension's question line shows (the `values` wording): the
- * list its doc gives, then its most frequent stored values, distinct, at most
- * QUESTION_LINE_MAX_VALUES. Dimensions with neither are absent. A value stored
- * under a key is left out: the questions are shared by every caller, so they
- * must not carry one report's values.
- */
-function questionLineValues(
-   index: ValueIndex,
-   parts: ReadonlyMap<string, DocParts>,
-): Map<string, string[]> {
-   const stored = new Map<string, Array<{ value: string; count: number }>>();
-   for (const v of index.values) {
-      if (v.origin !== "data" || v.key !== undefined) continue;
-      const list = stored.get(v.dimension) ?? [];
-      list.push({ value: v.value, count: v.count });
-      stored.set(v.dimension, list);
-   }
-   const out = new Map<string, string[]>();
-   for (const key of new Set([...parts.keys(), ...stored.keys()])) {
-      const fromData = (stored.get(key) ?? [])
-         .sort((a, b) => b.count - a.count || (a.value < b.value ? -1 : 1))
-         .map((v) => v.value);
-      const seen = new Set<string>();
-      const list: string[] = [];
-      for (const v of [...(parts.get(key)?.values ?? []), ...fromData]) {
-         const k = v.trim().toLowerCase();
-         if (!k || seen.has(k)) continue;
-         seen.add(k);
-         list.push(v.trim());
-         if (list.length >= QUESTION_LINE_MAX_VALUES) break;
-      }
-      if (list.length > 0) out.set(key, list);
-   }
-   return out;
 }
 
 /** The text a node's `values` facet embeds, from the list its doc gives. */
@@ -325,10 +281,6 @@ export async function buildFcjIndex(args: {
 
    // Questions.
    const perNode = QUESTIONS_PER_NODE;
-   const variant: QuestionsPrompt = "questions";
-   const lineValues = promptShowsValues(variant)
-      ? questionLineValues(values, parts)
-      : undefined;
    const questions = new Map<string, string[]>();
    const qLlm = llmFor(settings.questions);
    const questionNodes = searched.filter(wantsQuestions);
@@ -350,18 +302,13 @@ export async function buildFcjIndex(args: {
       const run = await resolveQuestions({
          nodes: questionNodes,
          derivedOf: (n) => derived.get(n.key) ?? "",
-         ...(lineValues
-            ? { valuesOf: (n: CatalogNode) => lineValues.get(n.key) ?? [] }
-            : {}),
          perNode,
          db,
          environmentName,
          packageName,
          chat: qLlm.chat,
-         // A package prompt file wins over the variant setting.
-         instructions:
-            qLlm.questionsInstructions ??
-            questionsInstructions(variant, perNode),
+         // A package prompt file wins over the default text.
+         instructions: qLlm.questionsInstructions ?? QUESTIONS_INSTRUCTIONS,
          concurrency: qLlm.concurrency,
          budget,
          ...(args.shouldStop ? { shouldStop: args.shouldStop } : {}),
