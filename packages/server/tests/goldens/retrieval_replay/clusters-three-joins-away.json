@@ -1,6 +1,6 @@
 {
   "case": "clusters-three-joins-away",
-  "about": "A measure on the home and a dimension three joins away (orders, customer, city, state): the home covers it only at hopDiscount cubed, against coverFraction.",
+  "about": "A measure on orders and a dimension three joins away (orders, customer, city, state): orders and its extensions hold no field of their own for it, so they serve customer.city_row.state_row.census_region_name and one more joined field; cities keeps its own city_name, and customers serves the joined field.",
   "request": {
     "search_targets": [
       {

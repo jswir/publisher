@@ -10,6 +10,7 @@
 
 import { describe, expect, it } from "bun:test";
 import { QUESTION_HEADER } from "../../../src/retrieval/llm/prompts/judge";
+import { PERIOD_TARGET_TEXT } from "../../../src/retrieval/search/rerank";
 import {
    MARKERS,
    parseJudgePrompt,
@@ -47,7 +48,6 @@ interface Reply {
       candidates: number[];
       best?: number;
       values?: string[];
-      readings?: boolean;
    }>;
    caveats: string[];
 }
@@ -222,17 +222,10 @@ describe("the stand-in judge's decision", () => {
       expect(marked).toEqual({ ...plain, best: "sales.sale_count" });
    });
 
-   it(`marks readings with ${MARKERS.readings} and names a caveat with ${MARKERS.caveat}`, () => {
+   it(`names a caveat with ${MARKERS.caveat}`, () => {
       const r = reply(
-         prompt([
-            [
-               "measure",
-               `total amount ${MARKERS.readings} ${MARKERS.caveat}`,
-               lines.sales,
-            ],
-         ]),
+         prompt([["measure", `total amount ${MARKERS.caveat}`, lines.sales]]),
       );
-      expect(r.picks[0].readings).toBe(true);
       expect(r.caveats).toEqual([
          "stand-in caveat: total_amount on sales was a close call for target 1.",
       ]);
@@ -267,20 +260,21 @@ describe("the stand-in judge's decision", () => {
       expect(() => JSON.parse(text)).toThrow();
    });
 
-   it("picks a route in place of its field when the target names the joining source", () => {
-      const p = prompt([
-         [
-            "measure",
-            "number of products that were ordered",
+   it("picks the first date or timestamp dimension for the implicit period target", () => {
+      const r = reply(
+         prompt([
             [
-               "  From products:",
-               field(1, "product_count", "products", "Distinct products"),
-               '        [2] order_items.products.product_count (route from order_items through products, join_one): only the products rows order_items reaches (order_items: "One row per item.")',
-               "        [3] overview.products.product_count (route from overview through products, join_one): only the products rows overview reaches",
+               "dimension",
+               PERIOD_TARGET_TEXT,
+               [
+                  "    [1] region (dimension, string; source sales): Sales region.",
+                  "    [2] sold_at (dimension, timestamp; source sales): When the sale was made.",
+                  "    [3] shipped_on (dimension, date; source sales): Ship date.",
+               ],
             ],
-         ],
-      ]);
-      expect(reply(p).picks[0].candidates).toEqual([2]);
+         ]),
+      );
+      expect(r.picks[0].candidates).toEqual([2]);
    });
 
    it("names the values that hold the target as a word, else every value matched by spelling", () => {

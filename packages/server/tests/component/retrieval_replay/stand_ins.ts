@@ -39,6 +39,7 @@ import { EmbeddingProvider } from "../../../src/retrieval/llm/embedding_provider
 import type { ChatModel } from "../../../src/retrieval/llm/types";
 import { splitDocByRules } from "../../../src/retrieval/index/doc_parts";
 import { QUESTION_HEADER } from "../../../src/retrieval/llm/prompts/judge";
+import { PERIOD_TARGET_TEXT } from "../../../src/retrieval/search/rerank";
 import {
    embedText,
    NO_WAIT_RETRY,
@@ -246,10 +247,6 @@ export interface JudgeCandidate {
    source: string;
    /** The field's doc; empty when the line says it has none. */
    doc: string;
-   /** A route option: its joining source and join path. */
-   route?: { from: string; path: string; field: string; owner: string };
-   /** The field a route option is listed under. */
-   under?: number;
    /** The stored values shown (`stored values matching the target`). */
    values?: ShownValue[];
    /** Shown with `no stored values`. */
@@ -280,9 +277,6 @@ const NAME = "[A-Za-z_][A-Za-z0-9_]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)*";
 const TARGET_LINE = /^Target (\d+) \(([a-z_]+)((?:; [^;)]+)*)\): (".*")$/;
 const HEAD = new RegExp(
    `^\\[(\\d+)\\] (${NAME}) \\(([a-z_]+)(?:, ([^;)]+))?; source ([A-Za-z_][A-Za-z0-9_]*)`,
-);
-const ROUTE_LINE = new RegExp(
-   `^\\[(\\d+)\\] (${NAME}) \\(route from ([A-Za-z_][A-Za-z0-9_]*) through (${NAME}), (join_[a-z]+)[^)]*\\): only the ([A-Za-z_][A-Za-z0-9_]*) rows [A-Za-z_][A-Za-z0-9_]* reaches( \\(.*\\))?$`,
 );
 const REPLY_FORMAT_START = "Reply with one JSON object and nothing else:";
 const REPAIR_START = "Your previous reply was:";
@@ -456,9 +450,9 @@ function parsePickHeader(header: readonly string[]): string | undefined {
  *    <the question header>                          (when there is one)
  *    "<the question, as JSON>"
  *
- * (The readers for the old engine's list lines, `From s:` headers, route
- * options and `Also in this group:` extras are kept; the source-first
- * engine sends none of them.)
+ * (The readers for the old engine's list lines, `From s:` headers and
+ * `Also in this group:` extras are kept; the source-first engine sends none
+ * of them.)
  *
  *    Reply with one JSON object and nothing else: ...
  *    [the repair re-ask's "Your previous reply was: ..." tail]
@@ -486,7 +480,6 @@ export function parseJudgePrompt(prompt: string): JudgePrompt {
    const source = parsePickHeader(lines.slice(0, open));
    const targets: JudgeTarget[] = [];
    let current: JudgeTarget | undefined;
-   let lastField: JudgeCandidate | undefined;
    for (const line of lines.slice(open + 1, close)) {
       const t = TARGET_LINE.exec(line);
       if (t) {
@@ -510,7 +503,6 @@ export function parseJudgePrompt(prompt: string): JudgePrompt {
             );
          }
          targets.push(current);
-         lastField = undefined;
          continue;
       }
       if (!current) {
@@ -524,34 +516,13 @@ export function parseJudgePrompt(prompt: string): JudgePrompt {
       ) {
          continue;
       }
-      const route = /^ {8}(\[.*)$/.exec(line);
-      if (route) {
-         const m = ROUTE_LINE.exec(route[1]);
-         if (!m || !lastField) {
-            throw new StandInError(
-               `cannot read a judge route option line: ${JSON.stringify(line)}`,
-            );
-         }
-         const field = m[2].slice(m[4].length + m[3].length + 2);
-         current.candidates.push({
-            number: Number(m[1]),
-            name: m[2],
-            kind: lastField.kind,
-            source: m[3],
-            doc: lastField.doc,
-            route: { from: m[3], path: m[4], field, owner: m[6] },
-            under: lastField.number,
-         });
-         continue;
-      }
       const field = /^( {2}| {4})(\[.*)$/.exec(line);
       if (!field) {
          throw new StandInError(
             `a judge prompt has a line the stand-in cannot read: ${JSON.stringify(line)}`,
          );
       }
-      lastField = parseCandidateLine(field[2]);
-      current.candidates.push(lastField);
+      current.candidates.push(parseCandidateLine(field[2]));
    }
    if (targets.length === 0) {
       throw new StandInError("a judge prompt lists no target");
@@ -635,12 +606,8 @@ const STOP = new Set([
 export const MARKERS = {
    /** `best` is the second candidate of the pick, not the first. */
    best2: "zzbest2",
-   /** The pick carries `readings: true`. */
-   readings: "zzreadings",
    /** The reply carries a caveat naming the target's best field. */
    caveat: "zzcaveat",
-   /** Every route option shown under a picked field is picked beside it. */
-   routes: "zzroutes",
    /** The first reply names a candidate that was not offered; the repair re-ask gets a valid one. */
    badPick: "zzbadpick",
    /** Every reply is not JSON, so the judge fails after its repair re-ask. */
@@ -680,6 +647,9 @@ export function contentWords(text: string): Set<string> {
          .map((w) => SYNONYMS[w] ?? w),
    );
 }
+
+/** Data types the period target's stand-in pick reads as a date. */
+const DATE_TYPES = new Set(["date", "timestamp", "timestamptz"]);
 
 /** A name word counts this many times a doc word. */
 export const NAME_WEIGHT = 2;
@@ -731,17 +701,15 @@ interface Pick {
    candidates: number[];
    best?: number;
    values?: string[];
-   readings?: true;
    reason: string;
 }
 
-/** Best first: score, then name, then source, then route path. */
+/** Best first: score, then name, then source. */
 function byScore(
    a: { score: number; c: JudgeCandidate },
    b: { score: number; c: JudgeCandidate },
 ): number {
-   const key = (c: JudgeCandidate) =>
-      `${c.name}\u0000${c.source}\u0000${c.route?.path ?? ""}`;
+   const key = (c: JudgeCandidate) => `${c.name}\u0000${c.source}`;
    return b.score - a.score || (key(a.c) < key(b.c) ? -1 : 1);
 }
 
@@ -754,10 +722,9 @@ function byScore(
  *   {@link PICK_THRESHOLD}. Picks are listed by score, then name, then
  *   source; the first is `best`. There is no cap per call, so the same field
  *   gets the same decision in one big call or in a call per source.
- * - A route option (a field reached from another listed source) is picked in
- *   place of its field when the field qualifies and every content word of
- *   the joining source's name is in the target: the target names the rows
- *   the route reads.
+ * - The implicit period target box 4 adds when the question names a period
+ *   ({@link PERIOD_TARGET_TEXT}) picks the source's first date or timestamp
+ *   dimension listed under it.
  * - A value target (`dimensional_value`) picks every candidate shown with a
  *   stored value matched by spelling (`exact`, `words`, `typo`) or equal to
  *   the target ignoring case, naming in `values` those of its values that
@@ -782,7 +749,7 @@ export function standInJudgeReply(prompt: string): string {
       const pick: Pick = { target: t.number, candidates: [], reason: "" };
       if (t.type === "dimensional_value") {
          const named: string[] = [];
-         const fields = t.candidates.filter((c) => !c.route);
+         const fields = t.candidates;
          for (const c of fields) {
             const values = namedValues(t.text, c.values ?? []);
             if (values.length > 0) {
@@ -797,31 +764,19 @@ export function standInJudgeReply(prompt: string): string {
             pick.candidates.length > 0
                ? "stand-in: a stored value matched by spelling, or the one pinned field"
                : "stand-in: no stored value matched by spelling";
+      } else if (t.text === PERIOD_TARGET_TEXT) {
+         const date = t.candidates.find(
+            (c) => c.kind === "dimension" && DATE_TYPES.has(c.dataType ?? ""),
+         );
+         if (date) pick.candidates.push(date.number);
+         pick.reason = date
+            ? "stand-in: the first date or timestamp dimension listed"
+            : "stand-in: no date or timestamp dimension listed";
       } else {
-         const scored = t.candidates
-            .filter((c) => !c.route)
+         const chosen = t.candidates
             .map((c) => ({ c, score: fieldScore(words, c.name, c.doc) }))
             .filter((x) => x.score >= PICK_THRESHOLD)
             .sort(byScore);
-         const chosen: Array<{ c: JudgeCandidate; score: number }> = [];
-         for (const x of scored) {
-            const routes = t.candidates.filter((r) => r.under === x.c.number);
-            const named = routes.filter((r) =>
-               [...contentWords(r.route!.from)].every((w) => words.has(w)),
-            );
-            if (named.length > 0) {
-               chosen.push(...named.map((r) => ({ c: r, score: x.score })));
-            } else {
-               chosen.push(x);
-            }
-            if (marked.has(MARKERS.routes)) {
-               for (const r of routes) {
-                  if (!chosen.some((y) => y.c === r)) {
-                     chosen.push({ c: r, score: x.score });
-                  }
-               }
-            }
-         }
          pick.candidates = chosen.map((x) => x.c.number);
          pick.reason =
             chosen.length > 0
@@ -843,7 +798,6 @@ export function standInJudgeReply(prompt: string): string {
             marked.has(MARKERS.best2) && pick.candidates.length > 1
                ? pick.candidates[1]
                : pick.candidates[0];
-         if (marked.has(MARKERS.readings)) pick.readings = true;
       }
       if (marked.has(MARKERS.badPick) && !parsed.repair) {
          const numbers = [

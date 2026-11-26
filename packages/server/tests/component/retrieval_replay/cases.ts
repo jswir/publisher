@@ -48,7 +48,7 @@ export const MANY_PACKAGE = "replay-many";
 export const JUDGE_OFF_PACKAGE = "replay-judge-off";
 /** The same model with its own judge instructions, and no embeddings. */
 export const CUSTOM_JUDGE_PACKAGE = "replay-custom-judge";
-/** `connect: "clusters"` and `twinRule` on: a star, a twin, four islands. */
+/** A star, two extensions of its fact, four islands; its manifest sets retired fcj keys. */
 export const CLUSTERS_PACKAGE = "replay-clusters";
 /** A locked source, a row-gated source, an #(agent-hidden) one. */
 export const GOVERNED_PACKAGE = "replay-governed";
@@ -106,6 +106,21 @@ const valuesScope = { environment: ENVIRONMENT, package: VALUES_PACKAGE };
 const manyScope = { environment: ENVIRONMENT, package: MANY_PACKAGE };
 const clustersScope = { environment: ENVIRONMENT, package: CLUSTERS_PACKAGE };
 const governedScope = { environment: ENVIRONMENT, package: GOVERNED_PACKAGE };
+const longDocsScope = { environment: ENVIRONMENT, package: LONG_DOCS_PACKAGE };
+const MONTH_TARGETS = [
+   "january",
+   "february",
+   "march",
+   "april",
+   "may",
+   "june",
+   "july",
+   "august",
+   "september",
+   "october",
+   "november",
+   "december",
+].map((month) => ({ target_type: "measure", search_text: month }));
 
 export interface ReplayCase {
    /** The snapshot's file name; kebab-case, never reused. */
@@ -137,7 +152,7 @@ export const CASES: readonly ReplayCase[] = [
    },
    {
       id: "dimension-product-category",
-      about: "One dimension target; the field exists on a source and through a join.",
+      about: "One dimension target; the field exists on a source and through a join. order_items, overview and scoped_orders hold category and product_id of their own, so the products.* fields they reach through their join are not served beside them, and products keeps its own card.",
       params: {
          search_targets: [
             {
@@ -242,7 +257,7 @@ export const CASES: readonly ReplayCase[] = [
    },
    {
       id: "user-prompt-orders-per-customer",
-      about: "A measure target with user_prompt, which is recorded and must not change matching.",
+      about: "A measure target with user_prompt: search is the same as without it; the pick calls and the ordering call quote it. overview, the first card, keeps every own field its call picked; the later cards keep best + 1.",
       params: {
          search_targets: [
             {
@@ -363,7 +378,7 @@ export const CASES: readonly ReplayCase[] = [
    },
    {
       id: "judge-caveat-list",
-      about: `A reply with a caveat naming a field (${MARKERS.caveat}), in a list: it rides on the first query group.`,
+      about: `Each pick call's reply carries a caveat naming its best field (${MARKERS.caveat}): it rides on that source's clusters entry.`,
       params: {
          search_targets: [
             {
@@ -402,7 +417,7 @@ export const CASES: readonly ReplayCase[] = [
    },
    {
       id: "judge-fails",
-      about: `Every judge reply is not JSON (${MARKERS.fail}): the request answers with the judge-step error.`,
+      about: `Every pick call's reply is not JSON (${MARKERS.fail}), so each fails after its repair re-ask, and the ordering call's reply is unusable: the request still answers, with search's top hits on box 4's sources and the warning that the ranking step was unavailable.`,
       params: {
          search_targets: [
             {
@@ -415,7 +430,7 @@ export const CASES: readonly ReplayCase[] = [
    },
    {
       id: "route-products-that-were-ordered",
-      about: "A measure reached through a join, the target naming the joining source: the judge picks the route (order_items through products), not the field on its own source.",
+      about: "A measure target naming a joined source (products that were ordered): order_items reaches products.product_count through its join, but it holds count measures of its own that the stand-in also picks, so the joined field is not served beside them.",
       params: {
          search_targets: [
             {
@@ -427,27 +442,11 @@ export const CASES: readonly ReplayCase[] = [
       },
    },
    {
-      id: "judge-routes-beside-fields",
-      about: `The judge picks every route shown beside each field it picks (${MARKERS.routes}): past dropRoutesAt, the routes are dropped and the fields kept.`,
+      id: "joined-fields-beside-their-own-card",
+      about: "One dimension target (state and city) that customers holds and order_items, overview and scoped_orders reach through their customers join: customers serves city and state on its own card, and each source that has no city or state of its own serves the joined fields, its best and at most one more.",
       params: {
          search_targets: [
-            {
-               target_type: "dimension",
-               search_text: `state and city ${MARKERS.routes}`,
-            },
-         ],
-         scopes: [scope],
-      },
-   },
-   {
-      id: "judge-routes-beside-one-field",
-      about: `The judge picks one field and the three routes shown beside it (${MARKERS.routes}): fewer than dropRoutesAt, so they are all kept.`,
-      params: {
-         search_targets: [
-            {
-               target_type: "dimension",
-               search_text: `city ${MARKERS.routes}`,
-            },
+            { target_type: "dimension", search_text: "state and city" },
          ],
          scopes: [scope],
       },
@@ -487,10 +486,10 @@ export const CASES: readonly ReplayCase[] = [
       },
    },
 
-   // connect: "clusters", twinRule on.
+   // replay-clusters: a star, two extensions of its fact, four islands.
    {
       id: "clusters-four-islands",
-      about: "Four targets that four separate sources each answer alone: more than maxClusters, so one is left unresolved.",
+      about: "Four targets that four separate sources each answer alone: each source is kept, and each card answers its one target.",
       params: {
          search_targets: [
             { target_type: "measure", search_text: "freight cost" },
@@ -503,7 +502,7 @@ export const CASES: readonly ReplayCase[] = [
    },
    {
       id: "clusters-order-total-twins",
-      about: "One measure that a source and its twin (same fields, another name) both hold, among more measures than a cluster keeps per target; twinRule keeps one of the twins.",
+      about: "One measure that orders and its two extensions (same fields, other rows) all hold, among more measures than a target keeps: orders, the first card, fills the eight per target with its own picks, so the extensions' cards are not served.",
       params: {
          search_targets: [
             { target_type: "measure", search_text: "order total" },
@@ -512,21 +511,8 @@ export const CASES: readonly ReplayCase[] = [
       },
    },
    {
-      id: "clusters-twins-readings-caveat",
-      about: `The judge marks readings (${MARKERS.readings}), so twinRule keeps both twins, and names a caveat (${MARKERS.caveat}) that rides on the cluster.`,
-      params: {
-         search_targets: [
-            {
-               target_type: "measure",
-               search_text: `order total ${MARKERS.readings} ${MARKERS.caveat}`,
-            },
-         ],
-         scopes: [clustersScope],
-      },
-   },
-   {
       id: "clusters-joined-dimension",
-      about: "A measure on the home and a dimension one join away: the joined field is on the home's card, its score discounted per hop.",
+      about: "A measure on orders and a dimension (customer segment) one join away on customers: orders has customer_id of its own for the dimension target, so its joined customer.* fields are not served; customers serves customer_segment on its own card.",
       params: {
          search_targets: [
             { target_type: "measure", search_text: "order total" },
@@ -538,7 +524,7 @@ export const CASES: readonly ReplayCase[] = [
 
    {
       id: "clusters-three-joins-away",
-      about: "A measure on the home and a dimension three joins away (orders, customer, city, state): the home covers it only at hopDiscount cubed, against coverFraction.",
+      about: "A measure on orders and a dimension three joins away (orders, customer, city, state): orders and its extensions hold no field of their own for it, so they serve customer.city_row.state_row.census_region_name and one more joined field; cities keeps its own city_name, and customers serves the joined field.",
       params: {
          search_targets: [
             { target_type: "measure", search_text: "order total" },
@@ -679,27 +665,16 @@ export const CASES: readonly ReplayCase[] = [
       },
    },
    {
-      id: "page-over-35000-chars",
-      about: "Three cards of about 12,000 characters each (a dozen measures with long docs): the answer is over the 35,000-character page, so the first page ends early by size, and the call with its next_offset is served from the held result.",
+      id: "page-over-35000-chars-month-targets",
+      about: "Twelve measure targets, one per month: each ledger answers every month with its own measure, whose doc runs to about 900 characters, so each of the three cards holds twelve fields and the answer is over the 35,000-character page. The first page ends early by size, and the call with its next_offset is served from the held result.",
       steps: [
-         {
-            search_targets: [
-               { target_type: "measure", search_text: "total amount" },
-            ],
-            scopes: [{ environment: ENVIRONMENT, package: LONG_DOCS_PACKAGE }],
-         },
-         {
-            search_targets: [
-               { target_type: "measure", search_text: "total amount" },
-            ],
-            scopes: [{ environment: ENVIRONMENT, package: LONG_DOCS_PACKAGE }],
-            offset: 2,
-         },
+         { search_targets: MONTH_TARGETS, scopes: [longDocsScope] },
+         { search_targets: MONTH_TARGETS, scopes: [longDocsScope], offset: 2 },
       ],
    },
    {
       id: "source-first-user-prompt-both-calls",
-      about: "A measure and a dimension on different sources, with user_prompt: every pick call and the ordering call quote the question, and the ordering call's order (the stand-in's name score, not box 4's) is the cards' order. order_items offers the customer's state through its join (customers.state), not a field of its own.",
+      about: "A measure and a dimension on different sources, with user_prompt: every pick call and the ordering call quote the question, and the ordering call's order (the stand-in's name score, not box 4's) is the cards' order. order_items offers the customer's state through its join (customers.state); it has customer_id and region of its own for that target, so the joined field is not served, and customers serves state on its own card.",
       params: {
          search_targets: [
             { target_type: "measure", search_text: "total revenue" },
@@ -785,7 +760,7 @@ export const CASES: readonly ReplayCase[] = [
    },
    {
       id: "source-first-joined-customer-id",
-      about: "A dimension whose answer on order_items is the joined copy customers.customer_id: search finds customer_id on customers, and order_items offers it through its join.",
+      about: "A customer id dimension: search finds customer_id on customers, and order_items offers customers.customer_id through its join beside its own customer_id. order_items serves its own field only; customers serves customer_id on its own card.",
       params: {
          search_targets: [
             { target_type: "dimension", search_text: "customer id" },
@@ -796,7 +771,7 @@ export const CASES: readonly ReplayCase[] = [
    },
    {
       id: "source-first-field-limit-after-first-source",
-      about: "Eleven sources share amount and region: the first card keeps every field its call picked, every later card at most two per pick, and a target at most eight in all.",
+      about: "Eleven sources share amount and region: the first card keeps every own field its call picked, every later card at most two per pick, and a target at most eight in all; payments' joined invoice.invoiced_amount is not served beside its own total_paid_amount, and invoices serves invoiced_amount on its own card.",
       params: {
          search_targets: [
             { target_type: "measure", search_text: "amount total" },

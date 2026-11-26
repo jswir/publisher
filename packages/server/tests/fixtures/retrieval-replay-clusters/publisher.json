@@ -1,7 +1,7 @@
 {
    "name": "replay-clusters",
    "version": "1.0.0",
-   "description": "Synthetic fixture for the retrieval replay, searched with connect: clusters, collapseCopies and twinRule on: a joined star with two twins, and islands that each answer one target.",
+   "description": "Synthetic fixture for the retrieval replay: a joined star with two extensions of its fact, and islands that each answer one target. It sets retired retrieval.fcj keys (connect, collapseCopies, twinRule), which load with a warning.",
    "retrieval": {
       "fcj": { "connect": "clusters", "collapseCopies": true, "twinRule": true }
    }

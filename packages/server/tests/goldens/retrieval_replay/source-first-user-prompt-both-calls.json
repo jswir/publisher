@@ -1,6 +1,6 @@
 {
   "case": "source-first-user-prompt-both-calls",
-  "about": "A measure and a dimension on different sources, with user_prompt: every pick call and the ordering call quote the question, and the ordering call's order (the stand-in's name score, not box 4's) is the cards' order. order_items offers the customer's state through its join (customers.state), not a field of its own.",
+  "about": "A measure and a dimension on different sources, with user_prompt: every pick call and the ordering call quote the question, and the ordering call's order (the stand-in's name score, not box 4's) is the cards' order. order_items offers the customer's state through its join (customers.state); it has customer_id and region of its own for that target, so the joined field is not served, and customers serves state on its own card.",
   "request": {
     "search_targets": [
       {

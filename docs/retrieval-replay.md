@@ -22,13 +22,14 @@ MCP endpoint calls, without the transport.
 
 ### The fixtures
 
-| fixture                       | loaded as                                                | what it is for                                                                                                                                                                                                                                                                                                                                                                                  |
-| ----------------------------- | -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `retrieval-replay-storefront` | `storefront`                                             | A frozen copy of `examples/storefront` (its README names the commit), so an edit to the live example never moves a snapshot. Joins, route options, twins of one fact under three names, a model per report.                                                                                                                                                                                     |
-| `retrieval-replay-values`     | `replay-values`                                          | Dimensions tagged `#(index)`, for stored-value targets (storefront tags none).                                                                                                                                                                                                                                                                                                                  |
-| `retrieval-replay-many`       | `replay-many`, `replay-judge-off`, `replay-custom-judge` | Eleven sources that share `amount` and `region`: a base and three extensions, six unrelated tables and one that joins another. More sources than a judge call may keep, and more candidates per target than `perTarget` and `listTopK` keep. The two other names load the same model with `retrieval.fcj.judge: false`, and with `retrieval.prompts.judge` and no embedding provider (lexical). |
-| `retrieval-replay-clusters`   | `replay-clusters`                                        | `connect: "clusters"`, `collapseCopies` and `twinRule` on: an orders star with more measures than `clusterTopK`, two extensions that hold other rows under the same fields (twins), and four islands that each answer one target (one more than `maxClusters`).                                                                                                                                 |
-| `retrieval-replay-governed`   | `replay-governed`                                        | A source behind an `#(authorize)` lock on a secure given, a row-gated (`#(access_filter)`) source with indexed values, an `#(agent-hidden)` source that holds the best match for a target, and (in `open.malloy`) an ungated source with indexed values that several spellings match.                                                                                                           |
+| fixture                       | loaded as                                                | what it is for                                                                                                                                                                                                                                                                                                                                                                      |
+| ----------------------------- | -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `retrieval-replay-storefront` | `storefront`                                             | A frozen copy of `examples/storefront` (its README names the commit), so an edit to the live example never moves a snapshot. Joins, one fact served under three names, a model per report.                                                                                                                                                                                          |
+| `retrieval-replay-values`     | `replay-values`                                          | Dimensions tagged `#(index)`, for stored-value targets (storefront tags none).                                                                                                                                                                                                                                                                                                      |
+| `retrieval-replay-many`       | `replay-many`, `replay-judge-off`, `replay-custom-judge` | Eleven sources that share `amount` and `region`: a base and three extensions, six unrelated tables and one that joins another. More sources than box 4 keeps (seven), and more fields per target than a response serves (eight). The two other names load the same model with `retrieval.fcj.judge: false`, and with `retrieval.prompts.judge` and no embedding provider (lexical). |
+| `retrieval-replay-clusters`   | `replay-clusters`                                        | An orders star with more measures than a target serves, a dimension three joins away, two extensions of the fact that hold other rows under the same fields, and four islands that each answer one target. Its `publisher.json` sets retired `retrieval.fcj` keys, which must load with a warning.                                                                                  |
+| `retrieval-replay-long-docs`  | `replay-long-docs`                                       | Three ledgers, each with a measure per month whose doc runs to about 900 characters, so an answer with every month on every ledger is over the 35,000-character page and is paged by size.                                                                                                                                                                                          |
+| `retrieval-replay-governed`   | `replay-governed`                                        | A source behind an `#(authorize)` lock on a secure given, a row-gated (`#(access_filter)`) source with indexed values, an `#(agent-hidden)` source that holds the best match for a target, `payslip_prints`, which reaches `departments` only through the locked source, and (in `open.malloy`) an ungated source with indexed values that several spellings match.                 |
 
 All of them are synthetic or copied from this repository. A listing also shows `html-data-app` and an
 environment `governed`, by name and description only (`LISTED_ONLY` in `cases.ts`): listed, never
@@ -57,9 +58,9 @@ answers are. Use the `eval-loop` skill against a real model for that.
 
 The judge rule reads the prompt through a small grammar: the `<targets>` block, a `Target N (type):
 "text"` line per target, then candidate lines `[n] name (kind, type; source s[; how it is reached]):
-doc[ | stored values ...][ | added because: ...]`, route option lines (`[n] s.path.name (route from s
-through path, join_kind): ...`) under their field, `From s:` headers, the `Also in this group:`
-extras, and the reply format. A prompt it cannot read, a line before the first target, a target
+doc[ | stored values ...][ | added because: ...]`, `From s:` headers, the `Also in this group:`
+extras (the last two from the old engine; the source-first engine sends neither), and the reply
+format. A prompt it cannot read, a line before the first target, a target
 block with no target, stored values in another shape, or an index-time prompt missing the part its
 rule reads, throws a `StandInError`, and the case fails naming the line ("the stand-in chat model
 could not read N prompt(s) ... Update stand_ins.ts for the new prompt format"). It never turns into
@@ -78,17 +79,17 @@ For each target, independently of every other line in the call and of the order 
   the same decision in one big call or in one call per source. Picks are listed by score, then
   name, then source; the first is `best`. The reason says how many scored high enough; it never
   names a field.
-- **Routes.** A route option (a field reached from another listed source) is picked in place of its
-  field when the field qualifies and every content word of the joining source's name is in the
-  target ("number of products that were ordered" reads `order_items.products.product_count`).
+- **Period.** The implicit target box 4 adds when the question names a period ("the date or time
+  field to group or filter by for the period the question names") picks the first `date`,
+  `timestamp` or `timestamptz` dimension listed under it.
 - **Values.** A `dimensional_value` target picks every candidate shown with a stored value matched by
   spelling (`exact`, `words`, `typo`), or equal to the target ignoring case. In `values` it names
   the ones that hold every word of the target as a whole word, or, when none does, every one it
   matched: "Springfield" names "West Springfield" and "Springfield Gardens", not "Springfeld
   Heights". A candidate shown with `no stored values` is picked only when it is the target's only
   candidate (a dimension the caller pinned with `entity_name`).
-- **Extras** (`Also in this group`) are never picked, and a reply carries no caveat or `readings`
-  unless a marker asks.
+- **Extras** (`Also in this group`) are never picked, and a reply carries no caveat unless a marker
+  asks.
 
 #### Markers
 
@@ -96,15 +97,13 @@ A case asks for a harder reply by putting a reserved word in a target's `search_
 never a word of the target, so it changes only the reply (and the target's text as embedded and
 shown).
 
-| marker        | the stand-in's reply for that target                                                                       | what it exercises                                   |
-| ------------- | ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
-| `zzbest2`     | `best` is the second pick, not the first                                                                   | the engine moving `best` to the front of the picks  |
-| `zzreadings`  | `readings: true`                                                                                           | `twinRule` keeping twins the judge read both ways   |
-| `zzcaveat`    | a caveat naming the best field (`stand-in caveat: <field> on <source> was a close call for target N.`)     | caveats on the first query group, or on the cluster |
-| `zzroutes`    | every route option shown under a picked field is picked beside it                                          | `dropRoutesAt`                                      |
-| `zzbadpick`   | the first reply also names a candidate number that was not offered; the repair re-ask gets the valid reply | the reply check and the repair re-ask               |
-| `zzjudgefail` | every reply is not JSON, so the call fails after its repair re-ask                                         | the judge-step error a request answers with         |
-| `zzname_<f>`  | a caveat naming field `<f>` (`stand-in caveat: <f> may answer target N too.`), picked or not               | the "also likely" fields a caveat names             |
+| marker        | the stand-in's reply for that target                                                                       | what it exercises                                  |
+| ------------- | ---------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| `zzbest2`     | `best` is the second pick, not the first                                                                   | the engine moving `best` to the front of the picks |
+| `zzcaveat`    | a caveat naming the best field (`stand-in caveat: <field> on <source> was a close call for target N.`)     | a caveat on its card's `clusters` entry            |
+| `zzbadpick`   | the first reply also names a candidate number that was not offered; the repair re-ask gets the valid reply | the reply check and the repair re-ask              |
+| `zzjudgefail` | every reply is not JSON, so the call fails after its repair re-ask                                         | search's top hits, served with a warning           |
+| `zzname_<f>`  | a caveat naming field `<f>` (`stand-in caveat: <f> may answer target N too.`), picked or not               | a caveat naming a field no card serves is dropped  |
 
 #### The source-first engine's calls
 
@@ -139,14 +138,15 @@ top hits with a warning. A snapshot records each box 5 call with `call: "pick"` 
 type and the listings, they cover: many sources sharing a field (more than seven sources in one
 answer), paging (`limit`, a page served from the held result, `offset` past the end, an offset that
 misses the held result and runs again), the judge off, a package's own judge prompt with no
-embeddings, every marker above (a caveat naming a field it did not pick, too), a route pick, routes past `dropRoutesAt`, a `join` target, a
-`model_path` scope, a ranked `include_code`, `connect: "clusters"` (more islands than `maxClusters`,
-more measures than `clusterTopK`, twins with and without `readings`, a dimension one join away and
-one three joins away), a source
-locked on a secure given (no givens, givens it refuses, givens that unlock it), a value search pinned
+embeddings, every marker above (a caveat naming a field it did not pick, too), joined fields served
+beside their source's own card, a `join` target, a `model_path` scope, a ranked `include_code`, four
+islands each answering one target, a fact and its extensions sharing more measures than a target
+serves, a dimension one join away and one three joins away, a source locked on a secure given (no
+givens, givens it refuses, givens that unlock it, and a field reached only through it), a value search pinned
 to a row-gated field with and without givens and with `filter_params`, several stored values of one
-field matching one value, an `#(agent-hidden)` source holding the best match, and an answer over the
-35,000-character page.
+field matching one value, an `#(agent-hidden)` source holding the best match, a pick call that fails
+(for one of several holders of a target, and for its only holder), an unusable or late ordering
+call, a period in the question, and an answer over the 35,000-character page.
 
 ## Run it
 

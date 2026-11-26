@@ -1,6 +1,6 @@
 {
   "case": "judge-caveat-list",
-  "about": "A reply with a caveat naming a field (zzcaveat), in a list: it rides on the first query group.",
+  "about": "Each pick call's reply carries a caveat naming its best field (zzcaveat): it rides on that source's clusters entry.",
   "request": {
     "search_targets": [
       {

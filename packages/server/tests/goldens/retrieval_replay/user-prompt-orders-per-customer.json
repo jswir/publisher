@@ -1,6 +1,6 @@
 {
   "case": "user-prompt-orders-per-customer",
-  "about": "A measure target with user_prompt, which is recorded and must not change matching.",
+  "about": "A measure target with user_prompt: search is the same as without it; the pick calls and the ordering call quote it. overview, the first card, keeps every own field its call picked; the later cards keep best + 1.",
   "request": {
     "search_targets": [
       {

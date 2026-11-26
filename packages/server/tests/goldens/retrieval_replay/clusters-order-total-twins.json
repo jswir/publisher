@@ -1,6 +1,6 @@
 {
   "case": "clusters-order-total-twins",
-  "about": "One measure that a source and its twin (same fields, another name) both hold, among more measures than a cluster keeps per target; twinRule keeps one of the twins.",
+  "about": "One measure that orders and its two extensions (same fields, other rows) all hold, among more measures than a target keeps: orders, the first card, fills the eight per target with its own picks, so the extensions' cards are not served.",
   "request": {
     "search_targets": [
       {

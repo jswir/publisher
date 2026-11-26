@@ -1,6 +1,6 @@
 {
   "case": "route-products-that-were-ordered",
-  "about": "A measure reached through a join, the target naming the joining source: the judge picks the route (order_items through products), not the field on its own source.",
+  "about": "A measure target naming a joined source (products that were ordered): order_items reaches products.product_count through its join, but it holds count measures of its own that the stand-in also picks, so the joined field is not served beside them.",
   "request": {
     "search_targets": [
       {

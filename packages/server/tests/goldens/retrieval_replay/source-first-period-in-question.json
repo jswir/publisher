@@ -123,6 +123,14 @@
                   "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
                 }
               ]
+            },
+            {
+              "name": "created_at",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:created_at",
+              "data_type": "date",
+              "also_likely": true,
+              "also_likely_reason": "A date or time field of this source, returned because the question names a period."
             }
           ],
           "relevance": 1
@@ -212,6 +220,14 @@
                   "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
                 }
               ]
+            },
+            {
+              "name": "created_at",
+              "entity_type": "dimension",
+              "entity_id": "dimension:overview:created_at",
+              "data_type": "date",
+              "also_likely": true,
+              "also_likely_reason": "A date or time field of this source, returned because the question names a period."
             }
           ],
           "relevance": 0.9994879672299025
@@ -286,6 +302,14 @@
                   "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
                 }
               ]
+            },
+            {
+              "name": "created_at",
+              "entity_type": "dimension",
+              "entity_id": "dimension:scoped_orders:created_at",
+              "data_type": "date",
+              "also_likely": true,
+              "also_likely_reason": "A date or time field of this source, returned because the question names a period."
             }
           ],
           "relevance": 0.9994879672299025
@@ -443,8 +467,11 @@
             },
             {
               "target": 2,
-              "candidates": [],
-              "reason": "stand-in: no candidate scored high enough"
+              "candidates": [
+                11
+              ],
+              "reason": "stand-in: the first date or timestamp dimension listed",
+              "best": 11
             }
           ],
           "caveats": []
@@ -499,8 +526,11 @@
             },
             {
               "target": 2,
-              "candidates": [],
-              "reason": "stand-in: no candidate scored high enough"
+              "candidates": [
+                12
+              ],
+              "reason": "stand-in: the first date or timestamp dimension listed",
+              "best": 12
             }
           ],
           "caveats": []
@@ -543,7 +573,7 @@
               "candidates": [
                 2
               ],
-              "reason": "stand-in: 1 candidate(s) scored 2 or more",
+              "reason": "stand-in: the first date or timestamp dimension listed",
               "best": 2
             }
           ],
@@ -599,8 +629,11 @@
             },
             {
               "target": 2,
-              "candidates": [],
-              "reason": "stand-in: no candidate scored high enough"
+              "candidates": [
+                12
+              ],
+              "reason": "stand-in: the first date or timestamp dimension listed",
+              "best": 12
             }
           ],
           "caveats": []

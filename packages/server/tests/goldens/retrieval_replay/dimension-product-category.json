@@ -1,6 +1,6 @@
 {
   "case": "dimension-product-category",
-  "about": "One dimension target; the field exists on a source and through a join.",
+  "about": "One dimension target; the field exists on a source and through a join. order_items, overview and scoped_orders hold category and product_id of their own, so the products.* fields they reach through their join are not served beside them, and products keeps its own card.",
   "request": {
     "search_targets": [
       {

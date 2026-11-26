@@ -1,6 +1,6 @@
 {
   "case": "clusters-four-islands",
-  "about": "Four targets that four separate sources each answer alone: more than maxClusters, so one is left unresolved.",
+  "about": "Four targets that four separate sources each answer alone: each source is kept, and each card answers its one target.",
   "request": {
     "search_targets": [
       {

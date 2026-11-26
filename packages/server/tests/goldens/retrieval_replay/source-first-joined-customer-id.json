@@ -1,6 +1,6 @@
 {
   "case": "source-first-joined-customer-id",
-  "about": "A dimension whose answer on order_items is the joined copy customers.customer_id: search finds customer_id on customers, and order_items offers it through its join.",
+  "about": "A customer id dimension: search finds customer_id on customers, and order_items offers customers.customer_id through its join beside its own customer_id. order_items serves its own field only; customers serves customer_id on its own card.",
   "request": {
     "search_targets": [
       {

@@ -18,7 +18,7 @@
         {
           "environment": "examples",
           "package": "replay-clusters",
-          "one_line_summary": "Synthetic fixture for the retrieval replay, searched with connect: clusters, collapseCopies and twinRule on: a joined…"
+          "one_line_summary": "Synthetic fixture for the retrieval replay: a joined star with two extensions of its fact, and islands that each answer…"
         },
         {
           "environment": "examples",

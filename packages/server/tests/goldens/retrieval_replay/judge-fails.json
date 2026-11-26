@@ -1,6 +1,6 @@
 {
   "case": "judge-fails",
-  "about": "Every judge reply is not JSON (zzjudgefail): the request answers with the judge-step error.",
+  "about": "Every pick call's reply is not JSON (zzjudgefail), so each fails after its repair re-ask, and the ordering call's reply is unusable: the request still answers, with search's top hits on box 4's sources and the warning that the ranking step was unavailable.",
   "request": {
     "search_targets": [
       {

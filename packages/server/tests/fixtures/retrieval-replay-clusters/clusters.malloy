@@ -1,13 +1,12 @@
 // Copyright (c) Credible Data Inc.
 // SPDX-License-Identifier: MIT
 
-// Synthetic rows for the retrieval replay (tests/component/retrieval_replay),
-// searched with `connect: "clusters"`, `collapseCopies` and `twinRule`: an
-// orders star whose fact has more measures than a cluster keeps per target
-// (and reaches a state's census region three joins away),
-// two extensions of it that hold other rows under the same fields (twins),
-// and four islands that each answer only one target, one more than the
-// clusters a search keeps.
+// Synthetic rows for the retrieval replay (tests/component/retrieval_replay):
+// an orders star whose fact has more measures than a target keeps (and
+// reaches a state's census region three joins away), two extensions of it
+// that hold other rows under the same fields, and four islands that each
+// answer only one target. Its publisher.json sets retired retrieval.fcj
+// keys, which the package must still load with.
 
 #(doc) One row per US state.
 source: states is duckdb.sql("""

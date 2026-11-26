@@ -1,6 +1,6 @@
 {
   "case": "clusters-joined-dimension",
-  "about": "A measure on the home and a dimension one join away: the joined field is on the home's card, its score discounted per hop.",
+  "about": "A measure on orders and a dimension (customer segment) one join away on customers: orders has customer_id of its own for the dimension target, so its joined customer.* fields are not served; customers serves customer_segment on its own card.",
   "request": {
     "search_targets": [
       {

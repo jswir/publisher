@@ -1,6 +1,6 @@
 {
   "case": "source-first-field-limit-after-first-source",
-  "about": "Eleven sources share amount and region: the first card keeps every field its call picked, every later card at most two per pick, and a target at most eight in all.",
+  "about": "Eleven sources share amount and region: the first card keeps every own field its call picked, every later card at most two per pick, and a target at most eight in all; payments' joined invoice.invoiced_amount is not served beside its own total_paid_amount, and invoices serves invoiced_amount on its own card.",
   "request": {
     "search_targets": [
       {

@@ -1,11 +1,11 @@
 {
-  "case": "judge-routes-beside-fields",
-  "about": "The judge picks every route shown beside each field it picks (zzroutes): past dropRoutesAt, the routes are dropped and the fields kept.",
+  "case": "joined-fields-beside-their-own-card",
+  "about": "One dimension target (state and city) that customers holds and order_items, overview and scoped_orders reach through their customers join: customers serves city and state on its own card, and each source that has no city or state of its own serves the joined fields, its best and at most one more.",
   "request": {
     "search_targets": [
       {
         "target_type": "dimension",
-        "search_text": "state and city zzroutes"
+        "search_text": "state and city"
       }
     ],
     "scopes": [
@@ -36,12 +36,12 @@
               "name": "city",
               "entity_type": "dimension",
               "entity_id": "dimension:customers:city",
-              "relevance": 0.9067360379149754,
+              "relevance": 0.9205961026442137,
               "data_type": "string",
               "matched_targets": [
                 {
-                  "search_text": "state and city zzroutes",
-                  "relevance": 0.9067,
+                  "search_text": "state and city",
+                  "relevance": 0.9206,
                   "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
                 }
               ]
@@ -50,18 +50,18 @@
               "name": "state",
               "entity_type": "dimension",
               "entity_id": "dimension:customers:state",
-              "relevance": 0.8732819878820279,
+              "relevance": 0.886501015134736,
               "data_type": "string",
               "matched_targets": [
                 {
-                  "search_text": "state and city zzroutes",
-                  "relevance": 0.8733,
+                  "search_text": "state and city",
+                  "relevance": 0.8865,
                   "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
                 }
               ]
             }
           ],
-          "relevance": 0.9067360379149754
+          "relevance": 0.9205961026442137
         },
         {
           "source_info": {
@@ -96,15 +96,15 @@
               "name": "customers.city",
               "entity_type": "dimension",
               "entity_id": "dimension:order_items:customers.city",
-              "relevance": 0.9067360379149754,
+              "relevance": 0.9205961026442137,
               "description": "Reached from order_items through customers, a left join: a order_items row with no match keeps a null here, so grouping or counting by it follows order_items's rows.",
               "data_type": "string",
               "relationship": "one",
               "join_path": "customers",
               "matched_targets": [
                 {
-                  "search_text": "state and city zzroutes",
-                  "relevance": 0.9067,
+                  "search_text": "state and city",
+                  "relevance": 0.9206,
                   "match_reason": "stand-in: 3 candidate(s) scored 2 or more"
                 }
               ]
@@ -113,21 +113,21 @@
               "name": "customers.state",
               "entity_type": "dimension",
               "entity_id": "dimension:order_items:customers.state",
-              "relevance": 0.8732819878820279,
+              "relevance": 0.886501015134736,
               "description": "Reached from order_items through customers, a left join: a order_items row with no match keeps a null here, so grouping or counting by it follows order_items's rows.",
               "data_type": "string",
               "relationship": "one",
               "join_path": "customers",
               "matched_targets": [
                 {
-                  "search_text": "state and city zzroutes",
-                  "relevance": 0.8733,
+                  "search_text": "state and city",
+                  "relevance": 0.8865,
                   "match_reason": "stand-in: 3 candidate(s) scored 2 or more"
                 }
               ]
             }
           ],
-          "relevance": 0.9067360379149754
+          "relevance": 0.9205961026442137
         },
         {
           "source_info": {
@@ -189,15 +189,15 @@
               "name": "customers.city",
               "entity_type": "dimension",
               "entity_id": "dimension:overview:customers.city",
-              "relevance": 0.9067360379149754,
+              "relevance": 0.9205961026442137,
               "description": "Reached from overview through customers, a left join: a overview row with no match keeps a null here, so grouping or counting by it follows overview's rows.",
               "data_type": "string",
               "relationship": "one",
               "join_path": "customers",
               "matched_targets": [
                 {
-                  "search_text": "state and city zzroutes",
-                  "relevance": 0.9067,
+                  "search_text": "state and city",
+                  "relevance": 0.9206,
                   "match_reason": "stand-in: 3 candidate(s) scored 2 or more"
                 }
               ]
@@ -206,21 +206,21 @@
               "name": "customers.state",
               "entity_type": "dimension",
               "entity_id": "dimension:overview:customers.state",
-              "relevance": 0.8732819878820279,
+              "relevance": 0.886501015134736,
               "description": "Reached from overview through customers, a left join: a overview row with no match keeps a null here, so grouping or counting by it follows overview's rows.",
               "data_type": "string",
               "relationship": "one",
               "join_path": "customers",
               "matched_targets": [
                 {
-                  "search_text": "state and city zzroutes",
-                  "relevance": 0.8733,
+                  "search_text": "state and city",
+                  "relevance": 0.8865,
                   "match_reason": "stand-in: 3 candidate(s) scored 2 or more"
                 }
               ]
             }
           ],
-          "relevance": 0.9067360379149754
+          "relevance": 0.9205961026442137
         },
         {
           "source_info": {
@@ -243,7 +243,7 @@
               "data_type": "string",
               "matched_targets": [
                 {
-                  "search_text": "state and city zzroutes",
+                  "search_text": "state and city",
                   "relevance": 1,
                   "match_reason": "stand-in: 1 candidate(s) scored 2 or more"
                 }
@@ -312,21 +312,21 @@
               "name": "customers.city",
               "entity_type": "dimension",
               "entity_id": "dimension:scoped_orders:customers.city",
-              "relevance": 0.9067360379149754,
+              "relevance": 0.9205961026442137,
               "description": "Reached from scoped_orders through customers, a left join: a scoped_orders row with no match keeps a null here, so grouping or counting by it follows scoped_orders's rows.",
               "data_type": "string",
               "relationship": "one",
               "join_path": "customers",
               "matched_targets": [
                 {
-                  "search_text": "state and city zzroutes",
-                  "relevance": 0.9067,
+                  "search_text": "state and city",
+                  "relevance": 0.9206,
                   "match_reason": "stand-in: 3 candidate(s) scored 2 or more"
                 }
               ]
             }
           ],
-          "relevance": 0.9067360379149754
+          "relevance": 0.9205961026442137
         }
       ],
       "ranking": "relevance",
@@ -448,7 +448,7 @@
       "coverage": [
         {
           "target_index": 0,
-          "search_text": "state and city zzroutes",
+          "search_text": "state and city",
           "clusters": [
             true,
             true,
@@ -475,78 +475,83 @@
   "traffic": {
     "embedding_calls": 1,
     "embedded_texts": [
-      "state and city zzroutes"
+      "state and city"
     ],
     "judge_calls": 8,
     "judge": [
       {
-        "call": "pick",
-        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
-        "prompt_sha256": "2886c5808ccb049df209bb372f4b5a427cc1d74f1dfb30bc97062955c479a733",
+        "call": "order",
+        "system_sha256": "9f40894afb1ad7f2fe5efb8eaa1854a21d6f03ac890ad3069e37e040ac666185",
+        "prompt_sha256": "24480a85fbfc5e6fdb8edcb3b0623f465ed45c8ebe046d716bcfc2850f63ffba",
         "prompt": [
-          "Source: order_items - Order line items — the fact table, one row per product sold on an order.",
-          "Its doc: \"Order line items — the fact table, one row per product sold on an order\"",
+          "What the caller is looking for:",
+          "  dimension: \"state and city\"",
           "",
-          "<targets>",
-          "Target 1 (dimension): \"state and city zzroutes\"",
-          "  [1] regions.state (dimension, string; source order_items; through the join regions): (no doc; name in words: regions state)",
-          "  [2] regions.region (dimension, string; source order_items; through the join regions): (no doc; name in words: regions region)",
-          "  [3] region (dimension, string; source order_items): Sales region for the customer's home state",
-          "  [4] customers.city (dimension, string; source order_items; through the join customers): (no doc; name in words: customers city)",
-          "  [5] customers.state (dimension, string; source order_items; through the join customers): (no doc; name in words: customers state)",
-          "  [6] brand (dimension, string; source order_items): Brand of the item sold",
-          "  [7] gross_margin (dimension, number; source order_items): Gross margin on this line (sale price minus product cost)",
-          "  [8] products.brand (dimension, string; source order_items; through the join products): (no doc; name in words: products brand)",
-          "  [9] products.name (dimension, string; source order_items; through the join products): (no doc; name in words: products name)",
-          "  [10] category (dimension, string; source order_items): Product category of the item sold",
-          "  [11] customers.full_name (dimension, string; source order_items; through the join customers): (no doc; name in words: customers full name)",
-          "  [12] products.category (dimension, string; source order_items; through the join products): (no doc; name in words: products category)",
-          "</targets>",
+          "<sources>",
+          "[1] regions - \"Sales region for each US state, one row per state, keyed by `state`\"",
+          "  Fields search found here:",
+          "    for \"state and city\": state, region",
+          "[2] overview - \"The overview report's tiles, each over the order lines its controls select\"",
+          "  Fields search found here:",
+          "    for \"state and city\": regions.state, region, regions.region",
+          "[3] order_items - \"Order line items — the fact table, one row per product sold on an order\"",
+          "  Fields search found here:",
+          "    for \"state and city\": regions.state, regions.region, region",
+          "[4] scoped_orders - \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
+          "  Fields search found here:",
+          "    for \"state and city\": regions.state, regions.region, region",
+          "[5] customers - \"People who have placed orders — one row per customer, keyed by `customer_id`\"",
+          "  Fields search found here:",
+          "    for \"state and city\": city, state, full_name",
+          "[6] brand_suggest - \"Distinct brands, for the Brand filter control's option list\"",
+          "  Fields search found here:",
+          "    for \"state and city\": brand",
+          "[7] products - \"Catalog of products, one row per product, with cost and retail price\"",
+          "  Fields search found here:",
+          "    for \"state and city\": brand, name, category",
+          "</sources>",
           "",
           "Reply with one JSON object and nothing else:",
-          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
-          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+          "{\"sources\": [<every source number, best first>]}"
         ],
         "reply": {
-          "picks": [
-            {
-              "target": 1,
-              "candidates": [
-                4,
-                5,
-                1
-              ],
-              "reason": "stand-in: 3 candidate(s) scored 2 or more",
-              "best": 4
-            }
-          ],
-          "caveats": []
+          "sources": [
+            5,
+            3,
+            2,
+            1,
+            4,
+            6,
+            7
+          ]
         }
       },
       {
         "call": "pick",
         "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
-        "prompt_sha256": "472d07af6b5460c8333e4e31d630a9787de0f2b237703b130bf93a415cb5e639",
+        "prompt_sha256": "3decab9f95f2bc02a9486630e78b1c3b0b28077d800b52a6304ff4de1eb13d4e",
         "prompt": [
           "Source: scoped_orders - Order lines narrowed by the data app's control row.",
           "Its doc: \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
           "",
           "<targets>",
-          "Target 1 (dimension): \"state and city zzroutes\"",
+          "Target 1 (dimension): \"state and city\"",
           "  [1] regions.state (dimension, string; source scoped_orders; through the join regions): (no doc; name in words: regions state)",
           "  [2] regions.region (dimension, string; source scoped_orders; through the join regions): (no doc; name in words: regions region)",
           "  [3] region (dimension, string; source scoped_orders): Sales region for the customer's home state",
           "  [4] customers.city (dimension, string; source scoped_orders; through the join customers): (no doc; name in words: customers city)",
           "  [5] customers.state (dimension, string; source scoped_orders; through the join customers): (no doc; name in words: customers state)",
           "  [6] brand (dimension, string; source scoped_orders): Brand of the item sold",
-          "  [7] gross_margin (dimension, number; source scoped_orders): Gross margin on this line (sale price minus product cost)",
-          "  [8] products.brand (dimension, string; source scoped_orders; through the join products): (no doc; name in words: products brand)",
-          "  [9] products.name (dimension, string; source scoped_orders; through the join products): (no doc; name in words: products name)",
-          "  [10] category (dimension, string; source scoped_orders): Product category of the item sold",
-          "  [11] customers.full_name (dimension, string; source scoped_orders; through the join customers): (no doc; name in words: customers full name)",
-          "  [12] products.category (dimension, string; source scoped_orders; through the join products): (no doc; name in words: products category)",
-          "  [13] id (dimension, number; source scoped_orders): (no doc; name in words: id)",
-          "  [14] status (dimension, string; source scoped_orders): (no doc; name in words: status)",
+          "  [7] products.brand (dimension, string; source scoped_orders; through the join products): (no doc; name in words: products brand)",
+          "  [8] products.name (dimension, string; source scoped_orders; through the join products): (no doc; name in words: products name)",
+          "  [9] category (dimension, string; source scoped_orders): Product category of the item sold",
+          "  [10] customers.full_name (dimension, string; source scoped_orders; through the join customers): (no doc; name in words: customers full name)",
+          "  [11] products.category (dimension, string; source scoped_orders; through the join products): (no doc; name in words: products category)",
+          "  [12] id (dimension, number; source scoped_orders): (no doc; name in words: id)",
+          "  [13] status (dimension, string; source scoped_orders): (no doc; name in words: status)",
+          "  [14] products.cost (dimension, number; source scoped_orders; through the join products): (no doc; name in words: products cost)",
+          "  [15] customer_id (dimension, number; source scoped_orders): (no doc; name in words: customer id)",
+          "  [16] sale_price (dimension, number; source scoped_orders): (no doc; name in words: sale price)",
           "</targets>",
           "",
           "Reply with one JSON object and nothing else:",
@@ -572,32 +577,17 @@
       {
         "call": "pick",
         "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
-        "prompt_sha256": "840c545f39bb2351e6203d9db171429104e4830ef9e10a198b42d371ca8f40d7",
+        "prompt_sha256": "49d66e626ef8406582e448936053502e05038444752ce27d691eba3c57b6e4e4",
         "prompt": [
-          "Source: overview - The overview report's tiles, each over the order lines its controls select.",
-          "Its doc: \"The overview report's tiles, each over the order lines its controls select\"",
+          "Source: products - Catalog of products, one row per product, with cost and retail price.",
+          "Its doc: \"Catalog of products, one row per product, with cost and retail price\"",
           "",
           "<targets>",
-          "Target 1 (dimension): \"state and city zzroutes\"",
-          "  [1] regions.state (dimension, string; source overview; through the join regions): (no doc; name in words: regions state)",
-          "  [2] region (dimension, string; source overview): Sales region for the customer's home state",
-          "  [3] regions.region (dimension, string; source overview; through the join regions): (no doc; name in words: regions region)",
-          "  [4] customers.city (dimension, string; source overview; through the join customers): (no doc; name in words: customers city)",
-          "  [5] customers.state (dimension, string; source overview; through the join customers): (no doc; name in words: customers state)",
-          "  [6] brand (dimension, string; source overview): Brand of the item sold",
-          "  [7] gross_margin (dimension, number; source overview): Gross margin on this line (sale price minus product cost)",
-          "  [8] products.brand (dimension, string; source overview; through the join products): (no doc; name in words: products brand)",
-          "  [9] products.name (dimension, string; source overview; through the join products): (no doc; name in words: products name)",
-          "  [10] category (dimension, string; source overview): Product category of the item sold",
-          "  [11] created_at (dimension, date; source overview): (no doc; name in words: created at)",
-          "  [12] customer_id (dimension, number; source overview): (no doc; name in words: customer id)",
-          "  [13] id (dimension, number; source overview): (no doc; name in words: id)",
-          "  [14] order_id (dimension, number; source overview): (no doc; name in words: order id)",
-          "  [15] product_id (dimension, number; source overview): (no doc; name in words: product id)",
-          "  [16] sale_price (dimension, number; source overview): (no doc; name in words: sale price)",
-          "  [17] status (dimension, string; source overview): (no doc; name in words: status)",
-          "  [18] customers.full_name (dimension, string; source overview; through the join customers): (no doc; name in words: customers full name)",
-          "  [19] products.category (dimension, string; source overview; through the join products): (no doc; name in words: products category)",
+          "Target 1 (dimension): \"state and city\"",
+          "  [1] brand (dimension, string; source products): (no doc; name in words: brand)",
+          "  [2] name (dimension, string; source products): (no doc; name in words: name)",
+          "  [3] category (dimension, string; source products): (no doc; name in words: category)",
+          "  [4] cost (dimension, number; source products): (no doc; name in words: cost)",
           "</targets>",
           "",
           "Reply with one JSON object and nothing else:",
@@ -608,13 +598,8 @@
           "picks": [
             {
               "target": 1,
-              "candidates": [
-                4,
-                5,
-                1
-              ],
-              "reason": "stand-in: 3 candidate(s) scored 2 or more",
-              "best": 4
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
             }
           ],
           "caveats": []
@@ -623,13 +608,13 @@
       {
         "call": "pick",
         "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
-        "prompt_sha256": "c5574b809e34c4d9d2002492aa852650d7aa782d118b65ae489724bb9ba8b0d6",
+        "prompt_sha256": "51e252b46c443e3eafde7fe4adaf10839c2b73c2944d63de5c7464ec61514ef7",
         "prompt": [
           "Source: customers - People who have placed orders — one row per customer, keyed by `customer_id`.",
           "Its doc: \"People who have placed orders — one row per customer, keyed by `customer_id`\"",
           "",
           "<targets>",
-          "Target 1 (dimension): \"state and city zzroutes\"",
+          "Target 1 (dimension): \"state and city\"",
           "  [1] city (dimension, string; source customers): (no doc; name in words: city)",
           "  [2] state (dimension, string; source customers): (no doc; name in words: state)",
           "  [3] full_name (dimension, string; source customers): (no doc; name in words: full name)",
@@ -657,13 +642,85 @@
       {
         "call": "pick",
         "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
-        "prompt_sha256": "ca73d83392efc7a2795a000981fb4ca01a3bf4938cedabcb304d71d672f94f4a",
+        "prompt_sha256": "5ec94573319e832af97dea23003b80558132d85bf3031f1705494ac21193d017",
+        "prompt": [
+          "Source: brand_suggest - Distinct brands, for the Brand filter control's option list.",
+          "Its doc: \"Distinct brands, for the Brand filter control's option list\"",
+          "",
+          "<targets>",
+          "Target 1 (dimension): \"state and city\"",
+          "  [1] brand (dimension, string; source brand_suggest): Brand of the item sold",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "8ef523fc070855fd19150006720e90908703b7c085ea3b762939064614357e58",
+        "prompt": [
+          "Source: order_items - Order line items — the fact table, one row per product sold on an order.",
+          "Its doc: \"Order line items — the fact table, one row per product sold on an order\"",
+          "",
+          "<targets>",
+          "Target 1 (dimension): \"state and city\"",
+          "  [1] regions.state (dimension, string; source order_items; through the join regions): (no doc; name in words: regions state)",
+          "  [2] regions.region (dimension, string; source order_items; through the join regions): (no doc; name in words: regions region)",
+          "  [3] region (dimension, string; source order_items): Sales region for the customer's home state",
+          "  [4] customers.city (dimension, string; source order_items; through the join customers): (no doc; name in words: customers city)",
+          "  [5] customers.state (dimension, string; source order_items; through the join customers): (no doc; name in words: customers state)",
+          "  [6] brand (dimension, string; source order_items): Brand of the item sold",
+          "  [7] products.brand (dimension, string; source order_items; through the join products): (no doc; name in words: products brand)",
+          "  [8] products.name (dimension, string; source order_items; through the join products): (no doc; name in words: products name)",
+          "  [9] category (dimension, string; source order_items): Product category of the item sold",
+          "  [10] customers.full_name (dimension, string; source order_items; through the join customers): (no doc; name in words: customers full name)",
+          "  [11] products.category (dimension, string; source order_items; through the join products): (no doc; name in words: products category)",
+          "  [12] products.cost (dimension, number; source order_items; through the join products): (no doc; name in words: products cost)",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                4,
+                5,
+                1
+              ],
+              "reason": "stand-in: 3 candidate(s) scored 2 or more",
+              "best": 4
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "c509163c4becbb1ec40d6c06de9e5a56e3d7d35b5289054a85ef11050ce507c2",
         "prompt": [
           "Source: regions - Sales region for each US state, one row per state, keyed by `state`.",
           "Its doc: \"Sales region for each US state, one row per state, keyed by `state`\"",
           "",
           "<targets>",
-          "Target 1 (dimension): \"state and city zzroutes\"",
+          "Target 1 (dimension): \"state and city\"",
           "  [1] state (dimension, string; source regions): (no doc; name in words: state)",
           "  [2] region (dimension, string; source regions): (no doc; name in words: region)",
           "</targets>",
@@ -689,14 +746,32 @@
       {
         "call": "pick",
         "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
-        "prompt_sha256": "f129fef471cd91b9669e5a03833103a94bde7af379ea172a86aedb9997decfed",
+        "prompt_sha256": "d464c69ff3ff50319a412b745c74b7a5cee45dbcafd53343313beb0b9efae61f",
         "prompt": [
-          "Source: brand_suggest - Distinct brands, for the Brand filter control's option list.",
-          "Its doc: \"Distinct brands, for the Brand filter control's option list\"",
+          "Source: overview - The overview report's tiles, each over the order lines its controls select.",
+          "Its doc: \"The overview report's tiles, each over the order lines its controls select\"",
           "",
           "<targets>",
-          "Target 1 (dimension): \"state and city zzroutes\"",
-          "  [1] brand (dimension, string; source brand_suggest): Brand of the item sold",
+          "Target 1 (dimension): \"state and city\"",
+          "  [1] regions.state (dimension, string; source overview; through the join regions): (no doc; name in words: regions state)",
+          "  [2] region (dimension, string; source overview): Sales region for the customer's home state",
+          "  [3] regions.region (dimension, string; source overview; through the join regions): (no doc; name in words: regions region)",
+          "  [4] customers.city (dimension, string; source overview; through the join customers): (no doc; name in words: customers city)",
+          "  [5] customers.state (dimension, string; source overview; through the join customers): (no doc; name in words: customers state)",
+          "  [6] brand (dimension, string; source overview): Brand of the item sold",
+          "  [7] products.brand (dimension, string; source overview; through the join products): (no doc; name in words: products brand)",
+          "  [8] products.name (dimension, string; source overview; through the join products): (no doc; name in words: products name)",
+          "  [9] category (dimension, string; source overview): Product category of the item sold",
+          "  [10] created_at (dimension, date; source overview): (no doc; name in words: created at)",
+          "  [11] customer_id (dimension, number; source overview): (no doc; name in words: customer id)",
+          "  [12] id (dimension, number; source overview): (no doc; name in words: id)",
+          "  [13] order_id (dimension, number; source overview): (no doc; name in words: order id)",
+          "  [14] product_id (dimension, number; source overview): (no doc; name in words: product id)",
+          "  [15] sale_price (dimension, number; source overview): (no doc; name in words: sale price)",
+          "  [16] status (dimension, string; source overview): (no doc; name in words: status)",
+          "  [17] customers.full_name (dimension, string; source overview; through the join customers): (no doc; name in words: customers full name)",
+          "  [18] products.category (dimension, string; source overview; through the join products): (no doc; name in words: products category)",
+          "  [19] products.cost (dimension, number; source overview; through the join products): (no doc; name in words: products cost)",
           "</targets>",
           "",
           "Reply with one JSON object and nothing else:",
@@ -707,88 +782,16 @@
           "picks": [
             {
               "target": 1,
-              "candidates": [],
-              "reason": "stand-in: no candidate scored high enough"
+              "candidates": [
+                4,
+                5,
+                1
+              ],
+              "reason": "stand-in: 3 candidate(s) scored 2 or more",
+              "best": 4
             }
           ],
           "caveats": []
-        }
-      },
-      {
-        "call": "pick",
-        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
-        "prompt_sha256": "f543a082f89d3902be8241d014f27ad790e6601b2b6a9ba84b5ef5e909259d8d",
-        "prompt": [
-          "Source: products - Catalog of products, one row per product, with cost and retail price.",
-          "Its doc: \"Catalog of products, one row per product, with cost and retail price\"",
-          "",
-          "<targets>",
-          "Target 1 (dimension): \"state and city zzroutes\"",
-          "  [1] brand (dimension, string; source products): (no doc; name in words: brand)",
-          "  [2] name (dimension, string; source products): (no doc; name in words: name)",
-          "  [3] category (dimension, string; source products): (no doc; name in words: category)",
-          "</targets>",
-          "",
-          "Reply with one JSON object and nothing else:",
-          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
-          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
-        ],
-        "reply": {
-          "picks": [
-            {
-              "target": 1,
-              "candidates": [],
-              "reason": "stand-in: no candidate scored high enough"
-            }
-          ],
-          "caveats": []
-        }
-      },
-      {
-        "call": "order",
-        "system_sha256": "9f40894afb1ad7f2fe5efb8eaa1854a21d6f03ac890ad3069e37e040ac666185",
-        "prompt_sha256": "fa8338d9ff5df7861545c012d6e001bde95c07789c931c016f8b4b8907b4e114",
-        "prompt": [
-          "What the caller is looking for:",
-          "  dimension: \"state and city zzroutes\"",
-          "",
-          "<sources>",
-          "[1] regions - \"Sales region for each US state, one row per state, keyed by `state`\"",
-          "  Fields search found here:",
-          "    for \"state and city zzroutes\": state, region",
-          "[2] overview - \"The overview report's tiles, each over the order lines its controls select\"",
-          "  Fields search found here:",
-          "    for \"state and city zzroutes\": regions.state, region, regions.region",
-          "[3] order_items - \"Order line items — the fact table, one row per product sold on an order\"",
-          "  Fields search found here:",
-          "    for \"state and city zzroutes\": regions.state, regions.region, region",
-          "[4] scoped_orders - \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
-          "  Fields search found here:",
-          "    for \"state and city zzroutes\": regions.state, regions.region, region",
-          "[5] customers - \"People who have placed orders — one row per customer, keyed by `customer_id`\"",
-          "  Fields search found here:",
-          "    for \"state and city zzroutes\": city, state, full_name",
-          "[6] brand_suggest - \"Distinct brands, for the Brand filter control's option list\"",
-          "  Fields search found here:",
-          "    for \"state and city zzroutes\": brand",
-          "[7] products - \"Catalog of products, one row per product, with cost and retail price\"",
-          "  Fields search found here:",
-          "    for \"state and city zzroutes\": brand, name, category",
-          "</sources>",
-          "",
-          "Reply with one JSON object and nothing else:",
-          "{\"sources\": [<every source number, best first>]}"
-        ],
-        "reply": {
-          "sources": [
-            5,
-            3,
-            2,
-            1,
-            4,
-            6,
-            7
-          ]
         }
       }
     ]
