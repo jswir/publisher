@@ -314,7 +314,11 @@ index and no model, and works in every state. The engine answers in six steps, e
    hits per target go on.
 4. **Group by source.** The hits are grouped by the source that holds them, and at most seven sources
    are kept: the source of each target's best hit first, then the rest by how high their hits rank
-   across the targets. A request scoped to one source keeps that one.
+   across the targets. A request scoped to one source keeps that one. Each kept source offers its
+   own hits and, through its joins (up to three deep), the hits on the sources it reaches, under the
+   path a query from it types (`customers.state` on `order_items`), so the joined source needs no
+   slot of its own. When `user_prompt` or a target names a period (a year, a month, "monthly",
+   ...), each kept source also offers its own date and time fields.
 5. **Rerank.** With an LLM configured, one judge call per kept source, all at once, is shown that
    source's doc, the fields search found on it for each target, every target and the caller's
    question (`user_prompt`), and picks the fields of that source that answer each target. Beside
@@ -323,7 +327,10 @@ index and no model, and works in every state. The engine answers in six steps, e
    each target gets its top few hits and no call is made.
 6. **Format.** One card per source, in that order, each field with its own call's reason. The first
    source keeps every field its call picked; every other source keeps at most two per target, and a
-   target returns at most eight fields in all. Beside `sources` the response carries `clusters` (one
+   target returns at most eight fields in all. A field reached through a join carries its
+   `join_path` and a sentence on the rows it follows. A date field picked for a period the question
+   names is marked `also_likely`, at most one per card. No caveat or warning names a field the
+   limits or the page cut. Beside `sources` the response carries `clusters` (one
    entry per card: the source to query from and what it answers), `coverage` (target by entry, when
    there is more than one), `unresolved_targets` and `engine: "fcj"`. An answer longer than one page
    carries `next_offset`; call again with the same arguments and that `offset` for the next page of

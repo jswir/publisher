@@ -106,6 +106,33 @@ shown).
 | `zzjudgefail` | every reply is not JSON, so the call fails after its repair re-ask                                         | the judge-step error a request answers with         |
 | `zzname_<f>`  | a caveat naming field `<f>` (`stand-in caveat: <f> may answer target N too.`), picked or not               | the "also likely" fields a caveat names             |
 
+#### The source-first engine's calls
+
+The engine sends one pick call per kept source and one ordering call (configuration.md, "The
+judge"). Both are read through a grammar, as above, and throw a `StandInError` on a line they do not
+know:
+
+- **A pick call** is the judge prompt above with a header that names its one source (`Source: name[ -
+description]`, then `Its doc: "<json>"`) and, after `</targets>`, the caller's question (the
+  question header line, then the question as one JSON string). Its candidate lines say
+  `; through the join j` for a field reached through a join. The decision rule is the one above.
+- **The ordering call** lists `What the caller is looking for:` (one `  type: "text"` line per
+  target), then `<sources>` with `[n] name - "<doc as json>"` and, under `  Fields search found
+here:`, a `    for "text": a, b` line per target. The stand-in orders the sources by the summed
+  name score (`fieldScore`, with no doc) of the fields listed under each target, most first,
+  ties by source name. That is not box 4's order, so a reordering shows in the snapshot.
+
+What a marker cannot say goes in the case's `user_prompt`, which both calls quote:
+
+| directive                      | the stand-in's reply                         | what it exercises                                 |
+| ------------------------------ | -------------------------------------------- | ------------------------------------------------- |
+| `[replay: fail pick <source>]` | that source's pick call fails (each attempt) | a source left out while the others serve          |
+| `[replay: order invalid]`      | the ordering reply names no kept source      | the ordering reply's check: box 4's order         |
+| `[replay: order late]`         | the ordering call never answers              | the cut 0.3 s after the pick calls: box 4's order |
+
+`zzjudgefail` fails every pick call and the ordering call, so the request is served from search's
+top hits with a warning. A snapshot records each box 5 call with `call: "pick"` or `"order"`.
+
 ### What the corpus covers
 
 `cases.ts` holds the cases, each with a sentence saying what it covers. Besides one target of each
