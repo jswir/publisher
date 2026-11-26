@@ -46,6 +46,7 @@ export function sha256(text: string): string {
 /** What kind of call a chat prompt is, from its shape. */
 export type ChatKind =
    | "judge"
+   | "order"
    | "doc_parts"
    | "questions"
    | "source_summary"
@@ -97,6 +98,9 @@ export function replayEmbeddingProvider(traffic: Traffic): EmbeddingProvider {
 function kindOf(system: string, prompt: string): ChatKind {
    if (prompt.includes("\n<targets>\n") && prompt.includes('"picks"')) {
       return "judge";
+   }
+   if (prompt.includes("\n<sources>\n") && prompt.includes('{"sources": [')) {
+      return "order";
    }
    if (prompt.startsWith("<docs>\n")) return "doc_parts";
    if (prompt.startsWith("<fields>\n") && prompt.includes('"questions"')) {
@@ -335,10 +339,66 @@ export function standInJudgeReply(prompt: string): string {
    return JSON.stringify({ picks, caveats: [] });
 }
 
+/**
+ * A case steers the stand-in through its `user_prompt`, which both box 5
+ * prompts quote: `[replay: fail pick <source>]` fails that source's pick
+ * call, `[replay: fail every pick]` fails them all, `[replay: order invalid]`
+ * answers the ordering call with no kept source, and `[replay: order late]`
+ * holds the ordering reply until the call is cut.
+ */
+function directives(prompt: string): string[] {
+   return [...prompt.matchAll(/\[replay: ([^\]]+)\]/g)].map((m) => m[1]);
+}
+
+/** The source a pick prompt shows: the name on its `Source:` line. */
+function pickSource(prompt: string): string | undefined {
+   return /^Source: ([^\s]+)/m.exec(prompt)?.[1];
+}
+
+/**
+ * The stand-in ordering call: the sources by how many of the targets'
+ * content words their block (name, doc and the fields search found) holds,
+ * most first; a tie keeps the order they were listed in.
+ */
+export function standInOrderReply(prompt: string): string {
+   if (directives(prompt).includes("order invalid")) {
+      return JSON.stringify({ sources: [99] });
+   }
+   const wanted = new Set<string>();
+   for (const m of prompt.matchAll(/^ {2}[a-z_]+: (".*")$/gm)) {
+      for (const w of contentWords(JSON.parse(m[1]) as string)) wanted.add(w);
+   }
+   const blocks = prompt
+      .slice(prompt.indexOf("<sources>"), prompt.indexOf("</sources>"))
+      .split(/^(?=\[\d+\] )/m)
+      .filter((b) => /^\[\d+\] /.test(b));
+   const scored = blocks.map((b, i) => ({
+      n: Number(/^\[(\d+)\]/.exec(b)![1]),
+      score: [...contentWords(b.replace(/_/g, " "))].filter((w) =>
+         wanted.has(w),
+      ).length,
+      i,
+   }));
+   scored.sort((a, b) => b.score - a.score || a.i - b.i);
+   return JSON.stringify({ sources: scored.map((s) => s.n) });
+}
+
 function replyFor(kind: ChatKind, prompt: string): string {
    switch (kind) {
-      case "judge":
+      case "judge": {
+         const said = directives(prompt);
+         if (
+            said.includes("fail every pick") ||
+            said.includes(`fail pick ${pickSource(prompt)}`)
+         ) {
+            throw new Error(
+               "replay stand-in: this pick call fails, as the case asks",
+            );
+         }
          return standInJudgeReply(prompt);
+      }
+      case "order":
+         return standInOrderReply(prompt);
       case "doc_parts":
          return docPartsReply(prompt);
       case "questions":
@@ -367,7 +427,24 @@ export function replayChat(traffic: Traffic): ChatModel {
             reply: "",
          };
          traffic.chatCalls.push(call);
-         call.reply = replyFor(kind, req.prompt);
+         if (
+            kind === "order" &&
+            directives(req.prompt).includes("order late")
+         ) {
+            // Never answers: the call is cut, ORDER_GRACE_MS after the picks.
+            call.reply = JSON.stringify({ error: "cut before it answered" });
+            await new Promise<never>((_, reject) => {
+               const cut = () => reject(req.signal.reason);
+               if (req.signal.aborted) cut();
+               else req.signal.addEventListener("abort", cut, { once: true });
+            });
+         }
+         try {
+            call.reply = replyFor(kind, req.prompt);
+         } catch (error) {
+            call.reply = JSON.stringify({ error: (error as Error).message });
+            throw error;
+         }
          return {
             text: call.reply,
             usage: { inputTokens: 0, outputTokens: 0 },

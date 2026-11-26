@@ -1,0 +1,193 @@
+{
+  "case": "scoped-to-one-source",
+  "about": "A call scoped to one source: one pick call and no ordering call.",
+  "request": {
+    "search_targets": [
+      {
+        "target_type": "dimension",
+        "search_text": "customer state"
+      },
+      {
+        "target_type": "measure",
+        "search_text": "number of customers"
+      }
+    ],
+    "scopes": [
+      {
+        "environment": "examples",
+        "package": "storefront",
+        "source": "customers"
+      }
+    ],
+    "user_prompt": "How many customers are in each state?"
+  },
+  "response": {
+    "is_error": false,
+    "payload": {
+      "sources": [
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "storefront.malloy",
+              "source": "customers"
+            },
+            "one_line_summary": "People who have placed orders — one row per customer, keyed by `customer_id`.",
+            "docs": "People who have placed orders — one row per customer, keyed by `customer_id`",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "state",
+              "entity_type": "dimension",
+              "entity_id": "dimension:customers:state",
+              "relevance": 1,
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "customer state",
+                  "relevance": 1,
+                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                }
+              ]
+            },
+            {
+              "name": "customer_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:customers:customer_id",
+              "relevance": 0.9760624679979518,
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "customer state",
+                  "relevance": 0.9761,
+                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                }
+              ]
+            },
+            {
+              "name": "customer_count",
+              "entity_type": "measure",
+              "entity_id": "measure:customers:customer_count",
+              "relevance": 1,
+              "description": "Distinct customers",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "number of customers",
+                  "relevance": 1,
+                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                }
+              ]
+            }
+          ],
+          "relevance": 1
+        }
+      ],
+      "ranking": "relevance",
+      "total_available": 1,
+      "returned": 1,
+      "retrieval": "semantic",
+      "engine": "fcj",
+      "clusters": [
+        {
+          "query_from": {
+            "source": "customers",
+            "model_path": "storefront.malloy"
+          },
+          "sources": [
+            {
+              "source": "customers",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0,
+            1
+          ],
+          "picks": {
+            "0": [
+              "dimension:customers:state",
+              "dimension:customers:customer_id"
+            ],
+            "1": [
+              "measure:customers:customer_count"
+            ]
+          }
+        }
+      ],
+      "unresolved_targets": [],
+      "skills": [
+        {
+          "name": "malloy-phrase-detection",
+          "description": "How to turn a storefront question into get_context search targets, including the shop vocabulary that does not appear anywhere in the model. Replaces the built-in phrase-detection guide for this package."
+        },
+        {
+          "name": "storefront-conventions",
+          "description": "What storefront's measures actually count, and the four places a reasonable reading of them is wrong. Read before answering any revenue, order, margin, or region question against this package."
+        }
+      ],
+      "skills_note": "This package ships its own guidance, listed above. Read the relevant one before relying on names or conventions from this package. If it is already loaded as a skill, use that; otherwise fetch it with get_skill(skill_name, scopes), and if that tool is not available to you, proceed and say which guidance you could not read. A guide whose name matches a built-in one replaces it here."
+    }
+  },
+  "traffic": {
+    "embedding_calls": 1,
+    "embedded_texts": [
+      "customer state",
+      "number of customers"
+    ],
+    "judge_calls": 1,
+    "judge": [
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "cde877465874a508ecbc68bc2ebd0f209d4677dbea11e93ffe0a02f9feba1ef4",
+        "prompt": [
+          "Source: customers - People who have placed orders — one row per customer, keyed by `customer_id`.",
+          "Its doc: \"People who have placed orders — one row per customer, keyed by `customer_id`\"",
+          "",
+          "<targets>",
+          "Target 1 (dimension): \"customer state\"",
+          "  [1] state (dimension, string): (no doc; name in words: state)",
+          "  [2] customer_id (dimension, number): (no doc; name in words: customer id)",
+          "  [3] signup_date (dimension, date): (no doc; name in words: signup date)",
+          "  [4] city (dimension, string): (no doc; name in words: city)",
+          "  [5] full_name (dimension, string): (no doc; name in words: full name)",
+          "Target 2 (measure): \"number of customers\"",
+          "  [6] customer_count (measure, number): Distinct customers",
+          "</targets>",
+          "",
+          "The user's question this search serves (context only; do not answer it). When a target's list holds a field this question needs that the target text does not name, such as the date field for a period it names or a field it filters or counts by, pick that field under that target as well:",
+          "\"How many customers are in each state?\"",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                1,
+                2
+              ],
+              "best": 1,
+              "reason": "stand-in: listed candidates sharing a word with the target"
+            },
+            {
+              "target": 2,
+              "candidates": [
+                6
+              ],
+              "best": 6,
+              "reason": "stand-in: listed candidates sharing a word with the target"
+            }
+          ],
+          "caveats": []
+        }
+      }
+    ]
+  }
+}

@@ -65,38 +65,6 @@
                   "search_text": "Denver"
                 }
               ]
-            },
-            {
-              "name": "item_category",
-              "entity_type": "dimension",
-              "entity_id": "dimension:store_visits:item_category",
-              "relevance": 0.9760624679979518,
-              "description": "Product category of the item bought.",
-              "data_type": "string",
-              "matched_targets": [
-                {
-                  "search_text": "city the store is in",
-                  "relevance": 0.9761,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
-                }
-              ],
-              "aliases": [
-                "category"
-              ]
-            },
-            {
-              "name": "id",
-              "entity_type": "dimension",
-              "entity_id": "dimension:store_visits:id",
-              "relevance": 0.9684979838709676,
-              "data_type": "number",
-              "matched_targets": [
-                {
-                  "search_text": "city the store is in",
-                  "relevance": 0.9685,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
-                }
-              ]
             }
           ],
           "relevance": 1
@@ -125,9 +93,7 @@
           ],
           "picks": {
             "0": [
-              "dimension:store_visits:store_city",
-              "dimension:store_visits:item_category",
-              "dimension:store_visits:id"
+              "dimension:store_visits:store_city"
             ],
             "1": [
               "dimension:store_visits:store_city"
@@ -147,37 +113,33 @@
     "judge_calls": 1,
     "judge": [
       {
-        "system_sha256": "4368758cabf61a9b4358877f4114ee9f7baf4d7ee4824634d8389e69be097d60",
-        "prompt_sha256": "8ec5c4cf6b35df86728ff84b2fcc4b6dcf4eab1943e999391f792a48334acf09",
+        "call": "pick",
+        "system_sha256": "3cb88bc9f8d38fab68b65a796b2b8717da07cf81e1985e91e143cb503ee728cf",
+        "prompt_sha256": "83eb9313ebb32e3b5f0eeca3679b440892b601b1522216a8ee3e7e4d36399daf",
         "prompt": [
-          "Sources with candidates:",
-          "- store_visits - One row per visit to a store, synthetic.",
-          "  A query from store_visits can use none of the other listed sources.",
+          "Source: store_visits - One row per visit to a store, synthetic.",
+          "Its doc: \"One row per visit to a store, synthetic.\"",
           "",
           "<targets>",
           "Target 1 (dimension): \"city the store is in\"",
-          "  From store_visits:",
-          "    [1] store_city (dimension, string; source store_visits): City the store is in.",
-          "    [2] item_category (dimension, string; source store_visits): Product category of the item bought.",
-          "    [3] id (dimension, number; source store_visits): (no doc; name in words: id)",
-          "    [4] order_status (dimension, string; source store_visits): Fulfilment status of the visit's order.",
+          "  [1] store_city (dimension, string): City the store is in.",
+          "  [2] item_category (dimension, string): Product category of the item bought.",
+          "  [3] id (dimension, number): (no doc; name in words: id)",
+          "  [4] order_status (dimension, string): Fulfilment status of the visit's order.",
           "Target 2 (dimensional_value): \"Denver\"",
-          "  From store_visits:",
-          "    [1] store_city (dimension, string; source store_visits): City the store is in. | stored values matching the target: 1a \"Denver\" (exact, 1.00)",
+          "  [1] store_city (dimension, string): City the store is in. | stored values matching the target: 1a \"Denver\" (exact, 1.00)",
           "</targets>",
           "",
           "Reply with one JSON object and nothing else:",
-          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
-          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
         ],
         "reply": {
           "picks": [
             {
               "target": 1,
               "candidates": [
-                1,
-                2,
-                3
+                1
               ],
               "best": 1,
               "reason": "stand-in: listed candidates sharing a word with the target"

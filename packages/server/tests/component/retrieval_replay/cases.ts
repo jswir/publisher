@@ -150,7 +150,7 @@ export const CASES: readonly ReplayCase[] = [
    },
    {
       id: "user-prompt-orders-per-customer",
-      about: "A measure target with user_prompt, which is recorded and must not change matching.",
+      about: "A measure target with user_prompt, which the ranking step reads.",
       params: {
          search_targets: [
             {
@@ -197,6 +197,117 @@ export const CASES: readonly ReplayCase[] = [
          search_targets: [
             { target_type: "measure", search_text: "total revenue" },
          ],
+      },
+   },
+   {
+      id: "many-sources-keep-seven",
+      about: "Targets whose hits span more sources than box 4 keeps (seven at most).",
+      params: {
+         search_targets: [
+            { target_type: "measure", search_text: "number of rows" },
+            { target_type: "dimension", search_text: "name" },
+            { target_type: "dimension", search_text: "identifier" },
+            { target_type: "view", search_text: "summary overview" },
+         ],
+         scopes: [scope],
+      },
+   },
+   {
+      id: "user-prompt-both-calls",
+      about: "Targets on several sources with user_prompt: the pick calls and the ordering call all quote it.",
+      params: {
+         search_targets: [
+            { target_type: "measure", search_text: "total revenue" },
+            { target_type: "dimension", search_text: "customer state" },
+         ],
+         scopes: [scope],
+         user_prompt: "Which states bring in the most revenue?",
+      },
+   },
+   {
+      id: "pick-call-fails-for-one-source",
+      about: "One kept source's pick call fails (stand-in directive): that source is left out, the others serve.",
+      params: {
+         search_targets: [
+            { target_type: "measure", search_text: "total revenue" },
+            { target_type: "dimension", search_text: "customer state" },
+         ],
+         scopes: [scope],
+         user_prompt: "Revenue by state [replay: fail pick order_items]",
+      },
+   },
+   {
+      id: "every-pick-call-fails",
+      about: "Every pick call fails: the search's ranked fields are served with a warning, not an error.",
+      params: {
+         search_targets: [
+            { target_type: "measure", search_text: "total revenue" },
+            { target_type: "dimension", search_text: "customer state" },
+         ],
+         scopes: [scope],
+         user_prompt: "Revenue by state [replay: fail every pick]",
+      },
+   },
+   {
+      id: "order-call-invalid",
+      about: "The ordering call names no kept source: the sources keep box 4's order.",
+      params: {
+         search_targets: [
+            { target_type: "measure", search_text: "total revenue" },
+            { target_type: "dimension", search_text: "customer state" },
+         ],
+         scopes: [scope],
+         user_prompt: "Revenue by state [replay: order invalid]",
+      },
+   },
+   {
+      id: "order-call-late",
+      about: "The ordering call does not answer before the grace after the picks: box 4's order.",
+      params: {
+         search_targets: [
+            { target_type: "measure", search_text: "total revenue" },
+            { target_type: "dimension", search_text: "customer state" },
+         ],
+         scopes: [scope],
+         user_prompt: "Revenue by state [replay: order late]",
+      },
+   },
+   {
+      id: "scoped-to-one-source",
+      about: "A call scoped to one source: one pick call and no ordering call.",
+      params: {
+         search_targets: [
+            { target_type: "dimension", search_text: "customer state" },
+            { target_type: "measure", search_text: "number of customers" },
+         ],
+         scopes: [{ ...scope, source: "customers" }],
+         user_prompt: "How many customers are in each state?",
+      },
+   },
+   {
+      id: "paged-last-source-moves-first",
+      about: "limit 1 on a result of several sources: the first page holds the first source, the rest page on.",
+      params: {
+         search_targets: [
+            { target_type: "measure", search_text: "total revenue" },
+            { target_type: "dimension", search_text: "customer state" },
+         ],
+         scopes: [scope],
+         limit: 1,
+      },
+   },
+   {
+      id: "field-limit-after-first-source",
+      about: "A dimension target many sources answer: the first source keeps every pick, the others at most two per pick.",
+      params: {
+         search_targets: [
+            {
+               target_type: "dimension",
+               search_text:
+                  "date or time the order was created, shipped or delivered",
+            },
+         ],
+         scopes: [scope],
       },
    },
 ];

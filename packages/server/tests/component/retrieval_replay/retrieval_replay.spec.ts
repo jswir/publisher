@@ -287,6 +287,7 @@ function judgeRecord(call: ChatCall) {
    const systemSha = sha256(call.system);
    systems.set(systemSha, call.system);
    return {
+      call: call.kind === "order" ? "order" : "pick",
       system_sha256: systemSha,
       prompt_sha256: sha256(call.prompt),
       prompt: call.prompt.split("\n"),
@@ -309,8 +310,11 @@ async function replay(c: ReplayCase) {
    } catch {
       payload = text;
    }
-   const judge = traffic.chatCalls.filter((call) => call.kind === "judge");
-   const other = traffic.chatCalls.filter((call) => call.kind !== "judge");
+   // Box 5's calls: one pick call per kept source, and the ordering call.
+   const isJudge = (call: ChatCall) =>
+      call.kind === "judge" || call.kind === "order";
+   const judge = traffic.chatCalls.filter(isJudge);
+   const other = traffic.chatCalls.filter((call) => !isJudge(call));
    return {
       case: c.id,
       about: c.about,

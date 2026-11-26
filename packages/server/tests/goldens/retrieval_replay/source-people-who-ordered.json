@@ -62,14 +62,148 @@
             ]
           },
           "relevance": 0.9838709677419354
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "data_app.malloy",
+              "source": "scoped_orders"
+            },
+            "one_line_summary": "Order lines narrowed by the data app's control row.",
+            "docs": "Order lines narrowed by the data app's control row. Every tile queries this.",
+            "givens": [
+              {
+                "name": "CATEGORY",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "BRAND",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "REGION",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "SINCE",
+                "type": "date",
+                "default": "@2023-01-01"
+              },
+              {
+                "name": "MIN_SALE",
+                "type": "filter<number>",
+                "default": "f''"
+              }
+            ],
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "relevance": 0.9682539682539681
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "overview.malloy",
+              "source": "overview"
+            },
+            "one_line_summary": "The overview report's tiles, each over the order lines its controls select.",
+            "docs": "The overview report's tiles, each over the order lines its controls select",
+            "givens": [
+              {
+                "name": "CATEGORY",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "BRAND",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "REGION",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "SINCE",
+                "type": "date",
+                "default": "@2023-01-01"
+              },
+              {
+                "name": "MIN_SALE",
+                "type": "filter<number>",
+                "default": "f''"
+              }
+            ],
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "relevance": 0.9457932692307692
         }
       ],
       "ranking": "relevance",
-      "total_available": 2,
-      "returned": 2,
+      "total_available": 4,
+      "returned": 4,
       "retrieval": "semantic",
       "engine": "fcj",
       "clusters": [
+        {
+          "query_from": {
+            "source": "customers",
+            "model_path": "storefront.malloy"
+          },
+          "sources": [
+            {
+              "source": "customers",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "source:customers:customers"
+            ]
+          }
+        },
         {
           "query_from": {
             "source": "order_items",
@@ -79,12 +213,6 @@
             {
               "source": "order_items",
               "joins": []
-            },
-            {
-              "source": "customers",
-              "joins": [
-                "customers"
-              ]
             }
           ],
           "covers": [
@@ -92,10 +220,61 @@
           ],
           "picks": {
             "0": [
-              "source:customers:customers",
               "source:order_items:order_items"
             ]
           }
+        },
+        {
+          "query_from": {
+            "source": "scoped_orders",
+            "model_path": "data_app.malloy"
+          },
+          "sources": [
+            {
+              "source": "scoped_orders",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "source:scoped_orders:scoped_orders"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "overview",
+            "model_path": "overview.malloy"
+          },
+          "sources": [
+            {
+              "source": "overview",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "source:overview:overview"
+            ]
+          }
+        }
+      ],
+      "coverage": [
+        {
+          "target_index": 0,
+          "search_text": "people who placed orders",
+          "clusters": [
+            true,
+            true,
+            true,
+            true
+          ]
         }
       ],
       "unresolved_targets": [],
@@ -117,67 +296,258 @@
     "embedded_texts": [
       "people who placed orders"
     ],
-    "judge_calls": 1,
+    "judge_calls": 8,
     "judge": [
       {
-        "system_sha256": "9f5997fde3c4a50ca93d49e0090e8c6b85eab6867ed48888adaf95f6f77a40c2",
-        "prompt_sha256": "f4948b8e203293d4f3f8504acb802b9b722b10b497b6ea41efd383082a3fde2e",
+        "call": "order",
+        "system_sha256": "e2d31836e8ecc1e49bb1125d394c21e95f7b72362a372abdeb3f4b5762fb06ec",
+        "prompt_sha256": "0dcedac779d007d459141701a1f1bc3dbe20d5d551c24b78585eadb5700b19b0",
         "prompt": [
-          "Sources with candidates:",
-          "- customers - People who have placed orders — one row per customer, keyed by `customer_id`.",
-          "  Its doc begins: \"People who have placed orders — one row per customer, keyed by `customer_id`\"",
-          "  A query from customers can use none of the other listed sources.",
-          "- order_items - Order line items — the fact table, one row per product sold on an order.",
-          "  Its doc begins: \"Order line items — the fact table, one row per product sold on an order\"",
-          "  A query from order_items can also use: customers (through order_items.customers), products (through order_items.products), regions (through order_items.regions).",
-          "- scoped_orders - Order lines narrowed by the data app's control row.",
-          "  Its doc begins: \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
-          "  A query from scoped_orders can also use: customers (through scoped_orders.customers), products (through scoped_orders.products), regions (through scoped_orders.regions).",
-          "- overview - The overview report's tiles, each over the order lines its controls select.",
-          "  Its doc begins: \"The overview report's tiles, each over the order lines its controls select\"",
-          "  A query from overview can also use: customers (through overview.customers), products (through overview.products), regions (through overview.regions).",
-          "- products - Catalog of products, one row per product, with cost and retail price.",
-          "  Its doc begins: \"Catalog of products, one row per product, with cost and retail price\"",
-          "  A query from products can use none of the other listed sources.",
-          "- brand_suggest - Distinct brands, for the Brand filter control's option list.",
-          "  Its doc begins: \"Distinct brands, for the Brand filter control's option list\"",
-          "  A query from brand_suggest can use none of the other listed sources.",
-          "- regions - Sales region for each US state, one row per state, keyed by `state`.",
-          "  Its doc begins: \"Sales region for each US state, one row per state, keyed by `state`\"",
-          "  A query from regions can use none of the other listed sources.",
+          "What the caller is looking for:",
+          "  source: \"people who placed orders\"",
+          "",
+          "<sources>",
+          "[1] customers - \"People who have placed orders — one row per customer, keyed by `customer_id`\"",
+          "  Fields search found here:",
+          "    for \"people who placed orders\": customers",
+          "[2] order_items - \"Order line items — the fact table, one row per product sold on an order\"",
+          "  Fields search found here:",
+          "    for \"people who placed orders\": order_items",
+          "[3] scoped_orders - \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
+          "  Fields search found here:",
+          "    for \"people who placed orders\": scoped_orders",
+          "[4] overview - \"The overview report's tiles, each over the order lines its controls select\"",
+          "  Fields search found here:",
+          "    for \"people who placed orders\": overview",
+          "[5] products - \"Catalog of products, one row per product, with cost and retail price\"",
+          "  Fields search found here:",
+          "    for \"people who placed orders\": products",
+          "[6] brand_suggest - \"Distinct brands, for the Brand filter control's option list\"",
+          "  Fields search found here:",
+          "    for \"people who placed orders\": brand_suggest",
+          "[7] regions - \"Sales region for each US state, one row per state, keyed by `state`\"",
+          "  Fields search found here:",
+          "    for \"people who placed orders\": regions",
+          "</sources>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"sources\": [<every source number, best first>]}"
+        ],
+        "reply": {
+          "sources": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "c880e6374bbe7b64317730a9389df44c3e75ed68fb08f726acb12a1f5238ad7c",
+        "prompt": [
+          "Source: customers - People who have placed orders — one row per customer, keyed by `customer_id`.",
+          "Its doc: \"People who have placed orders — one row per customer, keyed by `customer_id`\"",
           "",
           "<targets>",
           "Target 1 (source): \"people who placed orders\"",
-          "  From customers:",
-          "    [1] customers (source; source customers): People who have placed orders — one row per customer, keyed by `customer_id`",
-          "  From order_items:",
-          "    [2] order_items (source; source order_items): Order line items — the fact table, one row per product sold on an order",
-          "  From scoped_orders:",
-          "    [3] scoped_orders (source; source scoped_orders): Order lines narrowed by the data app's control row. Every tile queries this.",
-          "  From overview:",
-          "    [4] overview (source; source overview): The overview report's tiles, each over the order lines its controls select",
-          "  From products:",
-          "    [5] products (source; source products): Catalog of products, one row per product, with cost and retail price",
-          "  From brand_suggest:",
-          "    [6] brand_suggest (source; source brand_suggest): Distinct brands, for the Brand filter control's option list",
-          "  From regions:",
-          "    [7] regions (source; source regions): Sales region for each US state, one row per state, keyed by `state`",
+          "  [1] customers (source): People who have placed orders — one row per customer, keyed by `customer_id`",
           "</targets>",
           "",
           "Reply with one JSON object and nothing else:",
-          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
-          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
         ],
         "reply": {
           "picks": [
             {
               "target": 1,
               "candidates": [
-                1,
-                2
+                1
               ],
               "best": 1,
               "reason": "stand-in: listed candidates sharing a word with the target"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "5eb2e9b5f9b4d67169edbb92ee77c5e8066ed65e1dc719fe30006e8551cda13d",
+        "prompt": [
+          "Source: order_items - Order line items — the fact table, one row per product sold on an order.",
+          "Its doc: \"Order line items — the fact table, one row per product sold on an order\"",
+          "",
+          "<targets>",
+          "Target 1 (source): \"people who placed orders\"",
+          "  [1] order_items (source): Order line items — the fact table, one row per product sold on an order",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                1
+              ],
+              "best": 1,
+              "reason": "stand-in: listed candidates sharing a word with the target"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "381969b64b77bf37bf132ac8986d830676982c5e498523f13477e631f22ad609",
+        "prompt": [
+          "Source: scoped_orders - Order lines narrowed by the data app's control row.",
+          "Its doc: \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
+          "",
+          "<targets>",
+          "Target 1 (source): \"people who placed orders\"",
+          "  [1] scoped_orders (source): Order lines narrowed by the data app's control row. Every tile queries this.",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                1
+              ],
+              "best": 1,
+              "reason": "stand-in: listed candidates sharing a word with the target"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "036fd22535a0fde3ad92bb86cab9cb8677143f611e333fa3875defda37c6b8d7",
+        "prompt": [
+          "Source: overview - The overview report's tiles, each over the order lines its controls select.",
+          "Its doc: \"The overview report's tiles, each over the order lines its controls select\"",
+          "",
+          "<targets>",
+          "Target 1 (source): \"people who placed orders\"",
+          "  [1] overview (source): The overview report's tiles, each over the order lines its controls select",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                1
+              ],
+              "best": 1,
+              "reason": "stand-in: listed candidates sharing a word with the target"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "87c097b02bf9e3717f356ba9de19917fe40fee035ffb78b691a8edd633fc2d56",
+        "prompt": [
+          "Source: products - Catalog of products, one row per product, with cost and retail price.",
+          "Its doc: \"Catalog of products, one row per product, with cost and retail price\"",
+          "",
+          "<targets>",
+          "Target 1 (source): \"people who placed orders\"",
+          "  [1] products (source): Catalog of products, one row per product, with cost and retail price",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no listed candidate shares a word with the target"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "fbb6a1741ed992420bb0eac17735cff88ed61cf957bb6245bd5ebaa60077e831",
+        "prompt": [
+          "Source: brand_suggest - Distinct brands, for the Brand filter control's option list.",
+          "Its doc: \"Distinct brands, for the Brand filter control's option list\"",
+          "",
+          "<targets>",
+          "Target 1 (source): \"people who placed orders\"",
+          "  [1] brand_suggest (source): Distinct brands, for the Brand filter control's option list",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no listed candidate shares a word with the target"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "346d46f68ece644570e60408fb0558b1fb8c358adec823f8f0df9aa11ae01990",
+        "prompt": [
+          "Source: regions - Sales region for each US state, one row per state, keyed by `state`.",
+          "Its doc: \"Sales region for each US state, one row per state, keyed by `state`\"",
+          "",
+          "<targets>",
+          "Target 1 (source): \"people who placed orders\"",
+          "  [1] regions (source): Sales region for each US state, one row per state, keyed by `state`",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no listed candidate shares a word with the target"
             }
           ],
           "caveats": []

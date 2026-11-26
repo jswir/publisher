@@ -139,11 +139,32 @@
               "name": "seasonality",
               "entity_type": "view",
               "entity_id": "view:order_items:seasonality",
+              "relevance": 0.9097437030490498,
               "description": "Seasonality: monthly revenue with one line per year (holiday spikes)",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick overview.seasonality, on another source."
+              "matched_targets": [
+                {
+                  "search_text": "monthly revenue trend",
+                  "relevance": 0.9097,
+                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                }
+              ]
+            },
+            {
+              "name": "sales_by_month",
+              "entity_type": "view",
+              "entity_id": "view:order_items:sales_by_month",
+              "relevance": 0.8832291666666667,
+              "description": "Monthly revenue trend",
+              "matched_targets": [
+                {
+                  "search_text": "monthly revenue trend",
+                  "relevance": 0.8832,
+                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                }
+              ]
             }
-          ]
+          ],
+          "relevance": 0.9097437030490498
         },
         {
           "source_info": {
@@ -205,11 +226,32 @@
               "name": "seasonality",
               "entity_type": "view",
               "entity_id": "view:scoped_orders:seasonality",
+              "relevance": 0.900173611111111,
               "description": "Seasonality: monthly revenue with one line per year (holiday spikes)",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick overview.seasonality, on another source."
+              "matched_targets": [
+                {
+                  "search_text": "monthly revenue trend",
+                  "relevance": 0.9002,
+                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                }
+              ]
+            },
+            {
+              "name": "sales_by_month",
+              "entity_type": "view",
+              "entity_id": "view:scoped_orders:sales_by_month",
+              "relevance": 0.8802308802308801,
+              "description": "Monthly revenue trend",
+              "matched_targets": [
+                {
+                  "search_text": "monthly revenue trend",
+                  "relevance": 0.8802,
+                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                }
+              ]
             }
-          ]
+          ],
+          "relevance": 0.900173611111111
         }
       ],
       "ranking": "relevance",
@@ -238,6 +280,59 @@
               "view:overview:seasonality"
             ]
           }
+        },
+        {
+          "query_from": {
+            "source": "order_items",
+            "model_path": "storefront.malloy"
+          },
+          "sources": [
+            {
+              "source": "order_items",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "view:order_items:seasonality",
+              "view:order_items:sales_by_month"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "scoped_orders",
+            "model_path": "data_app.malloy"
+          },
+          "sources": [
+            {
+              "source": "scoped_orders",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "view:scoped_orders:seasonality",
+              "view:scoped_orders:sales_by_month"
+            ]
+          }
+        }
+      ],
+      "coverage": [
+        {
+          "target_index": 0,
+          "search_text": "monthly revenue trend",
+          "clusters": [
+            true,
+            true,
+            true
+          ]
         }
       ],
       "unresolved_targets": [],
@@ -259,73 +354,146 @@
     "embedded_texts": [
       "monthly revenue trend"
     ],
-    "judge_calls": 1,
+    "judge_calls": 4,
     "judge": [
       {
-        "system_sha256": "9f5997fde3c4a50ca93d49e0090e8c6b85eab6867ed48888adaf95f6f77a40c2",
-        "prompt_sha256": "328be8697604b98abc320d75375f0f8f38a631d6531971272f649fd605d55c0c",
+        "call": "order",
+        "system_sha256": "e2d31836e8ecc1e49bb1125d394c21e95f7b72362a372abdeb3f4b5762fb06ec",
+        "prompt_sha256": "7669edae0c6b5d976cb77803a08ef48f9a9b6b0ca41aff064b1fbd9bb69b5db9",
         "prompt": [
-          "Sources with candidates:",
-          "- overview - The overview report's tiles, each over the order lines its controls select.",
-          "  Its doc begins: \"The overview report's tiles, each over the order lines its controls select\"",
-          "  A query from overview can use none of the other listed sources.",
-          "- order_items - Order line items — the fact table, one row per product sold on an order.",
-          "  Its doc begins: \"Order line items — the fact table, one row per product sold on an order\"",
-          "  A query from order_items can use none of the other listed sources.",
-          "- scoped_orders - Order lines narrowed by the data app's control row.",
-          "  Its doc begins: \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
-          "  A query from scoped_orders can use none of the other listed sources.",
+          "What the caller is looking for:",
+          "  view: \"monthly revenue trend\"",
+          "",
+          "<sources>",
+          "[1] overview - \"The overview report's tiles, each over the order lines its controls select\"",
+          "  Fields search found here:",
+          "    for \"monthly revenue trend\": revenue_trend, seasonality, sales_by_month",
+          "[2] order_items - \"Order line items — the fact table, one row per product sold on an order\"",
+          "  Fields search found here:",
+          "    for \"monthly revenue trend\": seasonality, sales_by_month, business_overview",
+          "[3] scoped_orders - \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
+          "  Fields search found here:",
+          "    for \"monthly revenue trend\": seasonality, sales_by_month, business_overview",
+          "</sources>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"sources\": [<every source number, best first>]}"
+        ],
+        "reply": {
+          "sources": [
+            1,
+            2,
+            3
+          ]
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "075bdb2b91c8024d924e0b32da7e1a1a54c7da8b7e2312b886caea6e19c9c71e",
+        "prompt": [
+          "Source: overview - The overview report's tiles, each over the order lines its controls select.",
+          "Its doc: \"The overview report's tiles, each over the order lines its controls select\"",
           "",
           "<targets>",
           "Target 1 (view): \"monthly revenue trend\"",
-          "  From overview (its doc: \"The overview report's tiles, each over the order lines its controls select\"):",
-          "    [1] revenue_trend (view; source overview): Monthly revenue trend",
-          "    [2] seasonality (view; source overview): Seasonality: monthly revenue with one line per year (holiday spikes)",
-          "    [3] sales_by_month (view; source overview): Monthly revenue trend",
-          "    [4] revenue_by_state (view; source overview): Revenue by customer state (US choropleth)",
-          "    [5] business_overview (view; source overview): Business overview: KPIs, monthly trend, geography, and top sellers",
-          "    [6] sales_by_state (view; source overview): Revenue by customer state (US choropleth)",
-          "    [7] sales_by_year (view; source overview): Annual revenue (shows the growth trend)",
-          "    [8] top_brands (view; source overview): Top brands by revenue",
-          "    [9] revenue_by_category (view; source overview): Revenue by product category",
-          "    [10] brand_performance (view; source overview): Brand performance: revenue, margin, and share of the total",
-          "    [11] best_sellers (view; source overview): Top products by revenue",
-          "    [12] by_category (view; source overview): Revenue by product category",
-          "    [13] top_products (view; source overview): Top products by revenue",
-          "    [14] category_performance (view; source overview): Category performance: revenue, margin, and share of the total",
-          "    [15] key_figures (view; source overview): Revenue, gross margin, orders, customers and average order value",
-          "    [16] kpis (view; source overview): Revenue, gross margin, orders, customers and average order value",
-          "  From order_items (its doc: \"Order line items — the fact table, one row per product sold on an order\"):",
-          "    [17] seasonality (view; source order_items): Seasonality: monthly revenue with one line per year (holiday spikes)",
-          "    [18] sales_by_month (view; source order_items): Monthly revenue trend",
-          "    [19] business_overview (view; source order_items): Business overview: KPIs, monthly trend, geography, and top sellers",
-          "    [20] sales_by_state (view; source order_items): Revenue by customer state (US choropleth)",
-          "    [21] sales_by_year (view; source order_items): Annual revenue (shows the growth trend)",
-          "    [22] top_brands (view; source order_items): Top brands by revenue",
-          "    [23] brand_performance (view; source order_items): Brand performance: revenue, margin, and share of the total",
-          "    [24] top_products (view; source order_items): Top products by revenue",
-          "    [25] by_category (view; source order_items): Revenue by product category",
-          "    [26] key_figures (view; source order_items): Revenue, gross margin, orders, customers and average order value",
-          "    [27] brand_suggest (query; source order_items): Distinct brands, for the Brand filter control's option list",
-          "  From scoped_orders (its doc: \"Order lines narrowed by the data app's control row. Every tile queries this.\"):",
-          "    [28] seasonality (view; source scoped_orders): Seasonality: monthly revenue with one line per year (holiday spikes)",
-          "    [29] sales_by_month (view; source scoped_orders): Monthly revenue trend",
-          "    [30] business_overview (view; source scoped_orders): Business overview: KPIs, monthly trend, geography, and top sellers",
-          "    [31] sales_by_state (view; source scoped_orders): Revenue by customer state (US choropleth)",
-          "    [32] sales_by_year (view; source scoped_orders): Annual revenue (shows the growth trend)",
-          "    [33] top_brands (view; source scoped_orders): Top brands by revenue",
-          "    [34] brand_performance (view; source scoped_orders): Brand performance: revenue, margin, and share of the total",
-          "    [35] by_category (view; source scoped_orders): Revenue by product category",
-          "    [36] top_products (view; source scoped_orders): Top products by revenue",
+          "  [1] revenue_trend (view): Monthly revenue trend",
+          "  [2] seasonality (view): Seasonality: monthly revenue with one line per year (holiday spikes)",
+          "  [3] sales_by_month (view): Monthly revenue trend",
+          "  [4] revenue_by_state (view): Revenue by customer state (US choropleth)",
+          "  [5] business_overview (view): Business overview: KPIs, monthly trend, geography, and top sellers",
+          "  [6] sales_by_state (view): Revenue by customer state (US choropleth)",
+          "  [7] sales_by_year (view): Annual revenue (shows the growth trend)",
+          "  [8] top_brands (view): Top brands by revenue",
+          "  [9] revenue_by_category (view): Revenue by product category",
+          "  [10] brand_performance (view): Brand performance: revenue, margin, and share of the total",
+          "  [11] best_sellers (view): Top products by revenue",
+          "  [12] by_category (view): Revenue by product category",
+          "  [13] top_products (view): Top products by revenue",
           "</targets>",
           "",
-          "Also in this group:",
-          "  [37] created_at (dimension, date; source overview): (no doc; name in words: created at) | added because: a date of overview, and a target names a period",
-          "  [38] created_at (dimension, date; source order_items): (no doc; name in words: created at) | added because: a date of order_items, and a target names a period",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                1,
+                2
+              ],
+              "best": 1,
+              "reason": "stand-in: listed candidates sharing a word with the target"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "97d0fd51e5ac1ca4550bea5ec05140969c20b4d4847f92588720b76471dea4a7",
+        "prompt": [
+          "Source: order_items - Order line items — the fact table, one row per product sold on an order.",
+          "Its doc: \"Order line items — the fact table, one row per product sold on an order\"",
+          "",
+          "<targets>",
+          "Target 1 (view): \"monthly revenue trend\"",
+          "  [1] seasonality (view): Seasonality: monthly revenue with one line per year (holiday spikes)",
+          "  [2] sales_by_month (view): Monthly revenue trend",
+          "  [3] business_overview (view): Business overview: KPIs, monthly trend, geography, and top sellers",
+          "  [4] sales_by_state (view): Revenue by customer state (US choropleth)",
+          "  [5] sales_by_year (view): Annual revenue (shows the growth trend)",
+          "  [6] top_brands (view): Top brands by revenue",
+          "  [7] brand_performance (view): Brand performance: revenue, margin, and share of the total",
+          "  [8] top_products (view): Top products by revenue",
+          "  [9] by_category (view): Revenue by product category",
+          "</targets>",
           "",
           "Reply with one JSON object and nothing else:",
-          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
-          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                1,
+                2
+              ],
+              "best": 1,
+              "reason": "stand-in: listed candidates sharing a word with the target"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "a3d359b1c23fb9c3565db0b3b9c2963fd85a51aaca8caa80ec1ca41d491c5fd3",
+        "prompt": [
+          "Source: scoped_orders - Order lines narrowed by the data app's control row.",
+          "Its doc: \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
+          "",
+          "<targets>",
+          "Target 1 (view): \"monthly revenue trend\"",
+          "  [1] seasonality (view): Seasonality: monthly revenue with one line per year (holiday spikes)",
+          "  [2] sales_by_month (view): Monthly revenue trend",
+          "  [3] business_overview (view): Business overview: KPIs, monthly trend, geography, and top sellers",
+          "  [4] sales_by_state (view): Revenue by customer state (US choropleth)",
+          "  [5] sales_by_year (view): Annual revenue (shows the growth trend)",
+          "  [6] top_brands (view): Top brands by revenue",
+          "  [7] brand_performance (view): Brand performance: revenue, margin, and share of the total",
+          "  [8] by_category (view): Revenue by product category",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
         ],
         "reply": {
           "picks": [
