@@ -143,10 +143,48 @@ export async function loadTempPackage(
  */
 export async function loadPackageCopy(
    sourceDir: string,
-   options: { name?: string; environmentName?: string } = {},
+   options: {
+      name?: string;
+      environmentName?: string;
+      /** Replaces the copy's publisher.json. */
+      manifest?: Record<string, unknown>;
+      /** Written into the copy (relative path → contents) before it loads. */
+      files?: Record<string, string>;
+      /**
+       * Rewrite CRLF line endings to LF in the copy's text files (`.malloy`,
+       * `.json`, `.md`), so a checkout that converted them (git's autocrlf
+       * on Windows) loads the same docs as any other.
+       */
+      lf?: boolean;
+   } = {},
 ): Promise<LoadedTempPackage> {
    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "publisher-pkg-copy-"));
    fs.cpSync(sourceDir, dir, { recursive: true });
+   if (options.lf) {
+      const walk = (at: string) => {
+         for (const entry of fs.readdirSync(at, { withFileTypes: true })) {
+            const p = path.join(at, entry.name);
+            if (entry.isDirectory()) walk(p);
+            else if (/\.(malloy|json|md)$/.test(entry.name)) {
+               const text = fs.readFileSync(p, "utf8");
+               if (text.includes("\r\n")) {
+                  fs.writeFileSync(p, text.replace(/\r\n/g, "\n"));
+               }
+            }
+         }
+      };
+      walk(dir);
+   }
+   if (options.manifest) {
+      fs.writeFileSync(
+         path.join(dir, "publisher.json"),
+         JSON.stringify(options.manifest, null, 2),
+      );
+   }
+   for (const [rel, text] of Object.entries(options.files ?? {})) {
+      fs.mkdirSync(path.dirname(path.join(dir, rel)), { recursive: true });
+      fs.writeFileSync(path.join(dir, rel), text);
+   }
    return loadPackageDir(
       dir,
       () => fs.rmSync(dir, { recursive: true, force: true }),
