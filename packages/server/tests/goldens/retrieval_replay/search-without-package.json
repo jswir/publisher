@@ -1,0 +1,29 @@
+{
+  "case": "search-without-package",
+  "about": "A ranked search that names no package on a server with several.",
+  "request": {
+    "search_targets": [
+      {
+        "target_type": "measure",
+        "search_text": "total revenue"
+      }
+    ]
+  },
+  "response": {
+    "is_error": true,
+    "payload": {
+      "error": "A search needs one package: Publisher indexes each package on its own. Fix: add scopes: [{\"environment\": \"<env>\", \"package\": \"<package>\"}], one of examples/storefront, examples/replay-values, examples/html-data-app, governed/governed-analytics.",
+      "suggestions": [
+        "This is not transient. The same arguments will fail the same way, so change them rather than retrying.",
+        "The message above names what was wrong. If it names an expected format, use that format exactly."
+      ],
+      "sources": []
+    }
+  },
+  "traffic": {
+    "embedding_calls": 0,
+    "embedded_texts": [],
+    "judge_calls": 0,
+    "judge": []
+  }
+}

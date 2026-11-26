@@ -1,0 +1,30 @@
+{
+  "case": "list-no-arguments",
+  "about": "No arguments: the environments listing.",
+  "request": {},
+  "response": {
+    "is_error": false,
+    "payload": {
+      "sources": [],
+      "listing": "environments",
+      "environments": [
+        {
+          "environment": "examples",
+          "packages": 3
+        },
+        {
+          "environment": "governed",
+          "packages": 1
+        }
+      ],
+      "total_available": 2,
+      "returned": 2
+    }
+  },
+  "traffic": {
+    "embedding_calls": 0,
+    "embedded_texts": [],
+    "judge_calls": 0,
+    "judge": []
+  }
+}

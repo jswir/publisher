@@ -1,0 +1,159 @@
+{
+  "case": "value-pinned-category-jeans",
+  "about": "A stored-value target pinned to its dimension (order_items.category), in another case.",
+  "request": {
+    "search_targets": [
+      {
+        "target_type": "dimensional_value",
+        "search_text": "jeans"
+      }
+    ],
+    "scopes": [
+      {
+        "environment": "examples",
+        "package": "storefront",
+        "source": "order_items",
+        "entity_name": "category"
+      }
+    ]
+  },
+  "response": {
+    "is_error": false,
+    "payload": {
+      "sources": [
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "storefront.malloy",
+              "source": "order_items"
+            },
+            "one_line_summary": "Order line items — the fact table, one row per product sold on an order.",
+            "docs": "Order line items — the fact table, one row per product sold on an order",
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "category",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:category",
+              "relevance": 1,
+              "description": "Product category of the item sold",
+              "data_type": "string",
+              "code": "products.category",
+              "matched_targets": [
+                {
+                  "search_text": "jeans",
+                  "relevance": 1,
+                  "match_reason": "stand-in: a value matched by spelling, or the one pinned field"
+                }
+              ]
+            }
+          ],
+          "relevance": 1
+        }
+      ],
+      "ranking": "relevance",
+      "total_available": 1,
+      "returned": 1,
+      "retrieval": "semantic",
+      "engine": "fcj",
+      "clusters": [
+        {
+          "query_from": {
+            "source": "order_items",
+            "model_path": "storefront.malloy"
+          },
+          "sources": [
+            {
+              "source": "order_items",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "dimension:order_items:category"
+            ]
+          }
+        }
+      ],
+      "unresolved_targets": [],
+      "skills": [
+        {
+          "name": "malloy-phrase-detection",
+          "description": "How to turn a storefront question into get_context search targets, including the shop vocabulary that does not appear anywhere in the model. Replaces the built-in phrase-detection guide for this package."
+        },
+        {
+          "name": "storefront-conventions",
+          "description": "What storefront's measures actually count, and the four places a reasonable reading of them is wrong. Read before answering any revenue, order, margin, or region question against this package."
+        }
+      ],
+      "skills_note": "This package ships its own guidance, listed above. Read the relevant one before relying on names or conventions from this package. If it is already loaded as a skill, use that; otherwise fetch it with get_skill(skill_name, scopes), and if that tool is not available to you, proceed and say which guidance you could not read. A guide whose name matches a built-in one replaces it here.",
+      "warnings": [
+        "order_items.category was offered for \"jeans\" by its description. Its values are not indexed (it is not tagged #(index)), so whether it holds that value was not checked; read its values with execute_query."
+      ]
+    }
+  },
+  "traffic": {
+    "embedding_calls": 1,
+    "embedded_texts": [
+      "jeans"
+    ],
+    "judge_calls": 1,
+    "judge": [
+      {
+        "system_sha256": "4368758cabf61a9b4358877f4114ee9f7baf4d7ee4824634d8389e69be097d60",
+        "prompt_sha256": "98eb0a0c765dbfe263e4c4b4b8d2cfb46a276de97aaa8ba00ed9a201f471b28f",
+        "prompt": [
+          "Sources with candidates:",
+          "- order_items - Order line items — the fact table, one row per product sold on an order.",
+          "  Its doc begins: \"Order line items — the fact table, one row per product sold on an order\"",
+          "  A query from order_items can use none of the other listed sources.",
+          "",
+          "<targets>",
+          "Target 1 (dimensional_value): \"jeans\"",
+          "  From order_items:",
+          "    [1] category (dimension, string; source order_items): Product category of the item sold | no stored values",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                1
+              ],
+              "best": 1,
+              "reason": "stand-in: a value matched by spelling, or the one pinned field"
+            }
+          ],
+          "caveats": []
+        }
+      }
+    ]
+  }
+}

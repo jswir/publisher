@@ -1,0 +1,39 @@
+{
+  "case": "list-environment-packages",
+  "about": "An environment and nothing else: its packages.",
+  "request": {
+    "environment": "examples"
+  },
+  "response": {
+    "is_error": false,
+    "payload": {
+      "sources": [],
+      "listing": "packages",
+      "packages": [
+        {
+          "environment": "examples",
+          "package": "html-data-app",
+          "one_line_summary": "In-package HTML data app demo — a SaaS subscriptions dashboard."
+        },
+        {
+          "environment": "examples",
+          "package": "replay-values",
+          "one_line_summary": "Synthetic fixture for the retrieval replay: dimensions tagged #(index), so a stored-value target has values to match."
+        },
+        {
+          "environment": "examples",
+          "package": "storefront",
+          "one_line_summary": "A small but complete ecommerce semantic model — joins, measures, and reports over local DuckDB data."
+        }
+      ],
+      "total_available": 3,
+      "returned": 3
+    }
+  },
+  "traffic": {
+    "embedding_calls": 0,
+    "embedded_texts": [],
+    "judge_calls": 0,
+    "judge": []
+  }
+}

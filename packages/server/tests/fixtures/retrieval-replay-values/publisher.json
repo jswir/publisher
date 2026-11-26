@@ -1,0 +1,5 @@
+{
+  "name": "replay-values",
+  "version": "1.0.0",
+  "description": "Synthetic fixture for the retrieval replay: dimensions tagged #(index), so a stored-value target has values to match. The bundled examples tag none."
+}

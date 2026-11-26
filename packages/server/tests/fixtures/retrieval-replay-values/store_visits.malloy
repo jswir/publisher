@@ -1,0 +1,25 @@
+// Copyright (c) Credible Data Inc.
+// SPDX-License-Identifier: MIT
+
+// Synthetic rows for the retrieval replay (tests/component/retrieval_replay).
+// Its only job is to give get_context's value index something to hold: the
+// bundled examples tag no dimension #(index).
+
+#(doc) One row per visit to a store, synthetic.
+source: store_visits is duckdb.sql("""
+  select 1 as id, 'Denver' as city, 'Outerwear' as category, 'Returned' as status
+  union all select 2, 'Boulder', 'Jeans', 'Complete'
+  union all select 3, 'Denver', 'Footwear', 'Shipped'
+  union all select 4, 'Fort Collins', 'Outerwear', 'Complete'
+""") extend {
+  #(index)
+  #(doc) City the store is in.
+  dimension: store_city is city
+  #(index)
+  #(doc) Product category of the item bought.
+  dimension: item_category is category
+  #(doc) Fulfilment status of the visit's order.
+  dimension: order_status is status
+  #(doc) Number of visits.
+  measure: visit_count is count()
+}

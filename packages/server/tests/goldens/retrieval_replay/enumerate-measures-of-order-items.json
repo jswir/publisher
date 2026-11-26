@@ -1,0 +1,456 @@
+{
+  "case": "enumerate-measures-of-order-items",
+  "about": "A target with no search_text, scoped to one source: enumerates its measures.",
+  "request": {
+    "search_targets": [
+      {
+        "target_type": "measure"
+      }
+    ],
+    "scopes": [
+      {
+        "environment": "examples",
+        "package": "storefront",
+        "source": "order_items"
+      }
+    ]
+  },
+  "response": {
+    "is_error": false,
+    "payload": {
+      "sources": [
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "data_app.malloy",
+              "source": "order_items"
+            },
+            "one_line_summary": "Order line items — the fact table, one row per product sold on an order",
+            "docs": "Order line items — the fact table, one row per product sold on an order",
+            "givens": [
+              {
+                "name": "CATEGORY",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "BRAND",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "REGION",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "SINCE",
+                "type": "date",
+                "default": "@2023-01-01"
+              },
+              {
+                "name": "MIN_SALE",
+                "type": "filter<number>",
+                "default": "f''"
+              }
+            ],
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "order_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:order_count",
+              "description": "Distinct orders",
+              "data_type": "number"
+            },
+            {
+              "name": "order_item_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:order_item_count",
+              "description": "Line items sold",
+              "data_type": "number"
+            },
+            {
+              "name": "total_sales",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:total_sales",
+              "description": "Total revenue",
+              "data_type": "number"
+            },
+            {
+              "name": "total_margin",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:total_margin",
+              "description": "Total gross margin (revenue minus cost of goods sold), summed per line",
+              "data_type": "number"
+            },
+            {
+              "name": "margin_rate",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:margin_rate",
+              "description": "Gross margin as a share of revenue",
+              "data_type": "number"
+            },
+            {
+              "name": "avg_order_value",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:avg_order_value",
+              "description": "Average order value",
+              "data_type": "number"
+            },
+            {
+              "name": "customer_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:customer_count",
+              "description": "Distinct customers",
+              "data_type": "number"
+            },
+            {
+              "name": "orders_per_customer",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:orders_per_customer",
+              "description": "Average orders placed per customer",
+              "data_type": "number"
+            },
+            {
+              "name": "return_rate",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:return_rate",
+              "description": "Share of line items that were returned",
+              "data_type": "number"
+            },
+            {
+              "name": "percent_of_sales",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:percent_of_sales",
+              "description": "Share of total sales",
+              "data_type": "number"
+            },
+            {
+              "name": "customers.customer_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:customers.customer_count",
+              "description": "Distinct customers",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "customers"
+            },
+            {
+              "name": "products.product_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:products.product_count",
+              "description": "Distinct products",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "products"
+            }
+          ]
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "overview.malloy",
+              "source": "order_items"
+            },
+            "one_line_summary": "Order line items — the fact table, one row per product sold on an order",
+            "docs": "Order line items — the fact table, one row per product sold on an order",
+            "givens": [
+              {
+                "name": "CATEGORY",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "BRAND",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "REGION",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "SINCE",
+                "type": "date",
+                "default": "@2023-01-01"
+              },
+              {
+                "name": "MIN_SALE",
+                "type": "filter<number>",
+                "default": "f''"
+              }
+            ],
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "order_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:order_count",
+              "description": "Distinct orders",
+              "data_type": "number"
+            },
+            {
+              "name": "order_item_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:order_item_count",
+              "description": "Line items sold",
+              "data_type": "number"
+            },
+            {
+              "name": "total_sales",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:total_sales",
+              "description": "Total revenue",
+              "data_type": "number"
+            },
+            {
+              "name": "total_margin",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:total_margin",
+              "description": "Total gross margin (revenue minus cost of goods sold), summed per line",
+              "data_type": "number"
+            },
+            {
+              "name": "margin_rate",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:margin_rate",
+              "description": "Gross margin as a share of revenue",
+              "data_type": "number"
+            },
+            {
+              "name": "avg_order_value",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:avg_order_value",
+              "description": "Average order value",
+              "data_type": "number"
+            },
+            {
+              "name": "customer_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:customer_count",
+              "description": "Distinct customers",
+              "data_type": "number"
+            },
+            {
+              "name": "orders_per_customer",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:orders_per_customer",
+              "description": "Average orders placed per customer",
+              "data_type": "number"
+            },
+            {
+              "name": "return_rate",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:return_rate",
+              "description": "Share of line items that were returned",
+              "data_type": "number"
+            },
+            {
+              "name": "percent_of_sales",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:percent_of_sales",
+              "description": "Share of total sales",
+              "data_type": "number"
+            },
+            {
+              "name": "customers.customer_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:customers.customer_count",
+              "description": "Distinct customers",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "customers"
+            },
+            {
+              "name": "products.product_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:products.product_count",
+              "description": "Distinct products",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "products"
+            }
+          ]
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "storefront.malloy",
+              "source": "order_items"
+            },
+            "one_line_summary": "Order line items — the fact table, one row per product sold on an order",
+            "docs": "Order line items — the fact table, one row per product sold on an order",
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "order_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:order_count",
+              "description": "Distinct orders",
+              "data_type": "number"
+            },
+            {
+              "name": "order_item_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:order_item_count",
+              "description": "Line items sold",
+              "data_type": "number"
+            },
+            {
+              "name": "total_sales",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:total_sales",
+              "description": "Total revenue",
+              "data_type": "number"
+            },
+            {
+              "name": "total_margin",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:total_margin",
+              "description": "Total gross margin (revenue minus cost of goods sold), summed per line",
+              "data_type": "number"
+            },
+            {
+              "name": "margin_rate",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:margin_rate",
+              "description": "Gross margin as a share of revenue",
+              "data_type": "number"
+            },
+            {
+              "name": "avg_order_value",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:avg_order_value",
+              "description": "Average order value",
+              "data_type": "number"
+            },
+            {
+              "name": "customer_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:customer_count",
+              "description": "Distinct customers",
+              "data_type": "number"
+            },
+            {
+              "name": "orders_per_customer",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:orders_per_customer",
+              "description": "Average orders placed per customer",
+              "data_type": "number"
+            },
+            {
+              "name": "return_rate",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:return_rate",
+              "description": "Share of line items that were returned",
+              "data_type": "number"
+            },
+            {
+              "name": "percent_of_sales",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:percent_of_sales",
+              "description": "Share of total sales",
+              "data_type": "number"
+            },
+            {
+              "name": "customers.customer_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:customers.customer_count",
+              "description": "Distinct customers",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "customers"
+            },
+            {
+              "name": "products.product_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:products.product_count",
+              "description": "Distinct products",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "products"
+            }
+          ]
+        }
+      ],
+      "ranking": "prominence",
+      "total_available": 3,
+      "returned": 3,
+      "skills": [
+        {
+          "name": "malloy-phrase-detection",
+          "description": "How to turn a storefront question into get_context search targets, including the shop vocabulary that does not appear anywhere in the model. Replaces the built-in phrase-detection guide for this package."
+        },
+        {
+          "name": "storefront-conventions",
+          "description": "What storefront's measures actually count, and the four places a reasonable reading of them is wrong. Read before answering any revenue, order, margin, or region question against this package."
+        }
+      ],
+      "skills_note": "This package ships its own guidance, listed above. Read the relevant one before relying on names or conventions from this package. If it is already loaded as a skill, use that; otherwise fetch it with get_skill(skill_name, scopes), and if that tool is not available to you, proceed and say which guidance you could not read. A guide whose name matches a built-in one replaces it here."
+    }
+  },
+  "traffic": {
+    "embedding_calls": 0,
+    "embedded_texts": [],
+    "judge_calls": 0,
+    "judge": []
+  }
+}

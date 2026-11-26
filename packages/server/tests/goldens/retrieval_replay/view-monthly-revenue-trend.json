@@ -1,0 +1,347 @@
+{
+  "case": "view-monthly-revenue-trend",
+  "about": "One view target.",
+  "request": {
+    "search_targets": [
+      {
+        "target_type": "view",
+        "search_text": "monthly revenue trend"
+      }
+    ],
+    "scopes": [
+      {
+        "environment": "examples",
+        "package": "storefront"
+      }
+    ]
+  },
+  "response": {
+    "is_error": false,
+    "payload": {
+      "sources": [
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "overview.malloy",
+              "source": "overview"
+            },
+            "one_line_summary": "The overview report's tiles, each over the order lines its controls select.",
+            "docs": "The overview report's tiles, each over the order lines its controls select",
+            "givens": [
+              {
+                "name": "CATEGORY",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "BRAND",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "REGION",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "SINCE",
+                "type": "date",
+                "default": "@2023-01-01"
+              },
+              {
+                "name": "MIN_SALE",
+                "type": "filter<number>",
+                "default": "f''"
+              }
+            ],
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "revenue_trend",
+              "entity_type": "view",
+              "entity_id": "view:overview:revenue_trend",
+              "relevance": 1,
+              "description": "Monthly revenue trend",
+              "matched_targets": [
+                {
+                  "search_text": "monthly revenue trend",
+                  "relevance": 1,
+                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                }
+              ]
+            },
+            {
+              "name": "seasonality",
+              "entity_type": "view",
+              "entity_id": "view:overview:seasonality",
+              "relevance": 0.9137044489157166,
+              "description": "Seasonality: monthly revenue with one line per year (holiday spikes)",
+              "matched_targets": [
+                {
+                  "search_text": "monthly revenue trend",
+                  "relevance": 0.9137,
+                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                }
+              ]
+            }
+          ],
+          "relevance": 1
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "storefront.malloy",
+              "source": "order_items"
+            },
+            "one_line_summary": "Order line items — the fact table, one row per product sold on an order.",
+            "docs": "Order line items — the fact table, one row per product sold on an order",
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "seasonality",
+              "entity_type": "view",
+              "entity_id": "view:order_items:seasonality",
+              "description": "Seasonality: monthly revenue with one line per year (holiday spikes)",
+              "also_likely": true,
+              "also_likely_reason": "Same name and kind as the pick overview.seasonality, on another source."
+            }
+          ]
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "data_app.malloy",
+              "source": "scoped_orders"
+            },
+            "one_line_summary": "Order lines narrowed by the data app's control row.",
+            "docs": "Order lines narrowed by the data app's control row. Every tile queries this.",
+            "givens": [
+              {
+                "name": "CATEGORY",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "BRAND",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "REGION",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "SINCE",
+                "type": "date",
+                "default": "@2023-01-01"
+              },
+              {
+                "name": "MIN_SALE",
+                "type": "filter<number>",
+                "default": "f''"
+              }
+            ],
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "seasonality",
+              "entity_type": "view",
+              "entity_id": "view:scoped_orders:seasonality",
+              "description": "Seasonality: monthly revenue with one line per year (holiday spikes)",
+              "also_likely": true,
+              "also_likely_reason": "Same name and kind as the pick overview.seasonality, on another source."
+            }
+          ]
+        }
+      ],
+      "ranking": "relevance",
+      "total_available": 3,
+      "returned": 3,
+      "retrieval": "semantic",
+      "engine": "fcj",
+      "clusters": [
+        {
+          "query_from": {
+            "source": "overview",
+            "model_path": "overview.malloy"
+          },
+          "sources": [
+            {
+              "source": "overview",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "view:overview:revenue_trend",
+              "view:overview:seasonality"
+            ]
+          }
+        }
+      ],
+      "unresolved_targets": [],
+      "skills": [
+        {
+          "name": "malloy-phrase-detection",
+          "description": "How to turn a storefront question into get_context search targets, including the shop vocabulary that does not appear anywhere in the model. Replaces the built-in phrase-detection guide for this package."
+        },
+        {
+          "name": "storefront-conventions",
+          "description": "What storefront's measures actually count, and the four places a reasonable reading of them is wrong. Read before answering any revenue, order, margin, or region question against this package."
+        }
+      ],
+      "skills_note": "This package ships its own guidance, listed above. Read the relevant one before relying on names or conventions from this package. If it is already loaded as a skill, use that; otherwise fetch it with get_skill(skill_name, scopes), and if that tool is not available to you, proceed and say which guidance you could not read. A guide whose name matches a built-in one replaces it here."
+    }
+  },
+  "traffic": {
+    "embedding_calls": 1,
+    "embedded_texts": [
+      "monthly revenue trend"
+    ],
+    "judge_calls": 1,
+    "judge": [
+      {
+        "system_sha256": "9f5997fde3c4a50ca93d49e0090e8c6b85eab6867ed48888adaf95f6f77a40c2",
+        "prompt_sha256": "328be8697604b98abc320d75375f0f8f38a631d6531971272f649fd605d55c0c",
+        "prompt": [
+          "Sources with candidates:",
+          "- overview - The overview report's tiles, each over the order lines its controls select.",
+          "  Its doc begins: \"The overview report's tiles, each over the order lines its controls select\"",
+          "  A query from overview can use none of the other listed sources.",
+          "- order_items - Order line items — the fact table, one row per product sold on an order.",
+          "  Its doc begins: \"Order line items — the fact table, one row per product sold on an order\"",
+          "  A query from order_items can use none of the other listed sources.",
+          "- scoped_orders - Order lines narrowed by the data app's control row.",
+          "  Its doc begins: \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
+          "  A query from scoped_orders can use none of the other listed sources.",
+          "",
+          "<targets>",
+          "Target 1 (view): \"monthly revenue trend\"",
+          "  From overview (its doc: \"The overview report's tiles, each over the order lines its controls select\"):",
+          "    [1] revenue_trend (view; source overview): Monthly revenue trend",
+          "    [2] seasonality (view; source overview): Seasonality: monthly revenue with one line per year (holiday spikes)",
+          "    [3] sales_by_month (view; source overview): Monthly revenue trend",
+          "    [4] revenue_by_state (view; source overview): Revenue by customer state (US choropleth)",
+          "    [5] business_overview (view; source overview): Business overview: KPIs, monthly trend, geography, and top sellers",
+          "    [6] sales_by_state (view; source overview): Revenue by customer state (US choropleth)",
+          "    [7] sales_by_year (view; source overview): Annual revenue (shows the growth trend)",
+          "    [8] top_brands (view; source overview): Top brands by revenue",
+          "    [9] revenue_by_category (view; source overview): Revenue by product category",
+          "    [10] brand_performance (view; source overview): Brand performance: revenue, margin, and share of the total",
+          "    [11] best_sellers (view; source overview): Top products by revenue",
+          "    [12] by_category (view; source overview): Revenue by product category",
+          "    [13] top_products (view; source overview): Top products by revenue",
+          "    [14] category_performance (view; source overview): Category performance: revenue, margin, and share of the total",
+          "    [15] key_figures (view; source overview): Revenue, gross margin, orders, customers and average order value",
+          "    [16] kpis (view; source overview): Revenue, gross margin, orders, customers and average order value",
+          "  From order_items (its doc: \"Order line items — the fact table, one row per product sold on an order\"):",
+          "    [17] seasonality (view; source order_items): Seasonality: monthly revenue with one line per year (holiday spikes)",
+          "    [18] sales_by_month (view; source order_items): Monthly revenue trend",
+          "    [19] business_overview (view; source order_items): Business overview: KPIs, monthly trend, geography, and top sellers",
+          "    [20] sales_by_state (view; source order_items): Revenue by customer state (US choropleth)",
+          "    [21] sales_by_year (view; source order_items): Annual revenue (shows the growth trend)",
+          "    [22] top_brands (view; source order_items): Top brands by revenue",
+          "    [23] brand_performance (view; source order_items): Brand performance: revenue, margin, and share of the total",
+          "    [24] top_products (view; source order_items): Top products by revenue",
+          "    [25] by_category (view; source order_items): Revenue by product category",
+          "    [26] key_figures (view; source order_items): Revenue, gross margin, orders, customers and average order value",
+          "    [27] brand_suggest (query; source order_items): Distinct brands, for the Brand filter control's option list",
+          "  From scoped_orders (its doc: \"Order lines narrowed by the data app's control row. Every tile queries this.\"):",
+          "    [28] seasonality (view; source scoped_orders): Seasonality: monthly revenue with one line per year (holiday spikes)",
+          "    [29] sales_by_month (view; source scoped_orders): Monthly revenue trend",
+          "    [30] business_overview (view; source scoped_orders): Business overview: KPIs, monthly trend, geography, and top sellers",
+          "    [31] sales_by_state (view; source scoped_orders): Revenue by customer state (US choropleth)",
+          "    [32] sales_by_year (view; source scoped_orders): Annual revenue (shows the growth trend)",
+          "    [33] top_brands (view; source scoped_orders): Top brands by revenue",
+          "    [34] brand_performance (view; source scoped_orders): Brand performance: revenue, margin, and share of the total",
+          "    [35] by_category (view; source scoped_orders): Revenue by product category",
+          "    [36] top_products (view; source scoped_orders): Top products by revenue",
+          "</targets>",
+          "",
+          "Also in this group:",
+          "  [37] created_at (dimension, date; source overview): (no doc; name in words: created at) | added because: a date of overview, and a target names a period",
+          "  [38] created_at (dimension, date; source order_items): (no doc; name in words: created at) | added because: a date of order_items, and a target names a period",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                1,
+                2
+              ],
+              "best": 1,
+              "reason": "stand-in: listed candidates sharing a word with the target"
+            }
+          ],
+          "caveats": []
+        }
+      }
+    ]
+  }
+}

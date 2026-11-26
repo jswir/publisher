@@ -1,0 +1,138 @@
+{
+  "case": "value-indexed-typo",
+  "about": "A misspelt stored value, matched by spelling (synthetic package).",
+  "request": {
+    "search_targets": [
+      {
+        "target_type": "dimensional_value",
+        "search_text": "Outerwaer"
+      }
+    ],
+    "scopes": [
+      {
+        "environment": "examples",
+        "package": "replay-values"
+      }
+    ]
+  },
+  "response": {
+    "is_error": false,
+    "payload": {
+      "sources": [
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-values",
+              "model_path": "store_visits.malloy",
+              "source": "store_visits"
+            },
+            "one_line_summary": "One row per visit to a store, synthetic.",
+            "docs": "One row per visit to a store, synthetic.",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "item_category",
+              "entity_type": "dimension",
+              "entity_id": "dimension:store_visits:item_category",
+              "relevance": 1,
+              "description": "Product category of the item bought.",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "Outerwaer",
+                  "relevance": 1,
+                  "match_reason": "stand-in: a value matched by spelling, or the one pinned field"
+                }
+              ],
+              "aliases": [
+                "category"
+              ],
+              "values": [
+                {
+                  "value": "Outerwear",
+                  "relevance": 0.75,
+                  "search_text": "Outerwaer"
+                }
+              ]
+            }
+          ],
+          "relevance": 1
+        }
+      ],
+      "ranking": "relevance",
+      "total_available": 1,
+      "returned": 1,
+      "retrieval": "semantic",
+      "engine": "fcj",
+      "clusters": [
+        {
+          "query_from": {
+            "source": "store_visits",
+            "model_path": "store_visits.malloy"
+          },
+          "sources": [
+            {
+              "source": "store_visits",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "dimension:store_visits:item_category"
+            ]
+          }
+        }
+      ],
+      "unresolved_targets": []
+    }
+  },
+  "traffic": {
+    "embedding_calls": 1,
+    "embedded_texts": [
+      "Outerwaer"
+    ],
+    "judge_calls": 1,
+    "judge": [
+      {
+        "system_sha256": "4368758cabf61a9b4358877f4114ee9f7baf4d7ee4824634d8389e69be097d60",
+        "prompt_sha256": "c91856ddd5cc9d46b0e42f2e3804bcb8f82cea9627afe5a7b1fcc8dfa083715c",
+        "prompt": [
+          "Sources with candidates:",
+          "- store_visits - One row per visit to a store, synthetic.",
+          "  A query from store_visits can use none of the other listed sources.",
+          "",
+          "<targets>",
+          "Target 1 (dimensional_value): \"Outerwaer\"",
+          "  From store_visits:",
+          "    [1] item_category (dimension, string; source store_visits): Product category of the item bought. | stored values matching the target: 1a \"Outerwear\" (words, 0.75)",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                1
+              ],
+              "best": 1,
+              "values": [
+                "1a"
+              ],
+              "reason": "stand-in: a value matched by spelling, or the one pinned field"
+            }
+          ],
+          "caveats": []
+        }
+      }
+    ]
+  }
+}

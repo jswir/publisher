@@ -1,0 +1,201 @@
+{
+  "about": "Each package's index build under the stand-in providers, with the warm-up call that started it (one query embedding). Timings are removed.",
+  "storefront": {
+    "report": {
+      "catalog": {
+        "sources": 7,
+        "nodes": {
+          "source": 7,
+          "dimension": 47,
+          "measure": 32,
+          "join": 9,
+          "view": 50,
+          "query": 1
+        },
+        "edges": {
+          "contains": 139,
+          "joins": 9,
+          "extends": 0,
+          "depends": 51,
+          "uses": 113
+        },
+        "multiFileNodes": 59,
+        "indexedDimensions": 0,
+        "gatedSources": 0,
+        "unresolvedReferences": 0,
+        "copiesFolded": 0,
+        "copiesKeptApart": 0,
+        "hiddenSources": 0,
+        "joinPaths": 9,
+        "deepestJoinPath": 1,
+        "joinPathsCapped": 0,
+        "joinedCopiesDropped": 0,
+        "unservedCopiesAdded": 0,
+        "unservedCopiesCapped": 0,
+        "unservedWalkCapped": 0
+      },
+      "summaries": {
+        "stored": 7,
+        "sources": 7
+      },
+      "docParts": {
+        "longDocs": 1,
+        "byModel": 1,
+        "byRules": 0
+      },
+      "questions": {
+        "nodes": 130,
+        "written": 130,
+        "reused": 0,
+        "missing": 0
+      },
+      "vectors": {
+        "rows": 536,
+        "embedded": 536,
+        "reused": 0,
+        "deleted": 0,
+        "charsEmbedded": 41519,
+        "dims": 64
+      },
+      "keywordDocs": 146,
+      "values": {
+        "dimensionsRead": 0,
+        "dimensionsReused": 0,
+        "valuesFromData": 0,
+        "valuesFromDocs": 0,
+        "cut": [],
+        "skipped": [],
+        "failed": []
+      },
+      "valueVectors": {
+        "values": 0,
+        "embedded": 0,
+        "reused": 0,
+        "deleted": 0,
+        "charsEmbedded": 0
+      }
+    },
+    "traffic": {
+      "embedding_calls": 3,
+      "embedded_texts": 536,
+      "embedded_texts_sha256": "66fca549ac2062ce7b3b42c3c61d9c5a1a1c2b28d0c82aa165a6f9a0e3bce3cd",
+      "chat_calls_by_kind": {
+        "doc_parts": 1,
+        "questions": 9,
+        "source_summary": 14
+      },
+      "chat_prompts_sha256": [
+        "doc_parts 354acf6e426c7e462f0bd75e8a2f4b1b842fdf8e3033bdc6c29396dd19731dd8",
+        "questions 286fd95ed6a8eccaf8f6652c6989d5771cefcb91d7144a00f84f7dffe498efef",
+        "questions 3e361a748ff4adaa219f8b23cbaa11af72fa7ed7d6bad198a0cbffed371414e4",
+        "questions 5500a9c30f91d75beb338b101a64d242e3225bfa133925d06e1c574490cdbd26",
+        "questions 6f55c729a6beba0d32f390f795a32bfa75b075b005d4e0acc0eb85006d76ec08",
+        "questions a08cff8a7e3aaab491922fb05db6475c3d46907003c8be3ded1b3b1e4c09b972",
+        "questions b329594760a11b967a6bdfa68d26d0d0a88815735837d97a70034f1c81a7d6cc",
+        "questions c82e9ba5e96db9a3d86a6c198d845c366b8ad81c3978826080dd7c106c3c2368",
+        "questions d0834926f2352f01366334f37af95664654772559d931bba811970529b2d9fc6",
+        "questions fbcbd7e1fe06381cb650838712c826142d9fb65e3a2f2a2c82cc014d85f1278f",
+        "source_summary 135c699890d0095fed8073f66f203dbafbb09b46a506608f6c619685f2679f9a",
+        "source_summary 1ef641a1003f5896eccc77aeaa81671c2c2b22e1345b65f56e93bbfc8073166d",
+        "source_summary 261d35191faaef6513868eeaaca9abf1b070a83b88904bc484c2f16714f8a336",
+        "source_summary 261d35191faaef6513868eeaaca9abf1b070a83b88904bc484c2f16714f8a336",
+        "source_summary 261d35191faaef6513868eeaaca9abf1b070a83b88904bc484c2f16714f8a336",
+        "source_summary b8759dca9f08efe689999e51f2be31af2b5b1e16abe194d409e487977ba17bf8",
+        "source_summary b8759dca9f08efe689999e51f2be31af2b5b1e16abe194d409e487977ba17bf8",
+        "source_summary b8759dca9f08efe689999e51f2be31af2b5b1e16abe194d409e487977ba17bf8",
+        "source_summary c66dfb672ad0a6068bb81e55639081f013495528cec33a73d6c8e76e766575f5",
+        "source_summary c66dfb672ad0a6068bb81e55639081f013495528cec33a73d6c8e76e766575f5",
+        "source_summary c66dfb672ad0a6068bb81e55639081f013495528cec33a73d6c8e76e766575f5",
+        "source_summary cf012cbf21e55b6253bfe281c23016efb541d66888e94e3b8d19c7c77380aa12",
+        "source_summary cf012cbf21e55b6253bfe281c23016efb541d66888e94e3b8d19c7c77380aa12",
+        "source_summary e9d65e64cae15ecbdd5272d7e5db4eb735b8f818350f0325b64828f840564683"
+      ]
+    }
+  },
+  "replay-values": {
+    "report": {
+      "catalog": {
+        "sources": 1,
+        "nodes": {
+          "source": 1,
+          "dimension": 4,
+          "measure": 1
+        },
+        "edges": {
+          "contains": 5,
+          "joins": 0,
+          "extends": 0,
+          "depends": 0,
+          "uses": 0
+        },
+        "multiFileNodes": 0,
+        "indexedDimensions": 2,
+        "gatedSources": 0,
+        "unresolvedReferences": 3,
+        "copiesFolded": 0,
+        "copiesKeptApart": 0,
+        "hiddenSources": 0,
+        "joinPaths": 0,
+        "deepestJoinPath": 0,
+        "joinPathsCapped": 0,
+        "joinedCopiesDropped": 0,
+        "unservedCopiesAdded": 0,
+        "unservedCopiesCapped": 0,
+        "unservedWalkCapped": 0
+      },
+      "summaries": {
+        "stored": 1,
+        "sources": 1
+      },
+      "docParts": {
+        "longDocs": 0,
+        "byModel": 0,
+        "byRules": 0
+      },
+      "questions": {
+        "nodes": 5,
+        "written": 5,
+        "reused": 0,
+        "missing": 0
+      },
+      "vectors": {
+        "rows": 21,
+        "embedded": 21,
+        "reused": 0,
+        "deleted": 0,
+        "charsEmbedded": 1198,
+        "dims": 64
+      },
+      "keywordDocs": 6,
+      "values": {
+        "dimensionsRead": 2,
+        "dimensionsReused": 0,
+        "valuesFromData": 6,
+        "valuesFromDocs": 0,
+        "cut": [],
+        "skipped": [],
+        "failed": []
+      },
+      "valueVectors": {
+        "values": 6,
+        "embedded": 6,
+        "reused": 0,
+        "deleted": 0,
+        "charsEmbedded": 47
+      }
+    },
+    "traffic": {
+      "embedding_calls": 2,
+      "embedded_texts": 27,
+      "embedded_texts_sha256": "da1df2ce4103171bc22ccede5c8fcc572743087d194096ac7f6951821e633bb9",
+      "chat_calls_by_kind": {
+        "questions": 1,
+        "source_summary": 1
+      },
+      "chat_prompts_sha256": [
+        "questions 10d935c5569a8457f44d30d62beb902bdbfe416b3b7a690a656642f9a722d960",
+        "source_summary 1582bba57aed74281a9f1e0381ba2845eda95ff8697cf946746364b945c0572e"
+      ]
+    }
+  }
+}

@@ -1,0 +1,1237 @@
+{
+  "case": "list-source-fields",
+  "about": "A source in scopes and no targets: its fields.",
+  "request": {
+    "scopes": [
+      {
+        "environment": "examples",
+        "package": "storefront",
+        "source": "order_items"
+      }
+    ]
+  },
+  "response": {
+    "is_error": false,
+    "payload": {
+      "sources": [
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "data_app.malloy",
+              "source": "order_items"
+            },
+            "one_line_summary": "Order line items — the fact table, one row per product sold on an order",
+            "docs": "Order line items — the fact table, one row per product sold on an order",
+            "givens": [
+              {
+                "name": "CATEGORY",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "BRAND",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "REGION",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "SINCE",
+                "type": "date",
+                "default": "@2023-01-01"
+              },
+              {
+                "name": "MIN_SALE",
+                "type": "filter<number>",
+                "default": "f''"
+              }
+            ],
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:id",
+              "data_type": "number"
+            },
+            {
+              "name": "order_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:order_id",
+              "data_type": "number"
+            },
+            {
+              "name": "customer_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:customer_id",
+              "data_type": "number"
+            },
+            {
+              "name": "product_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:product_id",
+              "data_type": "number"
+            },
+            {
+              "name": "sale_price",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:sale_price",
+              "data_type": "number"
+            },
+            {
+              "name": "status",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:status",
+              "data_type": "string"
+            },
+            {
+              "name": "created_at",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:created_at",
+              "data_type": "date"
+            },
+            {
+              "name": "gross_margin",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:gross_margin",
+              "description": "Gross margin on this line (sale price minus product cost)",
+              "data_type": "number"
+            },
+            {
+              "name": "category",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:category",
+              "description": "Product category of the item sold",
+              "data_type": "string"
+            },
+            {
+              "name": "brand",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:brand",
+              "description": "Brand of the item sold",
+              "data_type": "string"
+            },
+            {
+              "name": "region",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:region",
+              "description": "Sales region for the customer's home state",
+              "data_type": "string"
+            },
+            {
+              "name": "order_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:order_count",
+              "description": "Distinct orders",
+              "data_type": "number"
+            },
+            {
+              "name": "order_item_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:order_item_count",
+              "description": "Line items sold",
+              "data_type": "number"
+            },
+            {
+              "name": "total_sales",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:total_sales",
+              "description": "Total revenue",
+              "data_type": "number"
+            },
+            {
+              "name": "total_margin",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:total_margin",
+              "description": "Total gross margin (revenue minus cost of goods sold), summed per line",
+              "data_type": "number"
+            },
+            {
+              "name": "margin_rate",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:margin_rate",
+              "description": "Gross margin as a share of revenue",
+              "data_type": "number"
+            },
+            {
+              "name": "avg_order_value",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:avg_order_value",
+              "description": "Average order value",
+              "data_type": "number"
+            },
+            {
+              "name": "customer_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:customer_count",
+              "description": "Distinct customers",
+              "data_type": "number"
+            },
+            {
+              "name": "orders_per_customer",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:orders_per_customer",
+              "description": "Average orders placed per customer",
+              "data_type": "number"
+            },
+            {
+              "name": "return_rate",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:return_rate",
+              "description": "Share of line items that were returned",
+              "data_type": "number"
+            },
+            {
+              "name": "percent_of_sales",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:percent_of_sales",
+              "description": "Share of total sales",
+              "data_type": "number"
+            },
+            {
+              "name": "customers",
+              "entity_type": "join",
+              "entity_id": "join:order_items:customers",
+              "description": "Customer who placed the order",
+              "relationship": "one"
+            },
+            {
+              "name": "customers.customer_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:customers.customer_id",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "customers"
+            },
+            {
+              "name": "customers.full_name",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:customers.full_name",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "customers"
+            },
+            {
+              "name": "customers.state",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:customers.state",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "customers"
+            },
+            {
+              "name": "customers.city",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:customers.city",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "customers"
+            },
+            {
+              "name": "customers.signup_date",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:customers.signup_date",
+              "data_type": "date",
+              "relationship": "one",
+              "join_path": "customers"
+            },
+            {
+              "name": "customers.customer_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:customers.customer_count",
+              "description": "Distinct customers",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "customers"
+            },
+            {
+              "name": "products",
+              "entity_type": "join",
+              "entity_id": "join:order_items:products",
+              "description": "Product sold on this line",
+              "relationship": "one"
+            },
+            {
+              "name": "products.product_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:products.product_id",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "products"
+            },
+            {
+              "name": "products.name",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:products.name",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "products"
+            },
+            {
+              "name": "products.category",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:products.category",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "products"
+            },
+            {
+              "name": "products.brand",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:products.brand",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "products"
+            },
+            {
+              "name": "products.cost",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:products.cost",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "products"
+            },
+            {
+              "name": "products.retail_price",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:products.retail_price",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "products"
+            },
+            {
+              "name": "products.product_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:products.product_count",
+              "description": "Distinct products",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "products"
+            },
+            {
+              "name": "regions",
+              "entity_type": "join",
+              "entity_id": "join:order_items:regions",
+              "description": "Sales region for the customer's home state",
+              "relationship": "one"
+            },
+            {
+              "name": "regions.state",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:regions.state",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "regions"
+            },
+            {
+              "name": "regions.region",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:regions.region",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "regions"
+            },
+            {
+              "name": "top_products",
+              "entity_type": "view",
+              "entity_id": "view:order_items:top_products",
+              "description": "Top products by revenue"
+            },
+            {
+              "name": "by_category",
+              "entity_type": "view",
+              "entity_id": "view:order_items:by_category",
+              "description": "Revenue by product category"
+            },
+            {
+              "name": "category_performance",
+              "entity_type": "view",
+              "entity_id": "view:order_items:category_performance",
+              "description": "Category performance: revenue, margin, and share of the total"
+            },
+            {
+              "name": "margin_by_category",
+              "entity_type": "view",
+              "entity_id": "view:order_items:margin_by_category",
+              "description": "Gross margin by product category"
+            },
+            {
+              "name": "top_brands",
+              "entity_type": "view",
+              "entity_id": "view:order_items:top_brands",
+              "description": "Top brands by revenue"
+            },
+            {
+              "name": "brand_performance",
+              "entity_type": "view",
+              "entity_id": "view:order_items:brand_performance",
+              "description": "Brand performance: revenue, margin, and share of the total"
+            },
+            {
+              "name": "top_customers",
+              "entity_type": "view",
+              "entity_id": "view:order_items:top_customers",
+              "description": "Top customers by spend"
+            },
+            {
+              "name": "sales_by_state",
+              "entity_type": "view",
+              "entity_id": "view:order_items:sales_by_state",
+              "description": "Revenue by customer state (US choropleth)"
+            },
+            {
+              "name": "sales_by_region",
+              "entity_type": "view",
+              "entity_id": "view:order_items:sales_by_region",
+              "description": "Revenue by sales region (states rolled up via the regions lookup)"
+            },
+            {
+              "name": "sales_by_month",
+              "entity_type": "view",
+              "entity_id": "view:order_items:sales_by_month",
+              "description": "Monthly revenue trend"
+            },
+            {
+              "name": "sales_by_year",
+              "entity_type": "view",
+              "entity_id": "view:order_items:sales_by_year",
+              "description": "Annual revenue (shows the growth trend)"
+            },
+            {
+              "name": "seasonality",
+              "entity_type": "view",
+              "entity_id": "view:order_items:seasonality",
+              "description": "Seasonality: monthly revenue with one line per year (holiday spikes)"
+            },
+            {
+              "name": "by_status",
+              "entity_type": "view",
+              "entity_id": "view:order_items:by_status",
+              "description": "Order counts by fulfillment status"
+            },
+            {
+              "name": "key_figures",
+              "entity_type": "view",
+              "entity_id": "view:order_items:key_figures",
+              "description": "Revenue, gross margin, orders, customers and average order value"
+            },
+            {
+              "name": "business_overview",
+              "entity_type": "view",
+              "entity_id": "view:order_items:business_overview",
+              "description": "Business overview: KPIs, monthly trend, geography, and top sellers"
+            },
+            {
+              "name": "brand_suggest",
+              "entity_type": "query",
+              "entity_id": "query:order_items:brand_suggest",
+              "description": "Distinct brands, for the Brand filter control's option list"
+            }
+          ]
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "overview.malloy",
+              "source": "order_items"
+            },
+            "one_line_summary": "Order line items — the fact table, one row per product sold on an order",
+            "docs": "Order line items — the fact table, one row per product sold on an order",
+            "givens": [
+              {
+                "name": "CATEGORY",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "BRAND",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "REGION",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "SINCE",
+                "type": "date",
+                "default": "@2023-01-01"
+              },
+              {
+                "name": "MIN_SALE",
+                "type": "filter<number>",
+                "default": "f''"
+              }
+            ],
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:id",
+              "data_type": "number"
+            },
+            {
+              "name": "order_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:order_id",
+              "data_type": "number"
+            },
+            {
+              "name": "customer_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:customer_id",
+              "data_type": "number"
+            },
+            {
+              "name": "product_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:product_id",
+              "data_type": "number"
+            },
+            {
+              "name": "sale_price",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:sale_price",
+              "data_type": "number"
+            },
+            {
+              "name": "status",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:status",
+              "data_type": "string"
+            },
+            {
+              "name": "created_at",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:created_at",
+              "data_type": "date"
+            },
+            {
+              "name": "gross_margin",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:gross_margin",
+              "description": "Gross margin on this line (sale price minus product cost)",
+              "data_type": "number"
+            },
+            {
+              "name": "category",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:category",
+              "description": "Product category of the item sold",
+              "data_type": "string"
+            },
+            {
+              "name": "brand",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:brand",
+              "description": "Brand of the item sold",
+              "data_type": "string"
+            },
+            {
+              "name": "region",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:region",
+              "description": "Sales region for the customer's home state",
+              "data_type": "string"
+            },
+            {
+              "name": "order_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:order_count",
+              "description": "Distinct orders",
+              "data_type": "number"
+            },
+            {
+              "name": "order_item_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:order_item_count",
+              "description": "Line items sold",
+              "data_type": "number"
+            },
+            {
+              "name": "total_sales",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:total_sales",
+              "description": "Total revenue",
+              "data_type": "number"
+            },
+            {
+              "name": "total_margin",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:total_margin",
+              "description": "Total gross margin (revenue minus cost of goods sold), summed per line",
+              "data_type": "number"
+            },
+            {
+              "name": "margin_rate",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:margin_rate",
+              "description": "Gross margin as a share of revenue",
+              "data_type": "number"
+            },
+            {
+              "name": "avg_order_value",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:avg_order_value",
+              "description": "Average order value",
+              "data_type": "number"
+            },
+            {
+              "name": "customer_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:customer_count",
+              "description": "Distinct customers",
+              "data_type": "number"
+            },
+            {
+              "name": "orders_per_customer",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:orders_per_customer",
+              "description": "Average orders placed per customer",
+              "data_type": "number"
+            },
+            {
+              "name": "return_rate",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:return_rate",
+              "description": "Share of line items that were returned",
+              "data_type": "number"
+            },
+            {
+              "name": "percent_of_sales",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:percent_of_sales",
+              "description": "Share of total sales",
+              "data_type": "number"
+            },
+            {
+              "name": "customers",
+              "entity_type": "join",
+              "entity_id": "join:order_items:customers",
+              "description": "Customer who placed the order",
+              "relationship": "one"
+            },
+            {
+              "name": "customers.customer_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:customers.customer_id",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "customers"
+            },
+            {
+              "name": "customers.full_name",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:customers.full_name",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "customers"
+            },
+            {
+              "name": "customers.state",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:customers.state",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "customers"
+            },
+            {
+              "name": "customers.city",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:customers.city",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "customers"
+            },
+            {
+              "name": "customers.signup_date",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:customers.signup_date",
+              "data_type": "date",
+              "relationship": "one",
+              "join_path": "customers"
+            },
+            {
+              "name": "customers.customer_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:customers.customer_count",
+              "description": "Distinct customers",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "customers"
+            },
+            {
+              "name": "products",
+              "entity_type": "join",
+              "entity_id": "join:order_items:products",
+              "description": "Product sold on this line",
+              "relationship": "one"
+            },
+            {
+              "name": "products.product_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:products.product_id",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "products"
+            },
+            {
+              "name": "products.name",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:products.name",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "products"
+            },
+            {
+              "name": "products.category",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:products.category",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "products"
+            },
+            {
+              "name": "products.brand",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:products.brand",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "products"
+            },
+            {
+              "name": "products.cost",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:products.cost",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "products"
+            },
+            {
+              "name": "products.retail_price",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:products.retail_price",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "products"
+            },
+            {
+              "name": "products.product_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:products.product_count",
+              "description": "Distinct products",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "products"
+            },
+            {
+              "name": "regions",
+              "entity_type": "join",
+              "entity_id": "join:order_items:regions",
+              "description": "Sales region for the customer's home state",
+              "relationship": "one"
+            },
+            {
+              "name": "regions.state",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:regions.state",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "regions"
+            },
+            {
+              "name": "regions.region",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:regions.region",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "regions"
+            },
+            {
+              "name": "top_products",
+              "entity_type": "view",
+              "entity_id": "view:order_items:top_products",
+              "description": "Top products by revenue"
+            },
+            {
+              "name": "by_category",
+              "entity_type": "view",
+              "entity_id": "view:order_items:by_category",
+              "description": "Revenue by product category"
+            },
+            {
+              "name": "category_performance",
+              "entity_type": "view",
+              "entity_id": "view:order_items:category_performance",
+              "description": "Category performance: revenue, margin, and share of the total"
+            },
+            {
+              "name": "margin_by_category",
+              "entity_type": "view",
+              "entity_id": "view:order_items:margin_by_category",
+              "description": "Gross margin by product category"
+            },
+            {
+              "name": "top_brands",
+              "entity_type": "view",
+              "entity_id": "view:order_items:top_brands",
+              "description": "Top brands by revenue"
+            },
+            {
+              "name": "brand_performance",
+              "entity_type": "view",
+              "entity_id": "view:order_items:brand_performance",
+              "description": "Brand performance: revenue, margin, and share of the total"
+            },
+            {
+              "name": "top_customers",
+              "entity_type": "view",
+              "entity_id": "view:order_items:top_customers",
+              "description": "Top customers by spend"
+            },
+            {
+              "name": "sales_by_state",
+              "entity_type": "view",
+              "entity_id": "view:order_items:sales_by_state",
+              "description": "Revenue by customer state (US choropleth)"
+            },
+            {
+              "name": "sales_by_region",
+              "entity_type": "view",
+              "entity_id": "view:order_items:sales_by_region",
+              "description": "Revenue by sales region (states rolled up via the regions lookup)"
+            },
+            {
+              "name": "sales_by_month",
+              "entity_type": "view",
+              "entity_id": "view:order_items:sales_by_month",
+              "description": "Monthly revenue trend"
+            },
+            {
+              "name": "sales_by_year",
+              "entity_type": "view",
+              "entity_id": "view:order_items:sales_by_year",
+              "description": "Annual revenue (shows the growth trend)"
+            },
+            {
+              "name": "seasonality",
+              "entity_type": "view",
+              "entity_id": "view:order_items:seasonality",
+              "description": "Seasonality: monthly revenue with one line per year (holiday spikes)"
+            },
+            {
+              "name": "by_status",
+              "entity_type": "view",
+              "entity_id": "view:order_items:by_status",
+              "description": "Order counts by fulfillment status"
+            },
+            {
+              "name": "key_figures",
+              "entity_type": "view",
+              "entity_id": "view:order_items:key_figures",
+              "description": "Revenue, gross margin, orders, customers and average order value"
+            },
+            {
+              "name": "business_overview",
+              "entity_type": "view",
+              "entity_id": "view:order_items:business_overview",
+              "description": "Business overview: KPIs, monthly trend, geography, and top sellers"
+            },
+            {
+              "name": "brand_suggest",
+              "entity_type": "query",
+              "entity_id": "query:order_items:brand_suggest",
+              "description": "Distinct brands, for the Brand filter control's option list"
+            }
+          ]
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "storefront.malloy",
+              "source": "order_items"
+            },
+            "one_line_summary": "Order line items — the fact table, one row per product sold on an order",
+            "docs": "Order line items — the fact table, one row per product sold on an order",
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:id",
+              "data_type": "number"
+            },
+            {
+              "name": "order_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:order_id",
+              "data_type": "number"
+            },
+            {
+              "name": "customer_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:customer_id",
+              "data_type": "number"
+            },
+            {
+              "name": "product_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:product_id",
+              "data_type": "number"
+            },
+            {
+              "name": "sale_price",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:sale_price",
+              "data_type": "number"
+            },
+            {
+              "name": "status",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:status",
+              "data_type": "string"
+            },
+            {
+              "name": "created_at",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:created_at",
+              "data_type": "date"
+            },
+            {
+              "name": "gross_margin",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:gross_margin",
+              "description": "Gross margin on this line (sale price minus product cost)",
+              "data_type": "number"
+            },
+            {
+              "name": "category",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:category",
+              "description": "Product category of the item sold",
+              "data_type": "string"
+            },
+            {
+              "name": "brand",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:brand",
+              "description": "Brand of the item sold",
+              "data_type": "string"
+            },
+            {
+              "name": "region",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:region",
+              "description": "Sales region for the customer's home state",
+              "data_type": "string"
+            },
+            {
+              "name": "order_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:order_count",
+              "description": "Distinct orders",
+              "data_type": "number"
+            },
+            {
+              "name": "order_item_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:order_item_count",
+              "description": "Line items sold",
+              "data_type": "number"
+            },
+            {
+              "name": "total_sales",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:total_sales",
+              "description": "Total revenue",
+              "data_type": "number"
+            },
+            {
+              "name": "total_margin",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:total_margin",
+              "description": "Total gross margin (revenue minus cost of goods sold), summed per line",
+              "data_type": "number"
+            },
+            {
+              "name": "margin_rate",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:margin_rate",
+              "description": "Gross margin as a share of revenue",
+              "data_type": "number"
+            },
+            {
+              "name": "avg_order_value",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:avg_order_value",
+              "description": "Average order value",
+              "data_type": "number"
+            },
+            {
+              "name": "customer_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:customer_count",
+              "description": "Distinct customers",
+              "data_type": "number"
+            },
+            {
+              "name": "orders_per_customer",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:orders_per_customer",
+              "description": "Average orders placed per customer",
+              "data_type": "number"
+            },
+            {
+              "name": "return_rate",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:return_rate",
+              "description": "Share of line items that were returned",
+              "data_type": "number"
+            },
+            {
+              "name": "percent_of_sales",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:percent_of_sales",
+              "description": "Share of total sales",
+              "data_type": "number"
+            },
+            {
+              "name": "customers",
+              "entity_type": "join",
+              "entity_id": "join:order_items:customers",
+              "description": "Customer who placed the order",
+              "relationship": "one"
+            },
+            {
+              "name": "customers.customer_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:customers.customer_id",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "customers"
+            },
+            {
+              "name": "customers.full_name",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:customers.full_name",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "customers"
+            },
+            {
+              "name": "customers.state",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:customers.state",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "customers"
+            },
+            {
+              "name": "customers.city",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:customers.city",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "customers"
+            },
+            {
+              "name": "customers.signup_date",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:customers.signup_date",
+              "data_type": "date",
+              "relationship": "one",
+              "join_path": "customers"
+            },
+            {
+              "name": "customers.customer_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:customers.customer_count",
+              "description": "Distinct customers",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "customers"
+            },
+            {
+              "name": "products",
+              "entity_type": "join",
+              "entity_id": "join:order_items:products",
+              "description": "Product sold on this line",
+              "relationship": "one"
+            },
+            {
+              "name": "products.product_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:products.product_id",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "products"
+            },
+            {
+              "name": "products.name",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:products.name",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "products"
+            },
+            {
+              "name": "products.category",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:products.category",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "products"
+            },
+            {
+              "name": "products.brand",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:products.brand",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "products"
+            },
+            {
+              "name": "products.cost",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:products.cost",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "products"
+            },
+            {
+              "name": "products.retail_price",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:products.retail_price",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "products"
+            },
+            {
+              "name": "products.product_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:products.product_count",
+              "description": "Distinct products",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "products"
+            },
+            {
+              "name": "regions",
+              "entity_type": "join",
+              "entity_id": "join:order_items:regions",
+              "description": "Sales region for the customer's home state",
+              "relationship": "one"
+            },
+            {
+              "name": "regions.state",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:regions.state",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "regions"
+            },
+            {
+              "name": "regions.region",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:regions.region",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "regions"
+            },
+            {
+              "name": "top_products",
+              "entity_type": "view",
+              "entity_id": "view:order_items:top_products",
+              "description": "Top products by revenue"
+            }
+          ]
+        }
+      ],
+      "ranking": "prominence",
+      "total_available": 3,
+      "returned": 3,
+      "skills": [
+        {
+          "name": "malloy-phrase-detection",
+          "description": "How to turn a storefront question into get_context search targets, including the shop vocabulary that does not appear anywhere in the model. Replaces the built-in phrase-detection guide for this package."
+        },
+        {
+          "name": "storefront-conventions",
+          "description": "What storefront's measures actually count, and the four places a reasonable reading of them is wrong. Read before answering any revenue, order, margin, or region question against this package."
+        }
+      ],
+      "skills_note": "This package ships its own guidance, listed above. Read the relevant one before relying on names or conventions from this package. If it is already loaded as a skill, use that; otherwise fetch it with get_skill(skill_name, scopes), and if that tool is not available to you, proceed and say which guidance you could not read. A guide whose name matches a built-in one replaces it here.",
+      "warnings": [
+        "Returned 150 of 165 matching entities. Raise limit (max 150) or narrow the query to see the rest."
+      ]
+    }
+  },
+  "traffic": {
+    "embedding_calls": 0,
+    "embedded_texts": [],
+    "judge_calls": 0,
+    "judge": []
+  }
+}

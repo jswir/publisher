@@ -1,0 +1,59 @@
+{
+  "case": "value-returned",
+  "about": "A stored-value target with no pinned field (status holds 'Returned').",
+  "request": {
+    "search_targets": [
+      {
+        "target_type": "dimensional_value",
+        "search_text": "Returned"
+      }
+    ],
+    "scopes": [
+      {
+        "environment": "examples",
+        "package": "storefront"
+      }
+    ]
+  },
+  "response": {
+    "is_error": false,
+    "payload": {
+      "sources": [],
+      "ranking": "relevance",
+      "total_available": 0,
+      "returned": 0,
+      "retrieval": "semantic",
+      "engine": "fcj",
+      "clusters": [],
+      "unresolved_targets": [
+        {
+          "target_index": 0,
+          "target_type": "dimensional_value",
+          "search_text": "Returned"
+        }
+      ],
+      "skills": [
+        {
+          "name": "malloy-phrase-detection",
+          "description": "How to turn a storefront question into get_context search targets, including the shop vocabulary that does not appear anywhere in the model. Replaces the built-in phrase-detection guide for this package."
+        },
+        {
+          "name": "storefront-conventions",
+          "description": "What storefront's measures actually count, and the four places a reasonable reading of them is wrong. Read before answering any revenue, order, margin, or region question against this package."
+        }
+      ],
+      "skills_note": "This package ships its own guidance, listed above. Read the relevant one before relying on names or conventions from this package. If it is already loaded as a skill, use that; otherwise fetch it with get_skill(skill_name, scopes), and if that tool is not available to you, proceed and say which guidance you could not read. A guide whose name matches a built-in one replaces it here.",
+      "warnings": [
+        "No source in this package answered 1 target(s); see unresolved_targets. Rephrase them, ask the user, or answer without them."
+      ]
+    }
+  },
+  "traffic": {
+    "embedding_calls": 1,
+    "embedded_texts": [
+      "Returned"
+    ],
+    "judge_calls": 0,
+    "judge": []
+  }
+}
