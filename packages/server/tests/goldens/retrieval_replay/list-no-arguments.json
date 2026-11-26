@@ -10,7 +10,7 @@
       "environments": [
         {
           "environment": "examples",
-          "packages": 3
+          "packages": 9
         },
         {
           "environment": "governed",

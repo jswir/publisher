@@ -1,0 +1,882 @@
+{
+  "case": "page-over-35000-chars",
+  "about": "Three cards of about 12,000 characters each (a dozen measures with long docs): the answer is over the 35,000-character page, so the first page ends early by size, and the call with its next_offset is served from the held result.",
+  "steps": [
+    {
+      "request": {
+        "search_targets": [
+          {
+            "target_type": "measure",
+            "search_text": "total amount"
+          }
+        ],
+        "scopes": [
+          {
+            "environment": "examples",
+            "package": "replay-long-docs"
+          }
+        ]
+      },
+      "response": {
+        "is_error": false,
+        "payload": {
+          "sources": [
+            {
+              "source_info": {
+                "resource_id": {
+                  "environment": "examples",
+                  "package": "replay-long-docs",
+                  "model_path": "ledgers.malloy",
+                  "source": "east_ledger"
+                },
+                "one_line_summary": "One row per entry posted to the east ledger.",
+                "docs": "One row per entry posted to the east ledger.",
+                "joins": []
+              },
+              "entities": [
+                {
+                  "name": "total_amount_april",
+                  "entity_type": "measure",
+                  "entity_id": "measure:east_ledger:total_amount_april",
+                  "relevance": 1,
+                  "description": "Total amount posted to the east ledger in April, in US dollars before tax. Rule 1: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 1,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                },
+                {
+                  "name": "total_amount_august",
+                  "entity_type": "measure",
+                  "entity_id": "measure:east_ledger:total_amount_august",
+                  "relevance": 0.9838709677419354,
+                  "description": "Total amount posted to the east ledger in August, in US dollars before tax. Rule 1: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.9839,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                },
+                {
+                  "name": "total_amount_december",
+                  "entity_type": "measure",
+                  "entity_id": "measure:east_ledger:total_amount_december",
+                  "relevance": 0.9682539682539681,
+                  "description": "Total amount posted to the east ledger in December, in US dollars before tax. Rule 1: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.9683,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                },
+                {
+                  "name": "total_amount_february",
+                  "entity_type": "measure",
+                  "entity_id": "measure:east_ledger:total_amount_february",
+                  "relevance": 0.953125,
+                  "description": "Total amount posted to the east ledger in February, in US dollars before tax. Rule 1: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.9531,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                },
+                {
+                  "name": "total_amount_january",
+                  "entity_type": "measure",
+                  "entity_id": "measure:east_ledger:total_amount_january",
+                  "relevance": 0.9384615384615385,
+                  "description": "Total amount posted to the east ledger in January, in US dollars before tax. Rule 1: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.9385,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                },
+                {
+                  "name": "total_amount_july",
+                  "entity_type": "measure",
+                  "entity_id": "measure:east_ledger:total_amount_july",
+                  "relevance": 0.9242424242424242,
+                  "description": "Total amount posted to the east ledger in July, in US dollars before tax. Rule 1: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.9242,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                },
+                {
+                  "name": "total_amount_june",
+                  "entity_type": "measure",
+                  "entity_id": "measure:east_ledger:total_amount_june",
+                  "relevance": 0.9104477611940298,
+                  "description": "Total amount posted to the east ledger in June, in US dollars before tax. Rule 1: an entry dated in June counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in June counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in June counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in June counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in June counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in June counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in June counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.9104,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                },
+                {
+                  "name": "total_amount_march",
+                  "entity_type": "measure",
+                  "entity_id": "measure:east_ledger:total_amount_march",
+                  "relevance": 0.8970588235294117,
+                  "description": "Total amount posted to the east ledger in March, in US dollars before tax. Rule 1: an entry dated in March counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in March counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in March counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in March counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in March counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in March counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in March counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.8971,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                },
+                {
+                  "name": "total_amount_may",
+                  "entity_type": "measure",
+                  "entity_id": "measure:east_ledger:total_amount_may",
+                  "relevance": 0.8840579710144927,
+                  "description": "Total amount posted to the east ledger in May, in US dollars before tax. Rule 1: an entry dated in May counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in May counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in May counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in May counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in May counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in May counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in May counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.8841,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                },
+                {
+                  "name": "total_amount_november",
+                  "entity_type": "measure",
+                  "entity_id": "measure:east_ledger:total_amount_november",
+                  "relevance": 0.8714285714285713,
+                  "description": "Total amount posted to the east ledger in November, in US dollars before tax. Rule 1: an entry dated in November counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in November counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in November counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in November counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in November counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in November counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in November counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.8714,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                },
+                {
+                  "name": "total_amount_october",
+                  "entity_type": "measure",
+                  "entity_id": "measure:east_ledger:total_amount_october",
+                  "relevance": 0.8591549295774648,
+                  "description": "Total amount posted to the east ledger in October, in US dollars before tax. Rule 1: an entry dated in October counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in October counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in October counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in October counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in October counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in October counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in October counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.8592,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                },
+                {
+                  "name": "total_amount_september",
+                  "entity_type": "measure",
+                  "entity_id": "measure:east_ledger:total_amount_september",
+                  "relevance": 0.8472222222222221,
+                  "description": "Total amount posted to the east ledger in September, in US dollars before tax. Rule 1: an entry dated in September counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in September counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in September counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in September counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in September counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in September counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in September counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.8472,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                }
+              ],
+              "relevance": 1
+            },
+            {
+              "source_info": {
+                "resource_id": {
+                  "environment": "examples",
+                  "package": "replay-long-docs",
+                  "model_path": "ledgers.malloy",
+                  "source": "north_ledger"
+                },
+                "one_line_summary": "One row per entry posted to the north ledger.",
+                "docs": "One row per entry posted to the north ledger.",
+                "joins": []
+              },
+              "entities": [
+                {
+                  "name": "total_amount_april",
+                  "entity_type": "measure",
+                  "entity_id": "measure:north_ledger:total_amount_april",
+                  "relevance": 0.8356164383561643,
+                  "description": "Total amount posted to the north ledger in April, in US dollars before tax. Rule 1: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.8356,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                },
+                {
+                  "name": "total_amount_august",
+                  "entity_type": "measure",
+                  "entity_id": "measure:north_ledger:total_amount_august",
+                  "relevance": 0.8243243243243243,
+                  "description": "Total amount posted to the north ledger in August, in US dollars before tax. Rule 1: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.8243,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                },
+                {
+                  "name": "total_amount_december",
+                  "entity_type": "measure",
+                  "entity_id": "measure:north_ledger:total_amount_december",
+                  "relevance": 0.8133333333333334,
+                  "description": "Total amount posted to the north ledger in December, in US dollars before tax. Rule 1: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.8133,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                },
+                {
+                  "name": "total_amount_february",
+                  "entity_type": "measure",
+                  "entity_id": "measure:north_ledger:total_amount_february",
+                  "relevance": 0.8026315789473684,
+                  "description": "Total amount posted to the north ledger in February, in US dollars before tax. Rule 1: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.8026,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                },
+                {
+                  "name": "total_amount_january",
+                  "entity_type": "measure",
+                  "entity_id": "measure:north_ledger:total_amount_january",
+                  "relevance": 0.7922077922077922,
+                  "description": "Total amount posted to the north ledger in January, in US dollars before tax. Rule 1: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.7922,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                },
+                {
+                  "name": "total_amount_july",
+                  "entity_type": "measure",
+                  "entity_id": "measure:north_ledger:total_amount_july",
+                  "relevance": 0.7820512820512819,
+                  "description": "Total amount posted to the north ledger in July, in US dollars before tax. Rule 1: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.7821,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                },
+                {
+                  "name": "total_amount_june",
+                  "entity_type": "measure",
+                  "entity_id": "measure:north_ledger:total_amount_june",
+                  "relevance": 0.7721518987341771,
+                  "description": "Total amount posted to the north ledger in June, in US dollars before tax. Rule 1: an entry dated in June counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in June counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in June counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in June counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in June counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in June counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in June counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.7722,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                },
+                {
+                  "name": "total_amount_march",
+                  "entity_type": "measure",
+                  "entity_id": "measure:north_ledger:total_amount_march",
+                  "relevance": 0.7625,
+                  "description": "Total amount posted to the north ledger in March, in US dollars before tax. Rule 1: an entry dated in March counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in March counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in March counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in March counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in March counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in March counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in March counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.7625,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                },
+                {
+                  "name": "total_amount_may",
+                  "entity_type": "measure",
+                  "entity_id": "measure:north_ledger:total_amount_may",
+                  "relevance": 0.7530864197530863,
+                  "description": "Total amount posted to the north ledger in May, in US dollars before tax. Rule 1: an entry dated in May counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in May counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in May counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in May counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in May counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in May counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in May counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.7531,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                },
+                {
+                  "name": "total_amount_november",
+                  "entity_type": "measure",
+                  "entity_id": "measure:north_ledger:total_amount_november",
+                  "relevance": 0.7439024390243902,
+                  "description": "Total amount posted to the north ledger in November, in US dollars before tax. Rule 1: an entry dated in November counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in November counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in November counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in November counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in November counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in November counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in November counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.7439,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                },
+                {
+                  "name": "total_amount_october",
+                  "entity_type": "measure",
+                  "entity_id": "measure:north_ledger:total_amount_october",
+                  "relevance": 0.7349397590361446,
+                  "description": "Total amount posted to the north ledger in October, in US dollars before tax. Rule 1: an entry dated in October counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in October counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in October counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in October counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in October counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in October counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in October counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.7349,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                },
+                {
+                  "name": "total_amount_september",
+                  "entity_type": "measure",
+                  "entity_id": "measure:north_ledger:total_amount_september",
+                  "relevance": 0.7261904761904762,
+                  "description": "Total amount posted to the north ledger in September, in US dollars before tax. Rule 1: an entry dated in September counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in September counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in September counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in September counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in September counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in September counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in September counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.7262,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                }
+              ],
+              "relevance": 0.8356164383561643
+            }
+          ],
+          "ranking": "relevance",
+          "total_available": 3,
+          "returned": 2,
+          "next_offset": 2,
+          "retrieval": "semantic",
+          "engine": "fcj",
+          "clusters": [
+            {
+              "query_from": {
+                "source": "east_ledger",
+                "model_path": "ledgers.malloy"
+              },
+              "sources": [
+                {
+                  "source": "east_ledger",
+                  "joins": []
+                }
+              ],
+              "covers": [
+                0
+              ],
+              "picks": {
+                "0": [
+                  "measure:east_ledger:total_amount_april",
+                  "measure:east_ledger:total_amount_august",
+                  "measure:east_ledger:total_amount_december",
+                  "measure:east_ledger:total_amount_february",
+                  "measure:east_ledger:total_amount_january",
+                  "measure:east_ledger:total_amount_july",
+                  "measure:east_ledger:total_amount_june",
+                  "measure:east_ledger:total_amount_march",
+                  "measure:east_ledger:total_amount_may",
+                  "measure:east_ledger:total_amount_november",
+                  "measure:east_ledger:total_amount_october",
+                  "measure:east_ledger:total_amount_september"
+                ]
+              }
+            },
+            {
+              "query_from": {
+                "source": "north_ledger",
+                "model_path": "ledgers.malloy"
+              },
+              "sources": [
+                {
+                  "source": "north_ledger",
+                  "joins": []
+                }
+              ],
+              "covers": [
+                0
+              ],
+              "picks": {
+                "0": [
+                  "measure:north_ledger:total_amount_april",
+                  "measure:north_ledger:total_amount_august",
+                  "measure:north_ledger:total_amount_december",
+                  "measure:north_ledger:total_amount_february",
+                  "measure:north_ledger:total_amount_january",
+                  "measure:north_ledger:total_amount_july",
+                  "measure:north_ledger:total_amount_june",
+                  "measure:north_ledger:total_amount_march",
+                  "measure:north_ledger:total_amount_may",
+                  "measure:north_ledger:total_amount_november",
+                  "measure:north_ledger:total_amount_october",
+                  "measure:north_ledger:total_amount_september"
+                ]
+              }
+            },
+            {
+              "query_from": {
+                "source": "south_ledger",
+                "model_path": "ledgers.malloy"
+              },
+              "sources": [
+                {
+                  "source": "south_ledger",
+                  "joins": []
+                }
+              ],
+              "covers": [
+                0
+              ],
+              "picks": {
+                "0": [
+                  "measure:south_ledger:total_amount_april",
+                  "measure:south_ledger:total_amount_august",
+                  "measure:south_ledger:total_amount_december",
+                  "measure:south_ledger:total_amount_february",
+                  "measure:south_ledger:total_amount_january",
+                  "measure:south_ledger:total_amount_july"
+                ]
+              }
+            }
+          ],
+          "coverage": [
+            {
+              "target_index": 0,
+              "search_text": "total amount",
+              "clusters": [
+                true,
+                true,
+                true
+              ]
+            }
+          ],
+          "unresolved_targets": [],
+          "warnings": [
+            "This page holds sources 1 to 2 of 3; nothing was cut from the result. For the rest, call get_context again with the same arguments and offset: 2 (next_offset), until a response has no next_offset."
+          ]
+        }
+      },
+      "traffic": {
+        "embedding_calls": 1,
+        "embedded_texts": [
+          "total amount"
+        ],
+        "judge_calls": 1,
+        "judge": [
+          {
+            "system_sha256": "9f5997fde3c4a50ca93d49e0090e8c6b85eab6867ed48888adaf95f6f77a40c2",
+            "prompt_sha256": "14dfce8d64bda4dfd7aff6a68b541ecefdc43de558ce837f593db7437b1dba37",
+            "prompt": [
+              "Sources with candidates:",
+              "- east_ledger - One row per entry posted to the east ledger.",
+              "  A query from east_ledger can use none of the other listed sources.",
+              "- north_ledger - One row per entry posted to the north ledger.",
+              "  A query from north_ledger can use none of the other listed sources.",
+              "- south_ledger - One row per entry posted to the south ledger.",
+              "  A query from south_ledger can use none of the other listed sources.",
+              "",
+              "<targets>",
+              "Target 1 (measure): \"total amount\"",
+              "  From east_ledger (its doc: \"One row per entry posted to the east ledger.\"):",
+              "    [1] total_amount_april (measure, number; source east_ledger): Total amount posted to the east ledger in April, in US dollars before tax. Rule 1: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "    [2] total_amount_august (measure, number; source east_ledger): Total amount posted to the east ledger in August, in US dollars before tax. Rule 1: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "    [3] total_amount_december (measure, number; source east_ledger): Total amount posted to the east ledger in December, in US dollars before tax. Rule 1: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "    [4] total_amount_february (measure, number; source east_ledger): Total amount posted to the east ledger in February, in US dollars before tax. Rule 1: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "    [5] total_amount_january (measure, number; source east_ledger): Total amount posted to the east ledger in January, in US dollars before tax. Rule 1: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "    [6] total_amount_july (measure, number; source east_ledger): Total amount posted to the east ledger in July, in US dollars before tax. Rule 1: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "    [7] total_amount_june (measure, number; source east_ledger): Total amount posted to the east ledger in June, in US dollars before tax. Rule 1: an entry dated in June counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in June counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in June counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in June counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in June counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in June counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in June counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "    [8] total_amount_march (measure, number; source east_ledger): Total amount posted to the east ledger in March, in US dollars before tax. Rule 1: an entry dated in March counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in March counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in March counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in March counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in March counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in March counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in March counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "    [9] total_amount_may (measure, number; source east_ledger): Total amount posted to the east ledger in May, in US dollars before tax. Rule 1: an entry dated in May counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in May counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in May counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in May counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in May counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in May counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in May counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "    [10] total_amount_november (measure, number; source east_ledger): Total amount posted to the east ledger in November, in US dollars before tax. Rule 1: an entry dated in November counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in November counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in November counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in November counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in November counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in November counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in November counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "    [11] total_amount_october (measure, number; source east_ledger): Total amount posted to the east ledger in October, in US dollars before tax. Rule 1: an entry dated in October counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in October counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in October counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in October counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in October counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in October counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in October counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "    [12] total_amount_september (measure, number; source east_ledger): Total amount posted to the east ledger in September, in US dollars before tax. Rule 1: an entry dated in September counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in September counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in September counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in September counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in September counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in September counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in September counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "  From north_ledger (its doc: \"One row per entry posted to the north ledger.\"):",
+              "    [13] total_amount_april (measure, number; source north_ledger): Total amount posted to the north ledger in April, in US dollars before tax. Rule 1: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "    [14] total_amount_august (measure, number; source north_ledger): Total amount posted to the north ledger in August, in US dollars before tax. Rule 1: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "    [15] total_amount_december (measure, number; source north_ledger): Total amount posted to the north ledger in December, in US dollars before tax. Rule 1: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "    [16] total_amount_february (measure, number; source north_ledger): Total amount posted to the north ledger in February, in US dollars before tax. Rule 1: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "    [17] total_amount_january (measure, number; source north_ledger): Total amount posted to the north ledger in January, in US dollars before tax. Rule 1: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "    [18] total_amount_july (measure, number; source north_ledger): Total amount posted to the north ledger in July, in US dollars before tax. Rule 1: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "    [19] total_amount_june (measure, number; source north_ledger): Total amount posted to the north ledger in June, in US dollars before tax. Rule 1: an entry dated in June counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in June counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in June counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in June counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in June counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in June counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in June counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "    [20] total_amount_march (measure, number; source north_ledger): Total amount posted to the north ledger in March, in US dollars before tax. Rule 1: an entry dated in March counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in March counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in March counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in March counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in March counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in March counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in March counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "    [21] total_amount_may (measure, number; source north_ledger): Total amount posted to the north ledger in May, in US dollars before tax. Rule 1: an entry dated in May counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in May counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in May counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in May counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in May counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in May counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in May counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "    [22] total_amount_november (measure, number; source north_ledger): Total amount posted to the north ledger in November, in US dollars before tax. Rule 1: an entry dated in November counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in November counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in November counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in November counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in November counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in November counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in November counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "    [23] total_amount_october (measure, number; source north_ledger): Total amount posted to the north ledger in October, in US dollars before tax. Rule 1: an entry dated in October counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in October counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in October counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in October counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in October counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in October counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in October counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "    [24] total_amount_september (measure, number; source north_ledger): Total amount posted to the north ledger in September, in US dollars before tax. Rule 1: an entry dated in September counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in September counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in September counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in September counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in September counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in September counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in September counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "  From south_ledger (its doc: \"One row per entry posted to the south ledger.\"):",
+              "    [25] total_amount_april (measure, number; source south_ledger): Total amount posted to the south ledger in April, in US dollars before tax. Rule 1: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "    [26] total_amount_august (measure, number; source south_ledger): Total amount posted to the south ledger in August, in US dollars before tax. Rule 1: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "    [27] total_amount_december (measure, number; source south_ledger): Total amount posted to the south ledger in December, in US dollars before tax. Rule 1: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "    [28] total_amount_february (measure, number; source south_ledger): Total amount posted to the south ledger in February, in US dollars before tax. Rule 1: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "    [29] total_amount_january (measure, number; source south_ledger): Total amount posted to the south ledger in January, in US dollars before tax. Rule 1: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "    [30] total_amount_july (measure, number; source south_ledger): Total amount posted to the south ledger in July, in US dollars before tax. Rule 1: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+              "</targets>",
+              "",
+              "Also in this group:",
+              "  [31] amount (dimension, number; source east_ledger): (no doc; name in words: amount) | added because: total_amount_april is computed from it",
+              "  [32] posted_month (dimension, number; source east_ledger): (no doc; name in words: posted month) | added because: total_amount_april is computed from it",
+              "",
+              "Reply with one JSON object and nothing else:",
+              "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+              "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+            ],
+            "reply": {
+              "picks": [
+                {
+                  "target": 1,
+                  "candidates": [
+                    1,
+                    13,
+                    25,
+                    2,
+                    14,
+                    26,
+                    3,
+                    15,
+                    27,
+                    4,
+                    16,
+                    28,
+                    5,
+                    17,
+                    29,
+                    6,
+                    18,
+                    30,
+                    7,
+                    19,
+                    8,
+                    20,
+                    9,
+                    21,
+                    10,
+                    22,
+                    11,
+                    23,
+                    12,
+                    24
+                  ],
+                  "reason": "stand-in: 30 candidate(s) scored 2 or more",
+                  "best": 1
+                }
+              ],
+              "caveats": []
+            }
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "search_targets": [
+          {
+            "target_type": "measure",
+            "search_text": "total amount"
+          }
+        ],
+        "scopes": [
+          {
+            "environment": "examples",
+            "package": "replay-long-docs"
+          }
+        ],
+        "offset": 2
+      },
+      "response": {
+        "is_error": false,
+        "payload": {
+          "sources": [
+            {
+              "source_info": {
+                "resource_id": {
+                  "environment": "examples",
+                  "package": "replay-long-docs",
+                  "model_path": "ledgers.malloy",
+                  "source": "south_ledger"
+                },
+                "one_line_summary": "One row per entry posted to the south ledger.",
+                "docs": "One row per entry posted to the south ledger.",
+                "joins": []
+              },
+              "entities": [
+                {
+                  "name": "total_amount_april",
+                  "entity_type": "measure",
+                  "entity_id": "measure:south_ledger:total_amount_april",
+                  "relevance": 0.7176470588235294,
+                  "description": "Total amount posted to the south ledger in April, in US dollars before tax. Rule 1: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in April counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.7176,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                },
+                {
+                  "name": "total_amount_august",
+                  "entity_type": "measure",
+                  "entity_id": "measure:south_ledger:total_amount_august",
+                  "relevance": 0.7093023255813953,
+                  "description": "Total amount posted to the south ledger in August, in US dollars before tax. Rule 1: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in August counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.7093,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                },
+                {
+                  "name": "total_amount_december",
+                  "entity_type": "measure",
+                  "entity_id": "measure:south_ledger:total_amount_december",
+                  "relevance": 0.7011494252873562,
+                  "description": "Total amount posted to the south ledger in December, in US dollars before tax. Rule 1: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in December counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.7011,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                },
+                {
+                  "name": "total_amount_february",
+                  "entity_type": "measure",
+                  "entity_id": "measure:south_ledger:total_amount_february",
+                  "relevance": 0.6931818181818181,
+                  "description": "Total amount posted to the south ledger in February, in US dollars before tax. Rule 1: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in February counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.6932,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                },
+                {
+                  "name": "total_amount_january",
+                  "entity_type": "measure",
+                  "entity_id": "measure:south_ledger:total_amount_january",
+                  "relevance": 0.6853932584269662,
+                  "description": "Total amount posted to the south ledger in January, in US dollars before tax. Rule 1: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in January counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.6854,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                },
+                {
+                  "name": "total_amount_july",
+                  "entity_type": "measure",
+                  "entity_id": "measure:south_ledger:total_amount_july",
+                  "relevance": 0.6777777777777778,
+                  "description": "Total amount posted to the south ledger in July, in US dollars before tax. Rule 1: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 2: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 3: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 4: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 5: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 6: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit. Rule 7: an entry dated in July counts here even when it was keyed in later, and a correction is a new entry, never an edit.",
+                  "data_type": "number",
+                  "matched_targets": [
+                    {
+                      "search_text": "total amount",
+                      "relevance": 0.6778,
+                      "match_reason": "stand-in: 30 candidate(s) scored 2 or more"
+                    }
+                  ]
+                }
+              ],
+              "relevance": 0.7176470588235294
+            }
+          ],
+          "ranking": "relevance",
+          "total_available": 3,
+          "returned": 1,
+          "retrieval": "semantic",
+          "engine": "fcj",
+          "clusters": [
+            {
+              "query_from": {
+                "source": "east_ledger",
+                "model_path": "ledgers.malloy"
+              },
+              "sources": [
+                {
+                  "source": "east_ledger",
+                  "joins": []
+                }
+              ],
+              "covers": [
+                0
+              ],
+              "picks": {
+                "0": [
+                  "measure:east_ledger:total_amount_april",
+                  "measure:east_ledger:total_amount_august",
+                  "measure:east_ledger:total_amount_december",
+                  "measure:east_ledger:total_amount_february",
+                  "measure:east_ledger:total_amount_january",
+                  "measure:east_ledger:total_amount_july",
+                  "measure:east_ledger:total_amount_june",
+                  "measure:east_ledger:total_amount_march",
+                  "measure:east_ledger:total_amount_may",
+                  "measure:east_ledger:total_amount_november",
+                  "measure:east_ledger:total_amount_october",
+                  "measure:east_ledger:total_amount_september"
+                ]
+              }
+            },
+            {
+              "query_from": {
+                "source": "north_ledger",
+                "model_path": "ledgers.malloy"
+              },
+              "sources": [
+                {
+                  "source": "north_ledger",
+                  "joins": []
+                }
+              ],
+              "covers": [
+                0
+              ],
+              "picks": {
+                "0": [
+                  "measure:north_ledger:total_amount_april",
+                  "measure:north_ledger:total_amount_august",
+                  "measure:north_ledger:total_amount_december",
+                  "measure:north_ledger:total_amount_february",
+                  "measure:north_ledger:total_amount_january",
+                  "measure:north_ledger:total_amount_july",
+                  "measure:north_ledger:total_amount_june",
+                  "measure:north_ledger:total_amount_march",
+                  "measure:north_ledger:total_amount_may",
+                  "measure:north_ledger:total_amount_november",
+                  "measure:north_ledger:total_amount_october",
+                  "measure:north_ledger:total_amount_september"
+                ]
+              }
+            },
+            {
+              "query_from": {
+                "source": "south_ledger",
+                "model_path": "ledgers.malloy"
+              },
+              "sources": [
+                {
+                  "source": "south_ledger",
+                  "joins": []
+                }
+              ],
+              "covers": [
+                0
+              ],
+              "picks": {
+                "0": [
+                  "measure:south_ledger:total_amount_april",
+                  "measure:south_ledger:total_amount_august",
+                  "measure:south_ledger:total_amount_december",
+                  "measure:south_ledger:total_amount_february",
+                  "measure:south_ledger:total_amount_january",
+                  "measure:south_ledger:total_amount_july"
+                ]
+              }
+            }
+          ],
+          "coverage": [
+            {
+              "target_index": 0,
+              "search_text": "total amount",
+              "clusters": [
+                true,
+                true,
+                true
+              ]
+            }
+          ],
+          "unresolved_targets": []
+        }
+      },
+      "traffic": {
+        "embedding_calls": 0,
+        "embedded_texts": [],
+        "judge_calls": 0,
+        "judge": []
+      }
+    }
+  ]
+}

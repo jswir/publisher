@@ -12,7 +12,7 @@
   "response": {
     "is_error": true,
     "payload": {
-      "error": "A search needs one package: Publisher indexes each package on its own. Fix: add scopes: [{\"environment\": \"<env>\", \"package\": \"<package>\"}], one of examples/html-data-app, examples/replay-values, examples/storefront, governed/governed-analytics.",
+      "error": "A search needs one package: Publisher indexes each package on its own. Fix: add scopes: [{\"environment\": \"<env>\", \"package\": \"<package>\"}], one of examples/html-data-app, examples/replay-clusters, examples/replay-custom-judge, examples/replay-governed, examples/replay-judge-off, examples/replay-long-docs, examples/replay-many, examples/replay-values, examples/storefront, governed/governed-analytics.",
       "suggestions": [
         "This is not transient. The same arguments will fail the same way, so change them rather than retrying.",
         "The message above names what was wrong. If it names an expected format, use that format exactly."

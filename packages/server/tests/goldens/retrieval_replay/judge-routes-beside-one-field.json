@@ -1,0 +1,472 @@
+{
+  "case": "judge-routes-beside-one-field",
+  "about": "The judge picks one field and the three routes shown beside it (zzroutes): fewer than dropRoutesAt, so they are all kept.",
+  "request": {
+    "search_targets": [
+      {
+        "target_type": "dimension",
+        "search_text": "city zzroutes"
+      }
+    ],
+    "scopes": [
+      {
+        "environment": "examples",
+        "package": "storefront"
+      }
+    ]
+  },
+  "response": {
+    "is_error": false,
+    "payload": {
+      "sources": [
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "storefront.malloy",
+              "source": "customers"
+            },
+            "one_line_summary": "People who have placed orders — one row per customer, keyed by `customer_id`.",
+            "docs": "People who have placed orders — one row per customer, keyed by `customer_id`",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "city",
+              "entity_type": "dimension",
+              "entity_id": "dimension:customers:city",
+              "relevance": 1,
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "city zzroutes",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 4 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 1
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "storefront.malloy",
+              "source": "order_items"
+            },
+            "one_line_summary": "Order line items — the fact table, one row per product sold on an order.",
+            "docs": "Order line items — the fact table, one row per product sold on an order",
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "customers.city",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:customers.city",
+              "relevance": 1,
+              "description": "Reached from order_items through customers, a left join: a order_items row with no match keeps a null here, so grouping or counting by it follows order_items's rows.",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "customers",
+              "matched_targets": [
+                {
+                  "search_text": "city zzroutes",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 4 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 1
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "overview.malloy",
+              "source": "overview"
+            },
+            "one_line_summary": "The overview report's tiles, each over the order lines its controls select.",
+            "docs": "The overview report's tiles, each over the order lines its controls select",
+            "givens": [
+              {
+                "name": "CATEGORY",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "BRAND",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "REGION",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "SINCE",
+                "type": "date",
+                "default": "@2023-01-01"
+              },
+              {
+                "name": "MIN_SALE",
+                "type": "filter<number>",
+                "default": "f''"
+              }
+            ],
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "customers.city",
+              "entity_type": "dimension",
+              "entity_id": "dimension:overview:customers.city",
+              "relevance": 1,
+              "description": "Reached from overview through customers, a left join: a overview row with no match keeps a null here, so grouping or counting by it follows overview's rows.",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "customers",
+              "matched_targets": [
+                {
+                  "search_text": "city zzroutes",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 4 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 1
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "data_app.malloy",
+              "source": "scoped_orders"
+            },
+            "one_line_summary": "Order lines narrowed by the data app's control row.",
+            "docs": "Order lines narrowed by the data app's control row. Every tile queries this.",
+            "givens": [
+              {
+                "name": "CATEGORY",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "BRAND",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "REGION",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "SINCE",
+                "type": "date",
+                "default": "@2023-01-01"
+              },
+              {
+                "name": "MIN_SALE",
+                "type": "filter<number>",
+                "default": "f''"
+              }
+            ],
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "customers.city",
+              "entity_type": "dimension",
+              "entity_id": "dimension:scoped_orders:customers.city",
+              "relevance": 1,
+              "description": "Reached from scoped_orders through customers, a left join: a scoped_orders row with no match keeps a null here, so grouping or counting by it follows scoped_orders's rows.",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "customers",
+              "matched_targets": [
+                {
+                  "search_text": "city zzroutes",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 4 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 1
+        }
+      ],
+      "ranking": "relevance",
+      "total_available": 4,
+      "returned": 4,
+      "retrieval": "semantic",
+      "engine": "fcj",
+      "clusters": [
+        {
+          "query_from": {
+            "source": "order_items",
+            "model_path": "storefront.malloy"
+          },
+          "sources": [
+            {
+              "source": "order_items",
+              "joins": []
+            },
+            {
+              "source": "customers",
+              "joins": [
+                "customers"
+              ]
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "dimension:customers:city",
+              "dimension:order_items:customers.city"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "overview",
+            "model_path": "overview.malloy"
+          },
+          "sources": [
+            {
+              "source": "overview",
+              "joins": []
+            },
+            {
+              "source": "customers",
+              "joins": [
+                "customers"
+              ]
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "dimension:customers:city",
+              "dimension:overview:customers.city"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "scoped_orders",
+            "model_path": "data_app.malloy"
+          },
+          "sources": [
+            {
+              "source": "scoped_orders",
+              "joins": []
+            },
+            {
+              "source": "customers",
+              "joins": [
+                "customers"
+              ]
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "dimension:customers:city",
+              "dimension:scoped_orders:customers.city"
+            ]
+          }
+        }
+      ],
+      "coverage": [
+        {
+          "target_index": 0,
+          "search_text": "city zzroutes",
+          "clusters": [
+            true,
+            true,
+            true
+          ]
+        }
+      ],
+      "unresolved_targets": [],
+      "skills": [
+        {
+          "name": "malloy-phrase-detection",
+          "description": "How to turn a storefront question into get_context search targets, including the shop vocabulary that does not appear anywhere in the model. Replaces the built-in phrase-detection guide for this package."
+        },
+        {
+          "name": "storefront-conventions",
+          "description": "What storefront's measures actually count, and the four places a reasonable reading of them is wrong. Read before answering any revenue, order, margin, or region question against this package."
+        }
+      ],
+      "skills_note": "This package ships its own guidance, listed above. Read the relevant one before relying on names or conventions from this package. If it is already loaded as a skill, use that; otherwise fetch it with get_skill(skill_name, scopes), and if that tool is not available to you, proceed and say which guidance you could not read. A guide whose name matches a built-in one replaces it here."
+    }
+  },
+  "traffic": {
+    "embedding_calls": 1,
+    "embedded_texts": [
+      "city zzroutes"
+    ],
+    "judge_calls": 1,
+    "judge": [
+      {
+        "system_sha256": "9f5997fde3c4a50ca93d49e0090e8c6b85eab6867ed48888adaf95f6f77a40c2",
+        "prompt_sha256": "099ba0ea5c1368c23885d76d33efe61be2b8078750970cfce071b7abb1676d82",
+        "prompt": [
+          "Sources with candidates:",
+          "- customers - People who have placed orders — one row per customer, keyed by `customer_id`.",
+          "  Its doc begins: \"People who have placed orders — one row per customer, keyed by `customer_id`\"",
+          "  A query from customers can use none of the other listed sources.",
+          "- order_items - Order line items — the fact table, one row per product sold on an order.",
+          "  Its doc begins: \"Order line items — the fact table, one row per product sold on an order\"",
+          "  A query from order_items can also use: customers (through order_items.customers).",
+          "- overview - The overview report's tiles, each over the order lines its controls select.",
+          "  Its doc begins: \"The overview report's tiles, each over the order lines its controls select\"",
+          "  A query from overview can also use: customers (through overview.customers).",
+          "- scoped_orders - Order lines narrowed by the data app's control row.",
+          "  Its doc begins: \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
+          "  A query from scoped_orders can also use: customers (through scoped_orders.customers).",
+          "- brand_suggest - Distinct brands, for the Brand filter control's option list.",
+          "  Its doc begins: \"Distinct brands, for the Brand filter control's option list\"",
+          "  A query from brand_suggest can use none of the other listed sources.",
+          "",
+          "<targets>",
+          "Target 1 (dimension): \"city zzroutes\"",
+          "  From customers (its doc: \"People who have placed orders — one row per customer, keyed by `customer_id`\"):",
+          "    [1] city (dimension, string; source customers): (no doc; name in words: city)",
+          "        [2] order_items.customers.city (route from order_items through customers, join_one): only the customers rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [3] overview.customers.city (route from overview through customers, join_one): only the customers rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [4] scoped_orders.customers.city (route from scoped_orders through customers, join_one): only the customers rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "    [5] customer_id (dimension, number; source customers): (no doc; name in words: customer id)",
+          "        [6] order_items.customers.customer_id (route from order_items through customers, join_one): only the customers rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [7] overview.customers.customer_id (route from overview through customers, join_one): only the customers rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [8] scoped_orders.customers.customer_id (route from scoped_orders through customers, join_one): only the customers rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "    [9] full_name (dimension, string; source customers): (no doc; name in words: full name)",
+          "        [10] order_items.customers.full_name (route from order_items through customers, join_one): only the customers rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [11] overview.customers.full_name (route from overview through customers, join_one): only the customers rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [12] scoped_orders.customers.full_name (route from scoped_orders through customers, join_one): only the customers rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "    [13] signup_date (dimension, date; source customers): (no doc; name in words: signup date)",
+          "        [14] order_items.customers.signup_date (route from order_items through customers, join_one): only the customers rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [15] overview.customers.signup_date (route from overview through customers, join_one): only the customers rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [16] scoped_orders.customers.signup_date (route from scoped_orders through customers, join_one): only the customers rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "    [17] state (dimension, string; source customers): (no doc; name in words: state)",
+          "        [18] order_items.customers.state (route from order_items through customers, join_one): only the customers rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [19] overview.customers.state (route from overview through customers, join_one): only the customers rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [20] scoped_orders.customers.state (route from scoped_orders through customers, join_one): only the customers rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "  From order_items (its doc: \"Order line items — the fact table, one row per product sold on an order\"):",
+          "    [21] gross_margin (dimension, number; source order_items): Gross margin on this line (sale price minus product cost)",
+          "    [22] region (dimension, string; source order_items): Sales region for the customer's home state",
+          "  From overview (its doc: \"The overview report's tiles, each over the order lines its controls select\"):",
+          "    [23] gross_margin (dimension, number; source overview): Gross margin on this line (sale price minus product cost)",
+          "    [24] created_at (dimension, date; source overview): (no doc; name in words: created at)",
+          "    [25] customer_id (dimension, number; source overview): (no doc; name in words: customer id)",
+          "    [26] id (dimension, number; source overview): (no doc; name in words: id)",
+          "    [27] order_id (dimension, number; source overview): (no doc; name in words: order id)",
+          "    [28] product_id (dimension, number; source overview): (no doc; name in words: product id)",
+          "    [29] region (dimension, string; source overview): Sales region for the customer's home state",
+          "    [30] sale_price (dimension, number; source overview): (no doc; name in words: sale price)",
+          "    [31] status (dimension, string; source overview): (no doc; name in words: status)",
+          "    [32] brand (dimension, string; source overview): Brand of the item sold",
+          "    [33] category (dimension, string; source overview): Product category of the item sold",
+          "  From scoped_orders (its doc: \"Order lines narrowed by the data app's control row. Every tile queries this.\"):",
+          "    [34] gross_margin (dimension, number; source scoped_orders): Gross margin on this line (sale price minus product cost)",
+          "    [35] region (dimension, string; source scoped_orders): Sales region for the customer's home state",
+          "    [36] id (dimension, number; source scoped_orders): (no doc; name in words: id)",
+          "    [37] status (dimension, string; source scoped_orders): (no doc; name in words: status)",
+          "    [38] customer_id (dimension, number; source scoped_orders): (no doc; name in words: customer id)",
+          "    [39] sale_price (dimension, number; source scoped_orders): (no doc; name in words: sale price)",
+          "    [40] created_at (dimension, date; source scoped_orders): (no doc; name in words: created at)",
+          "    [41] order_id (dimension, number; source scoped_orders): (no doc; name in words: order id)",
+          "    [42] product_id (dimension, number; source scoped_orders): (no doc; name in words: product id)",
+          "    [43] brand (dimension, string; source scoped_orders): Brand of the item sold",
+          "    [44] category (dimension, string; source scoped_orders): Product category of the item sold",
+          "  From brand_suggest (its doc: \"Distinct brands, for the Brand filter control's option list\"):",
+          "    [45] brand (dimension, string; source brand_suggest): Brand of the item sold",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                1,
+                2,
+                3,
+                4
+              ],
+              "reason": "stand-in: 4 candidate(s) scored 2 or more",
+              "best": 1
+            }
+          ],
+          "caveats": []
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,178 @@
+{
+  "case": "filter-params-gated-value",
+  "about": "filter_params beside givens on a pinned value search of a row-gated source that declares a (deprecated) #(filter): the values read are the filtered rows' only.",
+  "request": {
+    "search_targets": [
+      {
+        "target_type": "dimensional_value",
+        "search_text": "Springfield"
+      }
+    ],
+    "scopes": [
+      {
+        "environment": "examples",
+        "package": "replay-governed",
+        "source": "tenant_orders",
+        "entity_name": "order_city"
+      }
+    ],
+    "givens": {
+      "TENANTS": [
+        "acme",
+        "globex"
+      ]
+    },
+    "filter_params": {
+      "tenant": "globex"
+    }
+  },
+  "response": {
+    "is_error": false,
+    "payload": {
+      "sources": [
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-governed",
+              "model_path": "governed.malloy",
+              "source": "tenant_orders"
+            },
+            "one_line_summary": "Orders of every tenant; each caller reads only its own tenants' rows.",
+            "docs": "Orders of every tenant; each caller reads only its own tenants' rows.",
+            "givens": [
+              {
+                "name": "ROLE",
+                "type": "string",
+                "annotations": [
+                  "#(secure)\n"
+                ]
+              },
+              {
+                "name": "TENANTS",
+                "type": "string[]",
+                "annotations": [
+                  "#(secure)\n"
+                ]
+              }
+            ],
+            "accessFilter": [
+              {
+                "expression": "tenant in $TENANTS",
+                "given_names": [
+                  "TENANTS"
+                ]
+              }
+            ],
+            "filter_params": [
+              {
+                "name": "tenant",
+                "type": "equal",
+                "dimension": "tenant_name"
+              }
+            ],
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "order_city",
+              "entity_type": "dimension",
+              "entity_id": "dimension:tenant_orders:order_city",
+              "relevance": 1,
+              "description": "City the tenant's order ships to.",
+              "data_type": "string",
+              "code": "city",
+              "matched_targets": [
+                {
+                  "search_text": "Springfield",
+                  "relevance": 1,
+                  "match_reason": "stand-in: a stored value matched by spelling, or the one pinned field"
+                }
+              ],
+              "aliases": [
+                "city"
+              ],
+              "values": [
+                {
+                  "value": "Springfield",
+                  "relevance": 1,
+                  "search_text": "Springfield"
+                }
+              ]
+            }
+          ],
+          "relevance": 1
+        }
+      ],
+      "ranking": "relevance",
+      "total_available": 1,
+      "returned": 1,
+      "retrieval": "semantic",
+      "engine": "fcj",
+      "clusters": [
+        {
+          "query_from": {
+            "source": "tenant_orders",
+            "model_path": "governed.malloy"
+          },
+          "sources": [
+            {
+              "source": "tenant_orders",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "dimension:tenant_orders:order_city"
+            ]
+          }
+        }
+      ],
+      "unresolved_targets": []
+    }
+  },
+  "traffic": {
+    "embedding_calls": 1,
+    "embedded_texts": [
+      "Springfield"
+    ],
+    "judge_calls": 1,
+    "judge": [
+      {
+        "system_sha256": "4368758cabf61a9b4358877f4114ee9f7baf4d7ee4824634d8389e69be097d60",
+        "prompt_sha256": "3e6ff859c7f99762c4ada19065f48576909778f8dca5458f6ffe1cf6f29b85c5",
+        "prompt": [
+          "Sources with candidates:",
+          "- tenant_orders - Orders of every tenant; each caller reads only its own tenants' rows.",
+          "  A query from tenant_orders can use none of the other listed sources.",
+          "",
+          "<targets>",
+          "Target 1 (dimensional_value): \"Springfield\"",
+          "  From tenant_orders:",
+          "    [1] order_city (dimension, string; source tenant_orders): City the tenant's order ships to. | no stored values",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                1
+              ],
+              "reason": "stand-in: a stored value matched by spelling, or the one pinned field",
+              "best": 1
+            }
+          ],
+          "caveats": []
+        }
+      }
+    ]
+  }
+}

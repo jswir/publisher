@@ -1,0 +1,657 @@
+{
+  "case": "route-products-that-were-ordered",
+  "about": "A measure reached through a join, the target naming the joining source: the judge picks the route (order_items through products), not the field on its own source.",
+  "request": {
+    "search_targets": [
+      {
+        "target_type": "measure",
+        "search_text": "number of products that were ordered"
+      }
+    ],
+    "scopes": [
+      {
+        "environment": "examples",
+        "package": "storefront"
+      }
+    ]
+  },
+  "response": {
+    "is_error": false,
+    "payload": {
+      "sources": [
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "storefront.malloy",
+              "source": "order_items"
+            },
+            "one_line_summary": "Order line items — the fact table, one row per product sold on an order.",
+            "docs": "Order line items — the fact table, one row per product sold on an order",
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "order_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:order_count",
+              "relevance": 0.8882033077853972,
+              "description": "Distinct orders",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "number of products that were ordered",
+                  "relevance": 0.8882,
+                  "match_reason": "stand-in: 17 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "order_item_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:order_item_count",
+              "relevance": 0.7931936507936507,
+              "description": "Line items sold",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "number of products that were ordered",
+                  "relevance": 0.7932,
+                  "match_reason": "stand-in: 17 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "products.product_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:products.product_count",
+              "relevance": 1,
+              "description": "Distinct products Reached from order_items through products, a left join: a order_items row with no match keeps a null here, so grouping or counting by it follows order_items's rows.",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "products",
+              "matched_targets": [
+                {
+                  "search_text": "number of products that were ordered",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 17 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "avg_order_value",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:avg_order_value",
+              "relevance": 0.8241777777777777,
+              "description": "Average order value",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "number of products that were ordered",
+                  "relevance": 0.8242,
+                  "match_reason": "stand-in: 17 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customers.customer_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:customers.customer_count",
+              "relevance": 0.740489337822671,
+              "description": "Distinct customers Reached from order_items through customers, a left join: a order_items row with no match keeps a null here, so grouping or counting by it follows order_items's rows.",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "customers",
+              "matched_targets": [
+                {
+                  "search_text": "number of products that were ordered",
+                  "relevance": 0.7405,
+                  "match_reason": "stand-in: 17 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customer_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:customer_count",
+              "relevance": 0.8267294117647057,
+              "description": "Distinct customers",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "number of products that were ordered",
+                  "relevance": 0.8267,
+                  "match_reason": "stand-in: 17 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "orders_per_customer",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:orders_per_customer",
+              "relevance": 0.9356333556896936,
+              "description": "Average orders placed per customer",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "number of products that were ordered",
+                  "relevance": 0.9356,
+                  "match_reason": "stand-in: 17 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 1
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "overview.malloy",
+              "source": "overview"
+            },
+            "one_line_summary": "The overview report's tiles, each over the order lines its controls select.",
+            "docs": "The overview report's tiles, each over the order lines its controls select",
+            "givens": [
+              {
+                "name": "CATEGORY",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "BRAND",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "REGION",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "SINCE",
+                "type": "date",
+                "default": "@2023-01-01"
+              },
+              {
+                "name": "MIN_SALE",
+                "type": "filter<number>",
+                "default": "f''"
+              }
+            ],
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "order_count",
+              "entity_type": "measure",
+              "entity_id": "measure:overview:order_count",
+              "relevance": 0.8334460060487456,
+              "description": "Distinct orders",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "number of products that were ordered",
+                  "relevance": 0.8334,
+                  "match_reason": "stand-in: 17 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "order_item_count",
+              "entity_type": "measure",
+              "entity_id": "measure:overview:order_item_count",
+              "relevance": 0.7112877846790889,
+              "description": "Line items sold",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "number of products that were ordered",
+                  "relevance": 0.7113,
+                  "match_reason": "stand-in: 17 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "avg_order_value",
+              "entity_type": "measure",
+              "entity_id": "measure:overview:avg_order_value",
+              "relevance": 0.7617560975609755,
+              "description": "Average order value",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "number of products that were ordered",
+                  "relevance": 0.7618,
+                  "match_reason": "stand-in: 17 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customer_count",
+              "entity_type": "measure",
+              "entity_id": "measure:overview:customer_count",
+              "relevance": 0.7058304392236976,
+              "description": "Distinct customers",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "number of products that were ordered",
+                  "relevance": 0.7058,
+                  "match_reason": "stand-in: 17 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "orders_per_customer",
+              "entity_type": "measure",
+              "entity_id": "measure:overview:orders_per_customer",
+              "relevance": 0.8735802469135802,
+              "description": "Average orders placed per customer",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "number of products that were ordered",
+                  "relevance": 0.8736,
+                  "match_reason": "stand-in: 17 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 0.8735802469135802
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "data_app.malloy",
+              "source": "scoped_orders"
+            },
+            "one_line_summary": "Order lines narrowed by the data app's control row.",
+            "docs": "Order lines narrowed by the data app's control row. Every tile queries this.",
+            "givens": [
+              {
+                "name": "CATEGORY",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "BRAND",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "REGION",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "SINCE",
+                "type": "date",
+                "default": "@2023-01-01"
+              },
+              {
+                "name": "MIN_SALE",
+                "type": "filter<number>",
+                "default": "f''"
+              }
+            ],
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "order_count",
+              "entity_type": "measure",
+              "entity_id": "measure:scoped_orders:order_count",
+              "relevance": 0.8914396761133602,
+              "description": "Distinct orders",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "number of products that were ordered",
+                  "relevance": 0.8914,
+                  "match_reason": "stand-in: 17 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "order_item_count",
+              "entity_type": "measure",
+              "entity_id": "measure:scoped_orders:order_item_count",
+              "relevance": 0.8060206460206459,
+              "description": "Line items sold",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "number of products that were ordered",
+                  "relevance": 0.806,
+                  "match_reason": "stand-in: 17 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "avg_order_value",
+              "entity_type": "measure",
+              "entity_id": "measure:scoped_orders:avg_order_value",
+              "relevance": 0.8241777777777777,
+              "description": "Average order value",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "number of products that were ordered",
+                  "relevance": 0.8242,
+                  "match_reason": "stand-in: 17 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customer_count",
+              "entity_type": "measure",
+              "entity_id": "measure:scoped_orders:customer_count",
+              "relevance": 0.7927158232931726,
+              "description": "Distinct customers",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "number of products that were ordered",
+                  "relevance": 0.7927,
+                  "match_reason": "stand-in: 17 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "orders_per_customer",
+              "entity_type": "measure",
+              "entity_id": "measure:scoped_orders:orders_per_customer",
+              "relevance": 0.8990837076357695,
+              "description": "Average orders placed per customer",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "number of products that were ordered",
+                  "relevance": 0.8991,
+                  "match_reason": "stand-in: 17 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 0.8990837076357695
+        }
+      ],
+      "ranking": "relevance",
+      "total_available": 3,
+      "returned": 3,
+      "retrieval": "semantic",
+      "engine": "fcj",
+      "clusters": [
+        {
+          "query_from": {
+            "source": "order_items",
+            "model_path": "storefront.malloy"
+          },
+          "sources": [
+            {
+              "source": "order_items",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "measure:order_items:order_count",
+              "measure:order_items:order_item_count",
+              "measure:order_items:products.product_count",
+              "measure:order_items:avg_order_value",
+              "measure:order_items:customers.customer_count",
+              "measure:order_items:customer_count",
+              "measure:order_items:orders_per_customer"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "scoped_orders",
+            "model_path": "data_app.malloy"
+          },
+          "sources": [
+            {
+              "source": "scoped_orders",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "measure:scoped_orders:order_count",
+              "measure:scoped_orders:order_item_count",
+              "measure:scoped_orders:avg_order_value",
+              "measure:scoped_orders:customer_count",
+              "measure:scoped_orders:orders_per_customer"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "overview",
+            "model_path": "overview.malloy"
+          },
+          "sources": [
+            {
+              "source": "overview",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "measure:overview:order_count",
+              "measure:overview:order_item_count",
+              "measure:overview:avg_order_value",
+              "measure:overview:customer_count",
+              "measure:overview:orders_per_customer"
+            ]
+          }
+        }
+      ],
+      "coverage": [
+        {
+          "target_index": 0,
+          "search_text": "number of products that were ordered",
+          "clusters": [
+            true,
+            true,
+            true
+          ]
+        }
+      ],
+      "unresolved_targets": [],
+      "skills": [
+        {
+          "name": "malloy-phrase-detection",
+          "description": "How to turn a storefront question into get_context search targets, including the shop vocabulary that does not appear anywhere in the model. Replaces the built-in phrase-detection guide for this package."
+        },
+        {
+          "name": "storefront-conventions",
+          "description": "What storefront's measures actually count, and the four places a reasonable reading of them is wrong. Read before answering any revenue, order, margin, or region question against this package."
+        }
+      ],
+      "skills_note": "This package ships its own guidance, listed above. Read the relevant one before relying on names or conventions from this package. If it is already loaded as a skill, use that; otherwise fetch it with get_skill(skill_name, scopes), and if that tool is not available to you, proceed and say which guidance you could not read. A guide whose name matches a built-in one replaces it here."
+    }
+  },
+  "traffic": {
+    "embedding_calls": 1,
+    "embedded_texts": [
+      "number of products that were ordered"
+    ],
+    "judge_calls": 1,
+    "judge": [
+      {
+        "system_sha256": "9f5997fde3c4a50ca93d49e0090e8c6b85eab6867ed48888adaf95f6f77a40c2",
+        "prompt_sha256": "9635b2fb3eaccb3025c2ca76e331c2ba2ea182418ae21625bf9f7177b7f7bb66",
+        "prompt": [
+          "Sources with candidates:",
+          "- products - Catalog of products, one row per product, with cost and retail price.",
+          "  Its doc begins: \"Catalog of products, one row per product, with cost and retail price\"",
+          "  A query from products can use none of the other listed sources.",
+          "- order_items - Order line items — the fact table, one row per product sold on an order.",
+          "  Its doc begins: \"Order line items — the fact table, one row per product sold on an order\"",
+          "  A query from order_items can also use: customers (through order_items.customers), products (through order_items.products).",
+          "- scoped_orders - Order lines narrowed by the data app's control row.",
+          "  Its doc begins: \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
+          "  A query from scoped_orders can also use: customers (through scoped_orders.customers), products (through scoped_orders.products).",
+          "- overview - The overview report's tiles, each over the order lines its controls select.",
+          "  Its doc begins: \"The overview report's tiles, each over the order lines its controls select\"",
+          "  A query from overview can also use: customers (through overview.customers), products (through overview.products).",
+          "- customers - People who have placed orders — one row per customer, keyed by `customer_id`.",
+          "  Its doc begins: \"People who have placed orders — one row per customer, keyed by `customer_id`\"",
+          "  A query from customers can use none of the other listed sources.",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"number of products that were ordered\"",
+          "  From products:",
+          "    [1] product_count (measure, number; source products): Distinct products",
+          "        [2] order_items.products.product_count (route from order_items through products, join_one): only the products rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [3] overview.products.product_count (route from overview through products, join_one): only the products rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [4] scoped_orders.products.product_count (route from scoped_orders through products, join_one): only the products rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "  From order_items (its doc: \"Order line items — the fact table, one row per product sold on an order\"):",
+          "    [5] return_rate (measure, number; source order_items): Share of line items that were returned",
+          "    [6] orders_per_customer (measure, number; source order_items): Average orders placed per customer",
+          "    [7] order_count (measure, number; source order_items): Distinct orders",
+          "    [8] margin_rate (measure, number; source order_items): Gross margin as a share of revenue",
+          "    [9] total_margin (measure, number; source order_items): Total gross margin (revenue minus cost of goods sold), summed per line",
+          "    [10] percent_of_sales (measure, number; source order_items): Share of total sales",
+          "    [11] customer_count (measure, number; source order_items): Distinct customers",
+          "    [12] avg_order_value (measure, number; source order_items): Average order value",
+          "    [13] total_sales (measure, number; source order_items): Total revenue",
+          "    [14] order_item_count (measure, number; source order_items): Line items sold",
+          "  From scoped_orders (its doc: \"Order lines narrowed by the data app's control row. Every tile queries this.\"):",
+          "    [15] return_rate (measure, number; source scoped_orders): Share of line items that were returned",
+          "    [16] orders_per_customer (measure, number; source scoped_orders): Average orders placed per customer",
+          "    [17] order_count (measure, number; source scoped_orders): Distinct orders",
+          "    [18] avg_order_value (measure, number; source scoped_orders): Average order value",
+          "    [19] total_margin (measure, number; source scoped_orders): Total gross margin (revenue minus cost of goods sold), summed per line",
+          "    [20] order_item_count (measure, number; source scoped_orders): Line items sold",
+          "    [21] margin_rate (measure, number; source scoped_orders): Gross margin as a share of revenue",
+          "    [22] customer_count (measure, number; source scoped_orders): Distinct customers",
+          "    [23] percent_of_sales (measure, number; source scoped_orders): Share of total sales",
+          "    [24] total_sales (measure, number; source scoped_orders): Total revenue",
+          "  From overview (its doc: \"The overview report's tiles, each over the order lines its controls select\"):",
+          "    [25] return_rate (measure, number; source overview): Share of line items that were returned",
+          "    [26] orders_per_customer (measure, number; source overview): Average orders placed per customer",
+          "    [27] order_count (measure, number; source overview): Distinct orders",
+          "    [28] margin_rate (measure, number; source overview): Gross margin as a share of revenue",
+          "    [29] total_margin (measure, number; source overview): Total gross margin (revenue minus cost of goods sold), summed per line",
+          "    [30] avg_order_value (measure, number; source overview): Average order value",
+          "    [31] percent_of_sales (measure, number; source overview): Share of total sales",
+          "    [32] order_item_count (measure, number; source overview): Line items sold",
+          "    [33] customer_count (measure, number; source overview): Distinct customers",
+          "  From customers (its doc: \"People who have placed orders — one row per customer, keyed by `customer_id`\"):",
+          "    [34] customer_count (measure, number; source customers): Distinct customers",
+          "        [35] order_items.customers.customer_count (route from order_items through customers, join_one): only the customers rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [36] overview.customers.customer_count (route from overview through customers, join_one): only the customers rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [37] scoped_orders.customers.customer_count (route from scoped_orders through customers, join_one): only the customers rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "</targets>",
+          "",
+          "Also in this group:",
+          "  [38] status (dimension, string; source order_items): (no doc; name in words: status) | added because: return_rate is computed from it",
+          "  [39] status (dimension, string; source scoped_orders): (no doc; name in words: status) | added because: return_rate is computed from it",
+          "  [40] top_products (view; source order_items): Top products by revenue | added because: uses total_sales, total_margin, order_item_count",
+          "  [41] category_performance (view; source order_items): Category performance: revenue, margin, and share of the total | added because: uses total_sales, total_margin, margin_rate, percent_of_sales",
+          "  [42] brand_performance (view; source order_items): Brand performance: revenue, margin, and share of the total | added because: uses total_sales, total_margin, margin_rate, percent_of_sales",
+          "  [43] top_customers (view; source order_items): Top customers by spend | added because: uses total_sales, order_count",
+          "  [44] key_figures (view; source order_items): Revenue, gross margin, orders, customers and average order value | added because: uses total_sales, total_margin, order_count, customer_count, avg_order_value",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                7,
+                27,
+                17,
+                14,
+                32,
+                20,
+                2,
+                12,
+                30,
+                18,
+                35,
+                11,
+                33,
+                22,
+                6,
+                26,
+                16
+              ],
+              "reason": "stand-in: 17 candidate(s) scored 2 or more",
+              "best": 7
+            }
+          ],
+          "caveats": []
+        }
+      }
+    ]
+  }
+}
