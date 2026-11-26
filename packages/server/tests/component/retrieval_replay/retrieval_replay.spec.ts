@@ -3,7 +3,7 @@
 
 /**
  * The retrieval replay: a fixed corpus of get_context calls (cases.ts) over a
- * copy of the bundled `storefront` example, each compared, whole, with a
+ * frozen copy of the bundled `storefront` example, each compared, whole, with a
  * committed snapshot under `tests/goldens/retrieval_replay/`. A change to the
  * engine that changes what any caller receives, how many calls it makes to
  * the embedding provider or the judge, or what the judge is asked, changes a
@@ -99,7 +99,12 @@ const LISTED: Record<string, string[]> = {
 
 /** Where each package comes from: copied and loaded with Package.create. */
 const LOADED_FROM: Record<string, string> = {
-   [PACKAGE]: path.join(EXAMPLES, PACKAGE),
+   // A frozen copy (its README says of which commit), so an edit to the
+   // live example never moves a snapshot.
+   [PACKAGE]: path.resolve(
+      __dirname,
+      "../../fixtures/retrieval-replay-storefront",
+   ),
    [VALUES_PACKAGE]: path.resolve(
       __dirname,
       "../../fixtures/retrieval-replay-values",
