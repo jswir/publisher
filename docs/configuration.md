@@ -175,10 +175,10 @@ and this table is generated from it. The names are today's; the configuration de
 | `retrieval.llm.baseUrl` | `PUBLISHER_RETRIEVAL_LLM_BASE_URL` | `--retrieval-llm-base-url <value>` |  | the provider's | Base URL of the chat API; required for openai-compatible, else the provider's. |
 | `retrieval.llm.projectId` | `PUBLISHER_RETRIEVAL_LLM_PROJECT_ID` | `--retrieval-llm-project-id <value>` |  | _unset_ | Google Cloud project of a vertex chat model. |
 | `retrieval.llm.location` | `PUBLISHER_RETRIEVAL_LLM_LOCATION` | `--retrieval-llm-location <value>` |  | _unset_ | Google Cloud region of a vertex chat model. |
-| `retrieval.llm.timeoutMs` | `PUBLISHER_RETRIEVAL_LLM_TIMEOUT_MS` | `--retrieval-llm-timeout-ms <n>` |  | `30000` with a provider | Milliseconds one chat call may take. |
+| `retrieval.llm.timeoutMs` | `PUBLISHER_RETRIEVAL_LLM_TIMEOUT_MS` | `--retrieval-llm-timeout-ms <n>` |  | `30000` with a provider | Milliseconds one chat call may take. A get_context judge attempt gets a fifth of it, at least 6 s and at most this. |
 | `retrieval.llm.concurrency` | `PUBLISHER_RETRIEVAL_LLM_CONCURRENCY` | `--retrieval-llm-concurrency <n>` |  | `4` with a provider | Chat calls in flight at once. |
 | `retrieval.llm.maxCallsPerSync` | `PUBLISHER_RETRIEVAL_LLM_MAX_CALLS_PER_SYNC` | `--retrieval-llm-max-calls-per-sync <n>` |  | `300` with a provider | Most chat calls one index build may make; the spend ceiling. |
-| `retrieval.llm.maxCallsPerRequest` | `PUBLISHER_RETRIEVAL_LLM_MAX_CALLS_PER_REQUEST` | `--retrieval-llm-max-calls-per-request <n>` |  | `20` with a provider | Most chat calls one get_context request may make; a request past it fails, naming this setting. |
+| `retrieval.llm.maxCallsPerRequest` | `PUBLISHER_RETRIEVAL_LLM_MAX_CALLS_PER_REQUEST` | `--retrieval-llm-max-calls-per-request <n>` |  | `20` with a provider | Most chat requests one get_context request may send; a judge call past it is not sent, and that source is left out. |
 | `retrieval.embedding.provider` | `PUBLISHER_RETRIEVAL_EMBEDDING_PROVIDER` | `--retrieval-embedding-provider <value>` |  | _unset_ (OpenAI-compatible) | Which provider serves embeddings. Unset: an OpenAI-compatible endpoint, set by `retrieval.embedding.baseUrl` and the rest. It decides which other `retrieval.embedding` fields apply: every provider but `openai` needs `model`, `openai-compatible` needs `baseUrl`, and `vertex` needs `projectId` and `location`. A `google` or `vertex` provider never reads `EMBEDDING_MODEL`, `EMBEDDING_API_BASE` or `EMBEDDING_DIMENSIONS`, which were only ever the OpenAI-compatible provider's. |
 | `retrieval.embedding.projectId` | `PUBLISHER_RETRIEVAL_EMBEDDING_PROJECT_ID` | `--retrieval-embedding-project-id <value>` |  | _unset_ | Google Cloud project of a vertex embedding model. |
 | `retrieval.embedding.location` | `PUBLISHER_RETRIEVAL_EMBEDDING_LOCATION` | `--retrieval-embedding-location <value>` |  | _unset_ | Google Cloud region of a vertex embedding model. |
@@ -302,24 +302,32 @@ The Docker image sets `PUBLISHER_MCP_CONFIG_FILE_ENABLED=false`, since no agent 
 
 Every ranked `get_context` request (a target with `search_text`) is answered by one engine, for every
 package. A request with no `search_text` is a listing: it enumerates what its targets name, needs no
-index and no model, and works in every state. The engine answers in four steps:
+index and no model, and works in every state. The engine answers in six steps, each with one job:
 
-1. **Find.** For each target, ranked lists over the whole package are fused by rank: embedding closeness
-   (when an embedding provider is configured), keyword match (BM25), and matches against the stored
-   values of `#(index)` dimensions. The best `fcj.perTarget` candidates per target go on.
-2. **List.** The judge is shown every target's best candidates (`fcj.listTopK`, plus any candidate
-   ranked high in one list alone, `fcj.listUnion`), grouped by the source that owns them, and for each
-   field the join routes by which another listed source reaches it (`fcj.listRoutes`). Set
-   `fcj.connect` to `"clusters"` to group candidates into the few sources whose joins explain the
-   targets together, one judge call per group.
-3. **Judge.** One chat model call per request picks, for each target, which candidates to return, and
-   names the caveats it applied. With no LLM configured, or `fcj.judge: false`, each target gets its
-   best few candidates and the call is skipped.
-4. **Respond.** The picks are returned as source cards with their fields nested in them. Beside
-   `sources` the response carries `clusters` (the sources one query can combine, with what each
-   answers), `coverage` (target by cluster, when there is more than one), `unresolved_targets` and
-   `engine: "fcj"`. An answer longer than one page carries `next_offset`; call again with the same
-   arguments and that `offset` for the next page of the same result (held for 10 minutes).
+1. **Authorize.** The request's scope (model, source, field), with the sources the caller may not see
+   taken out: deny-all and `#(agent-hidden)` sources, and those whose `#(authorize)` lock cannot admit
+   the caller's givens. The givens also say which stored values the caller may match.
+2. **Build queries.** Every target's text is embedded in one call (when an embedding provider is
+   configured).
+3. **Search.** For each target, ranked lists over the scope are fused by rank: embedding closeness,
+   keyword match (BM25), and matches against the stored values of `#(index)` dimensions. The best 30
+   hits per target go on.
+4. **Group by source.** The hits are grouped by the source that holds them, and at most seven sources
+   are kept: the source of each target's best hit first, then the rest by how high their hits rank
+   across the targets. A request scoped to one source keeps that one.
+5. **Rerank.** With an LLM configured, one judge call per kept source, all at once, is shown that
+   source's doc, the fields search found on it for each target, every target and the caller's
+   question (`user_prompt`), and picks the fields of that source that answer each target. Beside
+   them, one ordering call puts the kept sources in order for the question. The judge chooses and
+   orders; it never adds a field search did not find. With no LLM configured, or `fcj.judge: false`,
+   each target gets its top few hits and no call is made.
+6. **Format.** One card per source, in that order, each field with its own call's reason. The first
+   source keeps every field its call picked; every other source keeps at most two per target, and a
+   target returns at most eight fields in all. Beside `sources` the response carries `clusters` (one
+   entry per card: the source to query from and what it answers), `coverage` (target by entry, when
+   there is more than one), `unresolved_targets` and `engine: "fcj"`. An answer longer than one page
+   carries `next_offset`; call again with the same arguments and that `offset` for the next page of
+   the same result (held for 10 minutes).
 
 The engine builds its own index when a package loads (and on reload): a catalog of the package, search
 text for each field, a keyword index, a value index of `#(index)` dimensions and the embedding vectors.
@@ -417,9 +425,9 @@ credentials, what may leave the machine and the spend ceilings are all in the op
 | `llm.model`                                                         | The chat model name your provider serves. Required.                                                                                                                                                                                    |
 | `llm.baseUrl`                                                       | Required for `openai-compatible`. Defaults: `openai` `https://api.openai.com/v1`, `ollama` `http://localhost:11434/v1`, `anthropic` `https://api.anthropic.com`, `google` `https://generativelanguage.googleapis.com`.                 |
 | `llm.projectId`, `llm.location`                                     | Required for `vertex` (for example `us-central1`, or `global`).                                                                                                                                                                        |
-| `llm.timeoutMs` / `concurrency`                                     | Per-attempt timeout (default `30000`) and how many calls run at once (default `4`).                                                                                                                                                    |
+| `llm.timeoutMs` / `concurrency`                                     | Per-attempt timeout (default `30000`) and how many calls run at once (default `4`). A `get_context` judge attempt gets a fifth of it, at least 6 s (see "The judge").                                                                 |
 | `llm.maxCallsPerSync`                                               | Spend ceiling. At most this many chat requests in one index build, across source summaries and the index-time question and doc-part steps (default `300`). A retry and the re-ask that repairs a JSON reply each count. A package cannot raise it. |
-| `llm.maxCallsPerRequest`                                            | Spend ceiling. At most this many chat calls in one `get_context` request (default `20`; a positive integer). A package cannot raise it. See "The judge".                                                                              |
+| `llm.maxCallsPerRequest`                                            | Spend ceiling. At most this many chat calls in one `get_context` request (default `20`; a positive integer). A package cannot raise it. A pick call it refuses is a failed call (see "The judge").                                                                              |
 | `embedding.provider`                                                | One of `openai`, `openai-compatible`, `ollama`, `google`, `vertex` (Anthropic has no embeddings API). Omitted: the `EMBEDDING_*` variables decide, as before.                                                                          |
 | `embedding.model`, `dimensions`, `baseUrl`, `projectId`, `location` | As for `llm`. `model` defaults to `text-embedding-3-small` for `openai` and is required for the other providers. `dimensions` is omitted from requests when unset.                                                                     |
 | `embedding.queryPrefix` / `documentPrefix`                          | Text put before a search query / before indexed text (default empty). `nomic-embed-text` wants `search_query: ` and `search_document: `. Changing `documentPrefix` re-embeds; changing `queryPrefix` does not.                         |
@@ -482,7 +490,7 @@ on reload (and a reload that changes nothing keeps the warm index):
 {
   "name": "storefront",
   "retrieval": {
-    "fcj": { "perTarget": 30, "listTopK": 15 },
+    "fcj": { "valueCap": 2000 },
     "sourceSummary": { "enabled": "auto" },
     "prompts": { "judge": "prompts/judge.md" }
   }
@@ -508,42 +516,35 @@ they are deprecated, and a later release refuses them like any other unknown `re
 The judge replaces `refine`, `rerank` and `sourceMatch`: turn it off with `fcj.judge: false`, or give
 it other instructions with `prompts.judge`.
 
-The `fcj` keys, with their defaults. Those marked provisional are still being measured and can change
-between releases.
+The `fcj` keys, with their defaults:
 
-| Key                    | Default       | Meaning                                                                                                                                                                                                                                                                                                                                              |
-| ---------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `fcj.perTarget`        | `30`          | Candidates kept per target after the find step.                                                                                                                                                                                                                                                                                                      |
-| `fcj.keyword`          | `true`        | Rank by keyword (BM25) beside embedding closeness.                                                                                                                                                                                                                                                                                                   |
-| `fcj.values`           | `true`        | Use the value index of `#(index)` dimensions and the value lists docs give.                                                                                                                                                                                                                                                                          |
-| `fcj.valueCap`         | `5000`        | Most values indexed per dimension, the most frequent kept.                                                                                                                                                                                                                                                                                           |
-| `fcj.valueEmbeddings`  | `true`        | Provisional. Also embed the stored values at index time, so a phrase finds a dimension by the meaning of its values (`sneakers` finds the dimension that stores `Athletic Shoes`). A gated source's values are never embedded.                                                                                                                       |
-| `fcj.connect`          | `list`        | Provisional. `list`: one judge call sees every target's best `fcj.listTopK` candidates, grouped by source. `clusters`: candidates are first grouped into at most `fcj.maxClusters` sources whose joins explain the targets together, and the judge picks inside each group.                                                                           |
-| `fcj.listTopK`         | `30`          | Provisional. With `connect: "list"`, candidates per target the judge sees.                                                                                                                                                                                                                                                                           |
-| `fcj.listUnion`        | `30`          | Provisional. With `connect: "list"`, a candidate ranked this high or better in the meaning list or the keyword list alone is also shown to the judge. `0` shows the fused top alone.                                                                                                                                                                 |
-| `fcj.listRoutes`       | `3`           | Provisional. With `connect: "list"`, routes shown under each candidate field from the other listed sources (shortest first, any depth). A picked route is returned on the joining source's card. `0` shows none.                                                                                                                                      |
-| `fcj.dropRoutesAt`     | `4`           | Provisional. After the judge, when one target's picks hold this many routes beside their own fields, the routes are dropped. `0` keeps every pick.                                                                                                                                                                                                   |
-| `fcj.judge`            | `auto`        | The judge call. `auto`: on when an LLM is configured. `false` returns each target's best few candidates instead.                                                                                                                                                                                                                                      |
-| `fcj.readingsRule`     | `true`        | Provisional. Tells the judge to return a field for each plausible reading of a phrase the model docs do not settle, and the measures a rate is computed from.                                                                                                                                                                                         |
-| `fcj.alsoLikely`       | `auto`        | Provisional. After the judge, also return, marked `also_likely` with a reason, the same-named fields on other sources and the fields the judge's notes name. `auto`: on with `connect: "list"`. `fcj.alsoLikelyTwins` (`2`) caps the same-named fields per pick.                                                                                      |
-| `fcj.joinedCopies`     | `indexed`     | Provisional. `indexed`: a joined field the compiled model copies onto the joining source is a searchable row of its own. `routes`: each field is searched once, on its own source, and shown with its routes.                                                                                                                                        |
-| `fcj.unservedCopies`   | `3`           | Provisional. A field whose own source is not served (an unpublished source, a raw table) gets a searchable joined copy on each served source that reaches it, up to this many per field. `0` turns it off.                                                                                                                                          |
-| `fcj.twinRule`         | `false`       | Provisional. After the judge, among one target's picks that are the same inherited field on near-identical sources, keep only the judge's best pick unless it said the question could mean either.                                                                                                                                                    |
-| `fcj.collapseCopies`   | `false`       | Provisional. A field an extension inherits unchanged is searched once, as the same field on the source it extends, but only when both sources hold the same rows.                                                                                                                                                                                      |
-| `fcj.splitBundles`     | `false`       | Provisional. A target whose `search_text` is a list ("state, city and zip of the venue") is also searched item by item. `fcj.splitItemPicks` (`0`, no cap) caps the picks kept per item.                                                                                                                                                              |
-| `fcj.dateRange`        | `false`       | Provisional. When the request names a date or time range, add up to two date or time fields of each source a returned measure sits on.                                                                                                                                                                                                               |
-| `fcj.questions`        | `auto`        | Index-time questions written by the LLM for each field, embedded as extra rows. As for `sourceSummary.enabled`. `fcj.questionsPrompt` (`questions`, `phrases` or `values`) picks the wording (`values` shows a field's stored values to the LLM) and `fcj.questionsPerNode` (`3`) the count.                                                                                                              |
-| `fcj.docParts`         | `auto`        | Index-time split of long docs by the LLM; by rules otherwise. As for `fcj.questions`.                                                                                                                                                                                                                                                                |
-| `fcj.judgeLlm`         | none          | Provisional. Send the judge's calls to this model (`{ "model": "..." }`) instead of `retrieval.llm.model`. Only the model name: the provider, host and key are always the server's `retrieval.llm`.                                                                                                                                                   |
-| `fcj.maxClusters`      | `3`           | With `connect: "clusters"`, most source groups (and so judge calls) per request.                                                                                                                                                                                                                                                                     |
-| `fcj.clusterTopK`      | `10`          | With `connect: "clusters"`, fields kept per target inside one group.                                                                                                                                                                                                                                                                                 |
-| `fcj.hopDiscount`, `fcj.coverFraction`, `fcj.measureWeight`, `fcj.reachDepth`, `fcj.contenderShare` | `0.9`, `0.5`, `1.5`, `3`, `0` | With `connect: "clusters"`: score multiplier per join hop; the share of a target's best score a source needs to answer it; the weight of a measure target; the deepest join chain a group follows; and (provisional) the share of the best source's score that puts another source in its group. |
+| Key                   | Default | Meaning                                                                                                                                                                                                                                            |
+| --------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `fcj.judge`           | `auto`  | The judge's calls (step 5). `auto`: on when an LLM is configured. `false` returns each target's best few hits instead, and sends nothing to the LLM at request time.                                                                                 |
+| `fcj.values`          | `true`  | Use the value index of `#(index)` dimensions and the value lists docs give.                                                                                                                                                                        |
+| `fcj.valueCap`        | `5000`  | Most values indexed per dimension, the most frequent kept.                                                                                                                                                                                          |
+| `fcj.valueEmbeddings` | `true`  | Also embed the stored values at index time, so a phrase finds a dimension by the meaning of its values (`sneakers` finds the dimension that stores `Athletic Shoes`). `false` sends no stored value to the embedding provider. A gated source's values are never embedded. |
+| `fcj.questions`       | `auto`  | Index-time questions written by the LLM for each field, embedded as extra rows. As for `sourceSummary.enabled`.                                                                                                                                    |
+| `fcj.docParts`        | `auto`  | Index-time split of long docs by the LLM; by rules otherwise. As for `fcj.questions`.                                                                                                                                                               |
+
+**Retired `fcj` keys.** `perTarget`, `keyword`, `connect`, `listTopK`, `listUnion`, `listRoutes`,
+`dropRoutesAt`, `maxClusters`, `clusterTopK`, `hopDiscount`, `coverFraction`, `measureWeight`,
+`reachDepth`, `contenderShare`, `collapseCopies`, `joinedCopies`, `unservedCopies`, `alsoLikely`,
+`alsoLikelyTwins`, `twinRule`, `readingsRule`, `splitBundles`, `splitItemPicks`, `dateRange`,
+`questionsPrompt`, `questionsPerNode` and `judgeLlm` tuned the search modes this engine replaced. A
+package that still sets one loads, whatever the value; the key is ignored, and the package's
+`warnings` carry one entry for each, naming the key. Remove them.
+
 
 ### The judge
 
-The judge is one chat call per request (one per group with `connect: "clusters"`). It sees the targets
-verbatim, and for each target the candidates with their kind, type, source, route and full doc
-text, rules included. It never sees an access predicate or a field's code. A target the judge picks nothing for comes back in `unresolved_targets`, which is the agent's
+The judge is step 5: one chat call per kept source (at most seven), up to `retrieval.llm.concurrency`
+at a time, plus one ordering call when two or more sources are kept. A pick call sees one source's doc,
+every target verbatim, the caller's `user_prompt`, and for each target the fields search found on that
+source with their kind, type and full doc text, rules included. It never sees an access predicate or a
+field's code. The ordering call sees each kept source's doc (quoted, the docs together cut to about
+12,000 characters), the names of the fields search found on it, every target and `user_prompt`. A
+target no source's call picks anything for comes back in `unresolved_targets`, which is the agent's
 signal to ask or to search again.
 
 For a `dimensional_value` target, each candidate field says how its stored values matched (exact, words,
@@ -552,6 +553,12 @@ ones it means. A listed value it does not name is left out of the
 answer; a value that holds a named one as whole words, and a value past the five it was shown, stay. It
 picks nothing when no listed value is the target's value or a form of it (a typo, a different case, an
 abbreviation, a synonym).
+
+**Time bounds.** A pick call gets two attempts, each at most a fifth of `retrieval.llm.timeoutMs`
+(never less than 6 seconds, never more than `timeoutMs` itself: 6 seconds at the default `30000`), and
+the whole step gets two attempts' worth (12 seconds at the default, at most 60). A slow self-hosted
+model is given more by raising `timeoutMs`: at `120000` an attempt may take 24 seconds. The ordering
+call gets one attempt and is cut 0.3 seconds after the last pick call ends.
 
 **A search has 90 seconds.** One that runs out of time answers every target in `unresolved_targets`, with a
 warning that names a narrower scope to retry with (`scopes[].source`, and for a value
@@ -563,15 +570,17 @@ count. The check runs before each request, so the one that would pass the limit 
 requests made while a person waits retry once, after at most one second (a longer `Retry-After` fails
 the call at once); the index build keeps the full retry ladder.
 
-**If the judge fails, the call fails.** When the model cannot be reached, or does not return usable JSON
-after the provider layer's retries and its one re-ask, `get_context` returns an error result whose
-message names the step, with `retrieval_stage: "judge"` and `retrieval_reason: "llm-stage-failed"`
-beside it and no sources. It never answers with an unjudged ranking. `fcj.judge: false` answers without
-the judge. A listing runs no LLM step.
+**A failed judge never fails the call.** A source whose pick call fails twice, or is still running at
+the step's deadline, is left out. If every pick call fails, the response is each target's top few
+search hits, with a warning that starts "The final ranking step was unavailable, so these results are
+the top few search matches without it." A late or unusable ordering reply keeps the order of step 4.
+`fcj.judge: false` answers without the judge. A listing runs no LLM step.
 
 **Trace.** A request that carries the header `X-Publisher-Retrieval-Trace: summary` gets a
-`retrieval_trace` block with one row per step (`find`, `connect`, `judge`, `page`); `full` adds what each
-step kept and why. Starting the server with `PUBLISHER_MCP_TRACE=retrieval` writes the same summary to
+`retrieval_trace` block with one row per step (`authorize`, `queries`, `search`, `group`, `rerank`,
+`format`); `full` adds what each step kept and why: the hits, the kept sources, each judge call's
+outcome and picks, and how the order was reached. The same durations are exported as the
+`publisher_get_context_box_duration_ms` histogram, labelled `box`. Starting the server with `PUBLISHER_MCP_TRACE=retrieval` writes the same summary to
 the server log, one "Retrieval trace" line per ranked call, and adds nothing to a response. The trace
 holds counts and timings, and the header is a diagnostic only: it changes no result.
 
@@ -581,20 +590,21 @@ holds counts and timings, and the header is a diagnostic only: it changes no res
     "engine": "fcj",
     "stages": [
       {
-        "name": "judge",
+        "name": "rerank",
         "status": "ran",
-        "ms": 412,
-        "in": 1,
-        "out": 6,
-        "llm_calls": 1,
-        "tokens": { "input": 4210, "output": 190 }
+        "ms": 1412,
+        "in": 3,
+        "out": 3,
+        "llm_calls": 4,
+        "tokens": { "input": 9210, "output": 390 }
       }
     ]
   }
 }
 ```
 
-`status` is `ran`, `skipped` (no LLM, or `fcj.judge: false`) or `failed`.
+`status` is `ran`, `skipped` (no LLM, or `fcj.judge: false`) or `failed` (for `rerank`: every pick call
+failed, and the top search hits were served).
 
 ### Source summaries
 

@@ -27,8 +27,11 @@ Two providers are stood in for (`stand_ins.ts`):
   real chat client over replies computed by rule from the prompt, not recorded from a model. The
   judge rule picks the candidates listed under each target that share a word with the target's
   text (a value target: the values matched by spelling), so a target nothing matches comes back
-  unresolved. A rule never goes missing when a prompt changes, and the snapshot shows that the
-  prompt changed.
+  unresolved. The ordering call's rule puts the sources whose block shares the most words with
+  the targets first. A case can steer the stand-in through its `user_prompt`, which both judge
+  prompts quote: `[replay: fail pick <source>]`, `[replay: fail every pick]`,
+  `[replay: order invalid]` and `[replay: order late]`. A rule never goes missing when a prompt
+  changes, and the snapshot shows that the prompt changed.
 
 The stand-ins make the replay a record of what the engine does, not a measure of how good its
 answers are. Use the `eval-loop` skill against a real model for that.
@@ -63,14 +66,14 @@ case's request in place; give the new request a new id.
 
 The snapshots are in `packages/server/tests/goldens/retrieval_replay/`, one JSON file per case:
 
-| key                         | what it holds                                                                                                                                                        |
-| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `request`                   | the `get_context` arguments, as sent                                                                                                                                 |
-| `response.is_error`         | whether the tool answered with an error result                                                                                                                       |
-| `response.payload`          | the whole response a caller receives, byte for byte as JSON                                                                                                          |
-| `traffic.embedding_calls`   | calls to the embedding endpoint during this request, and `embedded_texts`, what they sent                                                                           |
-| `traffic.judge_calls`       | judge calls during this request, and under `judge` each one's `system_sha256`, `prompt_sha256`, the prompt as lines, and the stand-in's reply                         |
-| `traffic.other_chat_calls`  | present only when a request made a chat call that is not the judge                                                                                                  |
+| key                        | what it holds                                                                                                                                                                                                                    |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `request`                  | the `get_context` arguments, as sent                                                                                                                                                                                             |
+| `response.is_error`        | whether the tool answered with an error result                                                                                                                                                                                   |
+| `response.payload`         | the whole response a caller receives, byte for byte as JSON                                                                                                                                                                      |
+| `traffic.embedding_calls`  | calls to the embedding endpoint during this request, and `embedded_texts`, what they sent                                                                                                                                        |
+| `traffic.judge_calls`      | judge calls during this request (one pick call per kept source, and the ordering call), and under `judge` each one's `call` (`pick` or `order`), `system_sha256`, `prompt_sha256`, the prompt as lines, and the stand-in's reply |
+| `traffic.other_chat_calls` | present only when a request made a chat call that is not the judge                                                                                                                                                               |
 
 Two more files are not cases:
 
