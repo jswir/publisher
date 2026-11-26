@@ -30,6 +30,7 @@ import { createHash } from "node:crypto";
 import { truncateDoc } from "../model/package_entities";
 import { type ResolvedRequest } from "../model/types";
 import { type SourceCard } from "./response";
+import type { HeldResult } from "./held_results";
 
 /** A page's character budget for its cards. */
 export const FCJ_MAX_CHARS = 35_000;
@@ -44,6 +45,8 @@ interface FcjPage {
    nextOffset?: number;
    /** Fields dropped from a card that did not fit a page alone. */
    dropped: number;
+   /** Their entity ids. */
+   droppedIds: string[];
    /** Descriptions shortened on a card that did not fit a page alone. */
    trimmed: number;
    /** The one card on this page is still over the budget after trimming. */
@@ -70,11 +73,13 @@ export function pageAt(
       out.push(cards[i]);
    }
    let dropped = 0;
+   let droppedIds: string[] = [];
    let trimmed = 0;
    let oversized = false;
    if (out.length === 1 && used > room) {
       const cut = dropFields(out[0], room - 2);
       dropped = cut.dropped;
+      droppedIds = cut.ids;
       const shrunk = shrinkCard(cut.card, room - 2);
       out[0] = shrunk.card;
       trimmed = shrunk.trimmed;
@@ -85,6 +90,7 @@ export function pageAt(
       cards: out,
       ...(out.length > 0 && next < cards.length ? { nextOffset: next } : {}),
       dropped,
+      droppedIds,
       trimmed,
       oversized,
    };
@@ -99,7 +105,7 @@ export function pageAt(
 export function dropFields(
    card: SourceCard,
    room: number,
-): { card: SourceCard; dropped: number } {
+): { card: SourceCard; dropped: number; ids: string[] } {
    const copy = structuredClone(card);
    const entities = copy.entities ?? [];
    const first = new Set<number>();
@@ -112,14 +118,14 @@ export function dropFields(
          }
       }
    });
-   let dropped = 0;
+   const ids: string[] = [];
    for (let i = entities.length - 1; i >= 0; i--) {
       if (JSON.stringify(copy).length <= room) break;
       if (first.has(i)) continue;
+      ids.push(entities[i].entity_id);
       entities.splice(i, 1);
-      dropped += 1;
    }
-   return { card: copy, dropped };
+   return { card: copy, dropped: ids.length, ids };
 }
 
 /**
@@ -223,4 +229,53 @@ export function canonicalJson(value: unknown): string {
       return `{${entries.map(([k, v]) => `${JSON.stringify(k)}:${canonicalJson(v)}`).join(",")}}`;
    }
    return JSON.stringify(value) ?? "null";
+}
+
+/**
+ * The result's warnings and clusters without a word about a field the page
+ * dropped to fit (pages.ts, dropFields): no warning names one (as
+ * `source.field`), no `clusters` entry lists it among its picks, and no
+ * caveat names it.
+ */
+export function withoutDropped(
+   result: HeldResult,
+   droppedIds: readonly string[],
+): Pick<HeldResult, "warnings" | "clusters"> {
+   if (droppedIds.length === 0) return result;
+   const dropped = new Set(droppedIds);
+   const names = droppedIds.map((id) => {
+      const [, source, ...rest] = id.split(":");
+      return { qualified: `${source}.${rest.join(":")}`, name: rest.join(":") };
+   });
+   const mentions = (text: string, name: string) =>
+      new RegExp(
+         `(^|[^A-Za-z0-9_.])${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}($|[^A-Za-z0-9_])`,
+      ).test(text);
+   return {
+      warnings: result.warnings.filter(
+         (w) => !names.some((n) => w.includes(n.qualified)),
+      ),
+      clusters: result.clusters.map((c) => {
+         const entry = c as {
+            picks?: Record<string, string[]>;
+            caveats?: string[];
+         };
+         const picks = Object.fromEntries(
+            Object.entries(entry.picks ?? {}).map(([t, ids]) => [
+               t,
+               ids.filter((id) => !dropped.has(id)),
+            ]),
+         );
+         const caveats = (entry.caveats ?? []).filter(
+            (cv) => !names.some((n) => mentions(cv, n.name)),
+         );
+         const { caveats: _old, ...rest } = entry;
+         void _old;
+         return {
+            ...rest,
+            ...(entry.picks ? { picks } : {}),
+            ...(caveats.length > 0 ? { caveats } : {}),
+         };
+      }),
+   };
 }

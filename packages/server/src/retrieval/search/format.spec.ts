@@ -19,8 +19,12 @@ import {
    FIELDS_PER_TARGET,
    format,
    limitPicks,
+   PERIOD_FIELD_REASON,
+   servedCaveats,
    type FormatArgs,
 } from "./format";
+import { joinedKey } from "./fields";
+import { PERIOD_TARGET } from "./group";
 import { ValueIndex } from "../index/values_index";
 import { toUnit } from "../index/vectors";
 import { RetrievalRegistry } from "../registry";
@@ -107,6 +111,8 @@ type Card = {
       description?: string;
       values?: unknown[];
       matched_targets?: Array<{ search_text: string; match_reason?: string }>;
+      also_likely?: boolean;
+      also_likely_reason?: string;
    }>;
 };
 const ids = (sources: unknown[]) =>
@@ -433,6 +439,34 @@ describe("limitPicks", () => {
       ]);
    });
 
+   it("does not count a source whose only picks are a period's date field, or fields of other sources, as the first card", () => {
+      const out = limitPicks(
+         [
+            {
+               source: "a",
+               picks: [{ target: PERIOD_TARGET, keys: keys("a", 2) }],
+               caveats: [],
+            },
+            {
+               source: "x",
+               picks: [{ target: 0, keys: ["b|f1", "b|f2"] }],
+               caveats: [],
+            },
+            {
+               source: "b",
+               picks: [{ target: 0, keys: keys("b", 4) }],
+               caveats: [],
+            },
+         ],
+         owner,
+      );
+      // At most one date field per source.
+      expect(out[0].picks[0].keys).toEqual(keys("a", 1));
+      expect(out[1].picks[0].keys).toEqual([]);
+      // b is the first card: it keeps all four.
+      expect(out[2].picks[0].keys).toEqual(keys("b", 4));
+   });
+
    it("counts the first source with a pick as first, and drops a field of another source", () => {
       const out = limitPicks(
          [
@@ -446,5 +480,175 @@ describe("limitPicks", () => {
          owner,
       );
       expect(out[1].picks[0].keys).toEqual(keys("b", 3));
+   });
+});
+
+describe("format: joined fields, period fields and what the notes name", () => {
+   const base = () => ({
+      index: f.index,
+      request,
+      pkgIndex: f.pkgIndex,
+      grouped: { sources: [], unresolved: [] },
+      environmentStore: {} as never,
+      valueFetcher: valueFetcherFor(new RetrievalRegistry()),
+   });
+   const FLIGHTS = "measure:flights@travel.malloy:flight_count";
+   const NAME = "dimension:airports@travel.malloy:airport_name";
+
+   it("writes a field reached through a join under its path on the joining source's card", async () => {
+      const out = await format({
+         ...base(),
+         targets: [
+            t(0, "measure", "flights"),
+            t(1, "dimension", "airport name"),
+         ],
+         ranked: [
+            {
+               source: "flights@travel.malloy",
+               picks: [
+                  { target: 0, keys: [FLIGHTS] },
+                  {
+                     target: 1,
+                     keys: [
+                        joinedKey("flights@travel.malloy", ["origin"], NAME),
+                     ],
+                     reason: "the origin airport's name",
+                  },
+               ],
+               caveats: [],
+            },
+         ],
+      });
+      const card = (out.sources as Card[])[0];
+      const field = card.entities!.find(
+         (e) => e.entity_id === "dimension:flights:origin.airport_name",
+      )!;
+      expect(field.join_path).toBe("origin");
+      expect(field.description).toContain(
+         "Reached from flights through origin, a left join",
+      );
+      expect(field.values).toBeUndefined();
+      expect(out.clusters).toEqual([
+         expect.objectContaining({
+            sources: [{ source: "flights", joins: ["origin"] }],
+            picks: {
+               0: ["measure:flights:flight_count"],
+               1: ["dimension:flights:origin.airport_name"],
+            },
+         }),
+      ]);
+   });
+
+   it("shows one date field for a named period, marked, on a card that answers a target, and none on one that does not", async () => {
+      const START = "dimension:flights@travel.malloy:start_date";
+      const out = await format({
+         ...base(),
+         targets: [t(0, "measure", "flights")],
+         ranked: [
+            {
+               source: "flights@travel.malloy",
+               picks: [
+                  { target: 0, keys: [FLIGHTS] },
+                  {
+                     target: PERIOD_TARGET,
+                     keys: [START, "dimension:flights@travel.malloy:id"],
+                  },
+               ],
+               caveats: [],
+            },
+            {
+               source: "races@reports.malloy",
+               picks: [
+                  {
+                     target: PERIOD_TARGET,
+                     keys: ["dimension:races@reports.malloy:start_date"],
+                  },
+               ],
+               caveats: [],
+            },
+         ],
+      });
+      const cards = out.sources as Array<
+         Card & {
+            entities?: Array<{
+               also_likely?: boolean;
+               also_likely_reason?: string;
+            }>;
+         }
+      >;
+      expect(cards.map((c) => c.source_info.resource_id.source)).toEqual([
+         "flights",
+      ]);
+      const dates = cards[0].entities!.filter((e) => e.also_likely);
+      expect(dates.map((e) => e.entity_id)).toEqual([
+         "dimension:flights:start_date",
+      ]);
+      expect(dates[0].also_likely_reason).toBe(PERIOD_FIELD_REASON);
+      // A date field is no target's pick.
+      expect(out.clusters).toEqual([
+         expect.objectContaining({
+            covers: [0],
+            picks: { 0: ["measure:flights:flight_count"] },
+         }),
+      ]);
+   });
+
+   it("drops a caveat that names a field the limits cut, and keeps the rest", () => {
+      expect(
+         servedCaveats(
+            [
+               "arrival_code may answer target 1 too.",
+               "start_date is the scheduled date.",
+               "flights.arrival_code_x is fine",
+            ],
+            new Set(["arrival_code"]),
+         ),
+      ).toEqual([
+         "start_date is the scheduled date.",
+         "flights.arrival_code_x is fine",
+      ]);
+   });
+
+   it("drops a caveat naming a field the later-source limit cut", async () => {
+      const out = await format({
+         ...base(),
+         targets: [t(0, "measure", "count")],
+         ranked: [
+            {
+               source: "races@reports.malloy",
+               picks: [
+                  {
+                     target: 0,
+                     keys: ["measure:races@reports.malloy:race_count"],
+                  },
+               ],
+               caveats: [],
+            },
+            {
+               source: "flights@travel.malloy",
+               picks: [
+                  {
+                     target: 0,
+                     keys: [
+                        FLIGHTS,
+                        "dimension:flights@travel.malloy:origin_code",
+                        "dimension:flights@travel.malloy:arrival_code",
+                     ],
+                  },
+               ],
+               caveats: [
+                  "arrival_code is a close call.",
+                  "flight_count counts legs.",
+               ],
+            },
+         ],
+      });
+      const flights = (
+         out.clusters as Array<{
+            query_from: { source: string };
+            caveats?: string[];
+         }>
+      ).find((c) => c.query_from.source === "flights")!;
+      expect(flights.caveats).toEqual(["flight_count counts legs."]);
    });
 });

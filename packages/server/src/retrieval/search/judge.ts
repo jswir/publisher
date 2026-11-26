@@ -36,6 +36,7 @@ import type { ValueMatch } from "../index/values_index";
 import type { FcjIndex } from "../index/index_build";
 import type { Target } from "./find";
 import type { SourceGroup } from "./group";
+import { fieldOf } from "./fields";
 
 /** One numbered field a pick call may pick. */
 export interface JudgeOption {
@@ -197,15 +198,16 @@ function optionLine(
    option: JudgeOption,
    valueNote: string | undefined,
 ): string {
-   const node = index.catalog.nodes.get(option.key)!;
+   const field = fieldOf(index.catalog, option.key)!;
+   const node = field.node;
    const kind = node.dataType ? `${node.kind}, ${node.dataType}` : node.kind;
    const doc = oneLine(node.doc);
-   const join = node.joinPath ? `; through the join ${node.joinPath}` : "";
+   const join = field.joinPath ? `; through the join ${field.joinPath}` : "";
    return [
-      `[${option.number}] ${node.name} (${kind}${join})`,
+      `[${option.number}] ${field.name} (${kind}; source ${field.sourceName}${join})`,
       doc
          ? `: ${cut(doc, JUDGE_DOC_MAX_CHARS)}`
-         : `: (no doc; name in words: ${humanizeName(node.name)})`,
+         : `: (no doc; name in words: ${humanizeName(field.name)})`,
       valueNote ? ` | ${valueNote}` : "",
    ].join("");
 }
@@ -262,7 +264,7 @@ export function renderPickPrompt(
    targets.forEach((t, i) => {
       lines.push(`Target ${i + 1} (${t.type}): ${JSON.stringify(t.text)}`);
       const listed = options.filter((o) => o.targets.includes(t.index));
-      if (listed.length === 0) lines.push("  (no candidates on this source)");
+      if (listed.length === 0) lines.push("  (no candidates in this group)");
       for (const o of listed)
          lines.push(`  ${optionLine(index, o, noteOf(t, o))}`);
    });
@@ -415,7 +417,7 @@ export function renderOrderPrompt(
       for (const t of targets) {
          const names: string[] = [];
          for (const o of g.offers.get(t.index) ?? []) {
-            const name = index.catalog.nodes.get(o.hit.key)?.name;
+            const name = fieldOf(index.catalog, o.hit.key)?.name;
             if (name && !names.includes(name)) names.push(name);
          }
          lines.push(

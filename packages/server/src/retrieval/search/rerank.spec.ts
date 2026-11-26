@@ -70,8 +70,26 @@ function fakeChat(pick: Reply, order: Reply) {
    const chat: ChatModel = {
       provider: "openai-compatible",
       model: "fake",
-      complete: async () => {
-         throw new Error("not used");
+      // The ordering call: one plain request, its reply read as JSON.
+      complete: async (req) => {
+         calls.push({ kind: "order", prompt: req.prompt });
+         const value = await Promise.race([
+            Promise.resolve(
+               order({
+                  ...req,
+                  validate: (v) => v,
+               } as JsonChatRequest<unknown>),
+            ),
+            new Promise<never>((_, reject) => {
+               const cut = () => reject(req.signal?.reason);
+               if (req.signal?.aborted) cut();
+               else req.signal?.addEventListener("abort", cut, { once: true });
+            }),
+         ]);
+         return {
+            text: typeof value === "string" ? value : JSON.stringify(value),
+            usage: {},
+         };
       },
       completeJson: async <T>(req: JsonChatRequest<T>) => {
          const kind = req.prompt.includes("<sources>") ? "order" : "pick";

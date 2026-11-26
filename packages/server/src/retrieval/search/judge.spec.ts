@@ -15,6 +15,7 @@ import {
 } from "../llm/prompts/judge";
 import { KINDS_BY_TARGET, search, type Target } from "./find";
 import { groupBySource, type SourceGroup } from "./group";
+import { fieldOf } from "./fields";
 import {
    judgeOptions,
    keptValues,
@@ -105,9 +106,9 @@ describe("the pick prompt", () => {
       expect(lines[0].startsWith("Source: flights")).toBe(true);
       expect(lines).toContain('Target 1 (measure): "number of flights"');
       expect(lines).toContain('Target 2 (dimension): "start date"');
-      // Each listed field is a field of this source.
+      // Each listed field is a field of this source, its own or through a join.
       for (const o of options) {
-         expect(f.index.catalog.nodes.get(o.key)?.sourceKey).toBe(
+         expect(fieldOf(f.index.catalog, o.key)?.sourceKey).toBe(
             "flights@travel.malloy",
          );
       }

@@ -57,7 +57,13 @@ import type { AccessIdentity } from "../../service/access_record";
 import type { FcjIndex } from "../index/index_build";
 import type { RetrievalRegistry } from "../registry";
 import { FCJ_RESULT_TTL_MS, type HeldResult } from "./held_results";
-import { FCJ_MAX_CHARS, FCJ_RESERVE_CHARS, pageAt, resultKey } from "./pages";
+import {
+   FCJ_MAX_CHARS,
+   FCJ_RESERVE_CHARS,
+   pageAt,
+   resultKey,
+   withoutDropped,
+} from "./pages";
 import { valueFetcherFor } from "./values";
 import { routesOf } from "./routes";
 import { authorize, targetsOf } from "./authorize";
@@ -66,6 +72,7 @@ import { search, type Hits } from "./find";
 import { groupBySource, type Grouped } from "./group";
 import { rerank, rerankBounds, type Reranked } from "./rerank";
 import { format } from "./format";
+import { fieldOf } from "./fields";
 import {
    recordGetContextBox,
    type GetContextBox,
@@ -355,7 +362,12 @@ async function runBoxes(
 
    // 4. Group by source.
    started = performance.now();
-   const grouped = groupBySource({ index, hits });
+   const grouped = groupBySource({
+      index,
+      hits,
+      allow,
+      ...(request.userPrompt ? { question: request.userPrompt } : {}),
+   });
    stages.push(
       row("group", started, {
          in: hits.reduce((n, r) => n + r.candidates.length, 0),
@@ -381,6 +393,7 @@ async function runBoxes(
       ...(auth.instructions ? { instructions: auth.instructions } : {}),
       concurrency: Math.max(1, llmSettings?.concurrency ?? 1),
       bounds: rerankBounds(llmSettings?.timeoutMs ?? DEFAULT_LLM_TIMEOUT_MS),
+      remaining: () => meter.remaining(),
       ...(args.signal ? { signal: args.signal } : {}),
    });
    const used = meter.snapshot();
@@ -476,7 +489,7 @@ function fullTrace(t: {
    chat: ChatModel | null;
 }) {
    const { index, hits, grouped, reranked, chat } = t;
-   const id = (k: string) => index.catalog.nodes.get(k)?.id ?? k;
+   const id = (k: string) => fieldOf(index.catalog, k)?.id ?? k;
    const name = (s: string) => index.catalog.sources.get(s)?.name ?? s;
    return {
       search: hitsTrace(index, hits),
@@ -550,9 +563,10 @@ function pageResponse(args: {
    ];
    const first = request.offset + 1;
    const last = request.offset + page.cards.length;
+   const served = withoutDropped(result, page.droppedIds);
    const warnings = [
       ...args.leading,
-      ...result.warnings,
+      ...served.warnings,
       ...(page.nextOffset !== undefined
          ? [
               `This page holds sources ${first} to ${last} of ${total}; nothing was cut from the result. For the rest, call get_context again with the same arguments and offset: ${page.nextOffset} (next_offset), until a response has no next_offset.`,
@@ -591,7 +605,7 @@ function pageResponse(args: {
          : {}),
       retrieval: result.retrieval,
       engine: "fcj",
-      clusters: result.clusters,
+      clusters: served.clusters,
       ...(result.coverage ? { coverage: result.coverage } : {}),
       unresolved_targets: result.unresolved_targets,
       ...skillsFor({ pkgIndex: args.pkgIndex }),

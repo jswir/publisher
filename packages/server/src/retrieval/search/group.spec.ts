@@ -9,7 +9,14 @@ import {
 import { embedText } from "../../test_helpers/get_context_llm_harness";
 import { toUnit } from "../index/vectors";
 import { KINDS_BY_TARGET, search, type Target } from "./find";
-import { groupBySource, KEPT_SOURCES, keepSources } from "./group";
+import {
+   groupBySource,
+   JOIN_REACH_DEPTH,
+   KEPT_SOURCES,
+   keepSources,
+   namesPeriod,
+} from "./group";
+import { fieldOf } from "./fields";
 
 const pairs = (...xs: Array<[string, number]>) =>
    xs.map(([source, rank]) => ({ source, rank }));
@@ -131,5 +138,123 @@ describe("groupBySource over the fixture", () => {
       expect(grouped.sources.map((g) => g.source)).toEqual([
          "races@reports.malloy",
       ]);
+   });
+
+   const offered = (
+      grouped: ReturnType<typeof run>,
+      source: string,
+      target: number,
+   ) =>
+      (
+         grouped.sources.find((g) => g.source === source)?.offers.get(target) ??
+         []
+      ).map((o) => fieldOf(f.index.catalog, o.hit.key)?.name);
+
+   it("offers a field search found on a joined source to the source that joins it, under its join path", () => {
+      expect(JOIN_REACH_DEPTH).toBe(3);
+      const grouped = run([
+         t(0, "measure", "number of flights"),
+         t(1, "dimension", "airport name"),
+      ]);
+      // flights holds no airport name of its own: it offers airports' through
+      // both of its joins to airports, each a field of flights.
+      const names = offered(grouped, "flights@travel.malloy", 1);
+      expect(names).toContain("arrival.airport_name");
+      expect(names).toContain("origin.airport_name");
+      const joined = grouped.sources
+         .find((g) => g.source === "flights@travel.malloy")!
+         .offers.get(1)!
+         .find(
+            (o) =>
+               fieldOf(f.index.catalog, o.hit.key)?.name ===
+               "origin.airport_name",
+         )!;
+      expect(joined.via).toBe("dimension:airports@travel.malloy:airport_name");
+      expect(fieldOf(f.index.catalog, joined.hit.key)).toMatchObject({
+         sourceKey: "flights@travel.malloy",
+         id: "dimension:flights:origin.airport_name",
+         joinPath: "origin",
+      });
+      // The keep rule reads only each source's own hits: the joined offers
+      // add no score.
+      const plain = run([t(0, "measure", "number of flights")]);
+      expect(
+         grouped.sources.find((g) => g.source === "flights@travel.malloy")!
+            .score,
+      ).toBeGreaterThanOrEqual(
+         plain.sources.find((g) => g.source === "flights@travel.malloy")!.score,
+      );
+   });
+
+   it("offers nothing through a join to a source the scope leaves out", () => {
+      const grouped = run(
+         [
+            t(0, "measure", "number of flights"),
+            t(1, "dimension", "airport name"),
+         ],
+         (n: { source: string }) => n.source !== "airports",
+      );
+      expect(offered(grouped, "flights@travel.malloy", 1)).not.toContain(
+         "origin.airport_name",
+      );
+   });
+
+   it("offers a kept source's own date fields only when a period is named", () => {
+      const hits = (targets: Target[]) =>
+         search({
+            index: f.index,
+            queries: targets.map((x) => ({
+               target: x,
+               vector: toUnit(embedText(x.text)),
+            })),
+            values: true,
+            valueMeaning: false,
+            allow: () => true,
+         });
+      const targets = [t(0, "measure", "number of flights")];
+      const none = groupBySource({
+         index: f.index,
+         hits: hits(targets),
+         question: "How many flights?",
+      });
+      expect(none.sources.every((g) => g.periodDates === undefined)).toBe(true);
+      const monthly = groupBySource({
+         index: f.index,
+         hits: hits(targets),
+         question: "How many flights each month in 2024?",
+      });
+      expect(
+         monthly.sources.find((g) => g.source === "flights@travel.malloy")
+            ?.periodDates,
+      ).toEqual(["dimension:flights@travel.malloy:start_date"]);
+      // A target's own text names one as well.
+      const byTarget = groupBySource({
+         index: f.index,
+         hits: hits([t(0, "measure", "flights per month")]),
+      });
+      expect(byTarget.sources.some((g) => g.periodDates?.length)).toBe(true);
+   });
+
+   it("reads a period from a period word or a year, and nothing else", () => {
+      for (const yes of [
+         "month by month",
+         "sales in 2025",
+         "Daily orders",
+         "YTD revenue",
+         "per quarter",
+         "in March",
+      ]) {
+         expect(namesPeriod(yes)).toBe(true);
+      }
+      for (const no of [
+         "total revenue",
+         "orders over 100",
+         "the last customer",
+         "when shipped",
+         "",
+         "2025abc units",
+      ]) {
+         expect(namesPeriod(no)).toBe(false);
+      }
    });
 });

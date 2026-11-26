@@ -31,9 +31,11 @@
 
 import { DEFAULT_RETRY, type RetryPolicy } from "../../service/http_retry";
 import type { ChatModel } from "../llm/types";
+import { parseAndValidate } from "../llm/json";
 import type { FcjIndex } from "../index/index_build";
 import type { Target } from "./find";
-import type { Grouped, SourceGroup } from "./group";
+import { PERIOD_TARGET, type Grouped, type SourceGroup } from "./group";
+import { KINDS_BY_TARGET } from "./find";
 import {
    judgeMaxTokens,
    judgeOptions,
@@ -133,17 +135,29 @@ const UNJUDGED_HITS_DEFAULT = 3;
 
 /**
  * The answer when no call chose: each target's top few hits on the kept
- * sources ({@link UNJUDGED_HITS}, by search rank), each on its own source,
+ * sources ({@link UNJUDGED_HITS}, by search rank), each on its own source
+ * (through a kept source's join only when its own source was not kept),
  * the sources in box 4's order.
  */
 export function unjudged(
    grouped: Grouped,
    targets: readonly Target[],
 ): RankedSource[] {
+   // A field a kept source holds itself is served there, not also through
+   // every join that reaches it.
+   const own = new Set(
+      grouped.sources.flatMap((g) =>
+         [...g.offers.values()]
+            .flat()
+            .filter((o) => !o.via)
+            .map((o) => o.hit.key),
+      ),
+   );
    const top = new Map<number, Set<string>>();
    for (const t of targets) {
       const all = grouped.sources
          .flatMap((g) => g.offers.get(t.index) ?? [])
+         .filter((o) => !o.via || !own.has(o.via))
          .sort((a, b) => a.rank - b.rank)
          .slice(0, UNJUDGED_HITS[t.type] ?? UNJUDGED_HITS_DEFAULT);
       top.set(t.index, new Set(all.map((o) => o.hit.key)));
@@ -160,9 +174,44 @@ export function unjudged(
    }));
 }
 
-/** The targets one source's call is asked about: those it holds a hit for, in the Call's order. */
-function targetsOf(group: SourceGroup, targets: readonly Target[]): Target[] {
-   return targets.filter((t) => group.offers.has(t.index));
+/**
+ * The implicit target box 4 offers a source's date fields for when the
+ * question names a period. It is asked last, after the Call's own targets.
+ */
+export const PERIOD_TARGET_TEXT =
+   "the date or time field to group or filter by for the period the question names";
+
+/**
+ * What one source's call is asked: the targets it holds a hit for, in the
+ * Call's order, then the period target when box 4 offered date fields; and
+ * the source's offers with the period's date fields among them.
+ */
+function askedOf(
+   group: SourceGroup,
+   targets: readonly Target[],
+): { asked: Target[]; view: SourceGroup } {
+   const asked = targets.filter((t) => group.offers.has(t.index));
+   if (!group.periodDates?.length) return { asked, view: group };
+   const offers = new Map(group.offers);
+   offers.set(
+      PERIOD_TARGET,
+      group.periodDates.map((key) => ({
+         hit: { key, score: 0, ranks: {} },
+         rank: 0,
+      })),
+   );
+   return {
+      asked: [
+         ...asked,
+         {
+            index: PERIOD_TARGET,
+            type: "dimension",
+            text: PERIOD_TARGET_TEXT,
+            kinds: KINDS_BY_TARGET.dimension,
+         },
+      ],
+      view: { ...group, offers },
+   };
 }
 
 function errorText(error: unknown): string {
@@ -188,6 +237,11 @@ export async function rerank(args: {
    bounds: RerankBounds;
    /** The request's own signal: its deadline or the client's cancel. */
    signal?: AbortSignal;
+   /**
+    * The chat requests this request may still send
+    * (`retrieval.llm.maxCallsPerRequest`), or null for no ceiling.
+    */
+   remaining?: () => number | null;
 }): Promise<Reranked> {
    const { index, grouped, targets, chat, bounds } = args;
    const groups = grouped.sources;
@@ -209,12 +263,14 @@ export async function rerank(args: {
       ? AbortSignal.any([args.signal, stage.signal])
       : stage.signal;
 
-   // The ordering call: started with the picks, cut after the grace.
+   // The ordering call: started with the picks, cut after the grace. One
+   // request: no retry and no JSON repair re-ask, since a reply it cannot
+   // use only leaves box 4's order.
    const orderCut = new AbortController();
    const ordering: Promise<number[] | undefined> =
       groups.length > 1
          ? chat
-              .completeJson({
+              .complete({
                  system: orderSystemPrompt(),
                  prompt: renderOrderPrompt(
                     index,
@@ -223,64 +279,93 @@ export async function rerank(args: {
                     args.question,
                  ),
                  maxTokens: orderMaxTokens(groups.length),
-                 validate: validateOrder,
                  retry: ONE_TRY,
                  signal: AbortSignal.any([stageSignal, orderCut.signal]),
               })
-              .then((r) => r.value)
+              .then((r) => parseAndValidate(r.text, validateOrder))
               .catch(() => undefined)
          : Promise.resolve(undefined);
 
-   const pickOne = async (
-      group: SourceGroup,
-   ): Promise<{ call: PickCall; ranked?: RankedSource }> => {
-      const asked = targetsOf(group, targets);
-      const options = judgeOptions(group, asked);
-      const request = {
+   /** One pick call's request for a source. */
+   const requestOf = (group: SourceGroup) => {
+      const { asked, view } = askedOf(group, targets);
+      const options = judgeOptions(view, asked);
+      return {
          system: pickSystemPrompt(asked, args.instructions),
-         prompt: renderPickPrompt(index, group, asked, options, args.question),
+         prompt: renderPickPrompt(index, view, asked, options, args.question),
          maxTokens: judgeMaxTokens(asked.length, options.length),
          validate: validateVerdict(
             asked,
             options,
-            valueLabels(group, asked, options),
+            valueLabels(view, asked, options),
          ),
          retry: ONE_TRY,
       };
-      let error: unknown;
-      let attempts = 0;
-      while (attempts < PICK_ATTEMPTS && !stageSignal.aborted) {
-         attempts += 1;
-         try {
-            const reply = await chat.completeJson({
-               ...request,
-               signal: AbortSignal.any([
-                  stageSignal,
-                  AbortSignal.timeout(bounds.attemptMs),
-               ]),
-            });
-            return {
-               call: { source: group.source, outcome: "answered", attempts },
-               ranked: { source: group.source, ...reply.value },
-            };
-         } catch (e) {
-            error = e;
-         }
+   };
+   type Attempt = { ranked?: RankedSource; error?: unknown };
+   /** One attempt of one source's pick call. */
+   const attempt = async (group: SourceGroup): Promise<Attempt> => {
+      if (stageSignal.aborted) return { error: stageSignal.reason };
+      try {
+         const reply = await chat.completeJson({
+            ...requestOf(group),
+            signal: AbortSignal.any([
+               stageSignal,
+               AbortSignal.timeout(bounds.attemptMs),
+            ]),
+         });
+         return { ranked: { source: group.source, ...reply.value } };
+      } catch (error) {
+         return { error };
       }
-      return {
-         call: {
-            source: group.source,
-            outcome: "failed",
-            attempts,
-            error: errorText(error ?? stageSignal.reason),
-         },
-      };
+   };
+   /**
+    * The sources, in box 4's order, that `budget` request slots let try once
+    * more: an attempt may take two requests (the JSON repair re-ask). So
+    * which calls are sent never depends on which call finished first.
+    */
+   const allowed = <T>(items: readonly T[], reserve = 0): T[] => {
+      const left = args.remaining?.() ?? null;
+      if (left === null) return [...items];
+      return items.slice(0, Math.max(0, Math.floor((left - reserve) / 2)));
    };
 
-   let results: Array<{ call: PickCall; ranked?: RankedSource }>;
+   const attempts = new Map<string, number>(groups.map((g) => [g.source, 0]));
+   const outcomes = new Map<string, Attempt>();
    let reply: number[] | undefined;
    try {
-      results = await pool(groups, Math.max(1, args.concurrency), pickOne);
+      // The first attempts, all together; then a second for each that
+      // failed, all together, while the stage deadline allows.
+      let pending = allowed(groups, groups.length > 1 ? 1 : 0);
+      for (const g of groups) {
+         if (!pending.includes(g)) {
+            outcomes.set(g.source, {
+               error: new Error(
+                  "not sent: retrieval.llm.maxCallsPerRequest leaves no room for it",
+               ),
+            });
+         }
+      }
+      for (
+         let round = 0;
+         round < PICK_ATTEMPTS && pending.length > 0;
+         round++
+      ) {
+         if (stageSignal.aborted) break;
+         const tried = pending;
+         const results = await pool(
+            tried,
+            Math.max(1, args.concurrency),
+            attempt,
+         );
+         tried.forEach((g, i) => {
+            attempts.set(g.source, (attempts.get(g.source) ?? 0) + 1);
+            outcomes.set(g.source, results[i]);
+         });
+         pending = allowed(
+            tried.filter((g) => !outcomes.get(g.source)?.ranked),
+         );
+      }
       reply = await Promise.race([
          ordering,
          new Promise<undefined>((resolve) =>
@@ -291,6 +376,29 @@ export async function rerank(args: {
       clearTimeout(timer);
       orderCut.abort(new Error("the ordering call was cut after the picks"));
    }
+   const results = groups.map((g) => {
+      const o: Attempt = outcomes.get(g.source) ?? {
+         error: stageSignal.reason,
+      };
+      const tries = attempts.get(g.source) ?? 0;
+      return o.ranked
+         ? {
+              call: {
+                 source: g.source,
+                 outcome: "answered" as const,
+                 attempts: tries,
+              },
+              ranked: o.ranked,
+           }
+         : {
+              call: {
+                 source: g.source,
+                 outcome: "failed" as const,
+                 attempts: tries,
+                 error: errorText(o.error ?? stageSignal.reason),
+              },
+           };
+   });
    const calls = results.map((r) => r.call);
    const answered = new Map(
       results.flatMap((r) => (r.ranked ? [[r.ranked.source, r.ranked]] : [])),

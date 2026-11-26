@@ -13,7 +13,7 @@ import { unjudged } from "./rerank";
 import { KINDS_BY_TARGET, search, type Target } from "./find";
 import { groupBySource } from "./group";
 import { HeldResults, type HeldResult } from "./held_results";
-import { pageAt, resultKey, shrinkCard } from "./pages";
+import { pageAt, resultKey, shrinkCard, withoutDropped } from "./pages";
 import { format } from "./format";
 import { toUnit } from "../index/vectors";
 import { RetrievalRegistry } from "../registry";
@@ -227,7 +227,30 @@ describe("pageAt, a card bigger than a page", () => {
          limit: 20,
       });
       expect(page.dropped).toBeGreaterThan(0);
+      expect(page.droppedIds).toHaveLength(page.dropped);
       expect(page.trimmed).toBe(0);
+      // No note, pick or caveat of the result names a field the page dropped.
+      const gone = page.droppedIds[0];
+      const name = gone.split(":")[2];
+      const served = withoutDropped(
+         {
+            cards: [huge],
+            retrieval: "semantic",
+            clusters: [
+               {
+                  picks: { 0: [gone, ids([huge])[0]] },
+                  caveats: [`${name} is a close call.`, "Fine."],
+               },
+            ],
+            unresolved_targets: [],
+            warnings: [`huge.${name} was offered for "x".`, "Other."],
+         },
+         page.droppedIds,
+      );
+      expect(served.warnings).toEqual(["Other."]);
+      expect(served.clusters).toEqual([
+         { picks: { 0: [ids([huge])[0]] }, caveats: ["Fine."] },
+      ]);
       const kept = ids(page.cards);
       expect(kept).toEqual(ids([huge]).slice(0, kept.length));
       expect(JSON.stringify(page.cards[0]).length).toBeLessThanOrEqual(19_000);

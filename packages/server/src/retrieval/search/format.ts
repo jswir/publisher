@@ -45,9 +45,10 @@ import {
 import type { CatalogNode, CatalogSource } from "../model/catalog";
 import type { Target } from "./find";
 import type { FcjIndex } from "../index/index_build";
-import type { Grouped } from "./group";
+import { PERIOD_TARGET, type Grouped } from "./group";
 import type { RankedSource } from "./rerank";
 import { keptValues } from "./judge";
+import { fieldOf, type Field } from "./fields";
 
 /**
  * How many fields a pick keeps on a source after the first served one: its
@@ -70,24 +71,56 @@ export function limitPicks(
    ranked: readonly RankedSource[],
    ownerOf: (key: string) => string | undefined,
 ): RankedSource[] {
-   const perTarget = new Map<number, number>();
+   const own = (r: RankedSource, keys: readonly string[]) =>
+      keys.filter((k) => ownerOf(k) === r.source);
+   // The first served card: the first source with a field placed on its
+   // own card for a target of the Call.
    const first = ranked.findIndex((r) =>
-      r.picks.some((p) => p.keys.length > 0),
+      r.picks.some(
+         (p) => p.target !== PERIOD_TARGET && own(r, p.keys).length > 0,
+      ),
    );
+   const perTarget = new Map<number, number>();
    return ranked.map((r, i) => ({
       ...r,
       picks: [...r.picks]
          .sort((a, b) => a.target - b.target)
          .map((p) => {
-            const own = p.keys.filter((k) => ownerOf(k) === r.source);
+            const mine = own(r, p.keys);
+            if (p.target === PERIOD_TARGET) {
+               return { ...p, keys: mine.slice(0, PERIOD_FIELDS_PER_SOURCE) };
+            }
             const cut =
-               i === first ? own : own.slice(0, FIELDS_PER_PICK_AFTER_FIRST);
+               i === first ? mine : mine.slice(0, FIELDS_PER_PICK_AFTER_FIRST);
             const used = perTarget.get(p.target) ?? 0;
             const keys = cut.slice(0, Math.max(0, FIELDS_PER_TARGET - used));
             perTarget.set(p.target, used + keys.length);
             return { ...p, keys };
          }),
    }));
+}
+
+/** Most date fields one source returns for a period the question names. */
+export const PERIOD_FIELDS_PER_SOURCE = 1;
+/** The mark on a date field returned for a period the question names. */
+export const PERIOD_FIELD_REASON =
+   "A date or time field of this source, returned because the question names a period.";
+
+/**
+ * The caveats of a source's call that name no field of the source its call
+ * picked and the limits cut: a caveat never points at a field the response
+ * does not carry.
+ */
+export function servedCaveats(
+   caveats: readonly string[],
+   cutNames: ReadonlySet<string>,
+): string[] {
+   if (cutNames.size === 0) return [...caveats];
+   const named = (c: string, name: string) =>
+      new RegExp(
+         `(^|[^A-Za-z0-9_.])${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}($|[^A-Za-z0-9_])`,
+      ).test(c);
+   return caveats.filter((c) => ![...cutNames].some((n) => named(c, n)));
 }
 
 /** A field path as the value lookup takes it: one name, or its segments. */
@@ -126,6 +159,42 @@ function entityAt(node: CatalogNode, modelPath: string) {
    return (
       node.entities.find((e) => e.modelPath === modelPath) ?? node.entities[0]
    );
+}
+
+/** The sentence a field reached through a join carries. */
+export function populationNote(home: string, path: string): string {
+   return `Reached from ${home} through ${path}, a left join: a ${home} row with no match keeps a null here, so grouping or counting by it follows ${home}'s rows.`;
+}
+
+/**
+ * A field of another source reached through the card's source's joins, as
+ * the card shows it: under its dotted path, with the join path, the join's
+ * relationship and the population sentence. Never carries values: a value
+ * was matched on the field's own source.
+ */
+function joinedRow(
+   field: Field,
+   source: CatalogSource,
+   modelPath: string,
+   request: ResolvedRequest,
+): ResultEntity {
+   const node = field.node;
+   const note = populationNote(source.name, field.joinPath ?? "");
+   return {
+      kind: node.kind,
+      name: field.name,
+      source: source.name,
+      environmentName: request.environmentName,
+      packageName: request.packageName,
+      modelPath,
+      doc: node.displayDoc ? `${node.displayDoc} ${note}` : note,
+      ...(node.doc ? { embedDoc: node.doc } : {}),
+      ...(node.docSource ? { docSource: node.docSource } : {}),
+      ...(field.joinPath ? { joinPath: field.joinPath } : {}),
+      ...(field.relationship ? { relationship: field.relationship } : {}),
+      ...(node.dataType ? { dataType: node.dataType } : {}),
+      ...(node.code ? { code: node.code } : {}),
+   };
 }
 
 export interface FormatArgs {
@@ -224,46 +293,64 @@ export async function format(args: FormatArgs): Promise<Formatted> {
    const answered = new Set<number>();
    const limited = limitPicks(
       ranked,
-      (key) => index.catalog.nodes.get(key)?.sourceKey,
+      (key) => fieldOf(index.catalog, key)?.sourceKey,
    );
    for (const r of limited) {
       const source = index.catalog.sources.get(r.source);
       if (!source) continue;
       const mp = cardModelPath(source, request);
       const picks: Record<number, string[]> = {};
+      const joins = new Set<string>();
+      const periodKeys: string[] = [];
       for (const pick of r.picks) {
+         if (pick.target === PERIOD_TARGET) {
+            periodKeys.push(...pick.keys);
+            continue;
+         }
          const target = targetOf.get(pick.target);
          for (const key of pick.keys) {
-            const node = index.catalog.nodes.get(key);
-            if (!node) continue;
+            const field = fieldOf(index.catalog, key);
+            if (!field) continue;
+            const node = field.node;
             const hits = hitOf.get(key);
             const hit =
                hits?.get(pick.target) ?? [...(hits?.values() ?? [])][0];
-            const row: ResultEntity = {
-               ...projectEntity(
-                  entityAt(node, mp),
-                  request.environmentName,
-                  request.packageName,
-               ),
-               modelPath: mp,
-            };
-            const values = await valuesFor(
-               args,
-               node,
-               source,
-               target,
-               hit?.values && keptValues(hit.values, pick.values?.[key]),
-               warnings,
-            );
-            if (values.length > 0) row.values = values;
-            put(
-               `${node.sourceKey}\u0000${node.kind}\u0000${node.name}`,
-               row,
-               pick.target,
-               publish(hit?.score ?? 0),
-               pick.reason,
-            );
-            (picks[pick.target] ??= []).push(node.id);
+            if (field.joined) {
+               put(
+                  `${field.sourceKey}\u0000${node.kind}\u0000${field.name}`,
+                  joinedRow(field, source, mp, request),
+                  pick.target,
+                  publish(hit?.score ?? 0),
+                  pick.reason,
+               );
+            } else {
+               const row: ResultEntity = {
+                  ...projectEntity(
+                     entityAt(node, mp),
+                     request.environmentName,
+                     request.packageName,
+                  ),
+                  modelPath: mp,
+               };
+               const values = await valuesFor(
+                  args,
+                  node,
+                  source,
+                  target,
+                  hit?.values && keptValues(hit.values, pick.values?.[key]),
+                  warnings,
+               );
+               if (values.length > 0) row.values = values;
+               put(
+                  `${node.sourceKey}\u0000${node.kind}\u0000${node.name}`,
+                  row,
+                  pick.target,
+                  publish(hit?.score ?? 0),
+                  pick.reason,
+               );
+            }
+            (picks[pick.target] ??= []).push(field.id);
+            if (field.joinPath) joins.add(field.joinPath);
             answered.add(pick.target);
          }
       }
@@ -271,13 +358,41 @@ export async function format(args: FormatArgs): Promise<Formatted> {
          .map(Number)
          .sort((a, b) => a - b);
       if (covered.length === 0) continue;
+      // A date field for the period the question names, on a card that
+      // answers a target: marked, and no target's pick.
+      for (const key of periodKeys) {
+         const node = index.catalog.nodes.get(key);
+         const rowKey =
+            node && `${node.sourceKey}\u0000${node.kind}\u0000${node.name}`;
+         if (!node || !rowKey || rows.has(rowKey)) continue;
+         rows.set(rowKey, {
+            ...projectEntity(
+               entityAt(node, mp),
+               request.environmentName,
+               request.packageName,
+            ),
+            modelPath: mp,
+            alsoLikely: PERIOD_FIELD_REASON,
+         });
+         order.push(rowKey);
+      }
+      const served = new Set(Object.values(picks).flat());
+      const cutNames = new Set(
+         (ranked.find((x) => x.source === r.source)?.picks ?? [])
+            .flatMap((p) => p.keys)
+            .filter((k) => !periodKeys.includes(k))
+            .map((k) => fieldOf(index.catalog, k))
+            .filter((f): f is Field => f !== undefined && !served.has(f.id))
+            .map((f) => f.name),
+      );
+      const caveats = servedCaveats(r.caveats, cutNames);
       covers.push(covered);
       clusters.push({
          query_from: { source: source.name, model_path: mp },
-         sources: [{ source: source.name, joins: [] }],
+         sources: [{ source: source.name, joins: [...joins].sort() }],
          covers: covered,
          picks,
-         ...(r.caveats.length > 0 ? { caveats: r.caveats } : {}),
+         ...(caveats.length > 0 ? { caveats } : {}),
       });
    }
 
