@@ -314,7 +314,8 @@ index and no model, and works in every state. The engine answers in six steps, e
    hits per target go on.
 4. **Group by source.** The hits are grouped by the source that holds them, and at most seven sources
    are kept: the source of each target's best hit first, then the rest by how high their hits rank
-   across the targets. A request scoped to one source keeps that one. Each kept source offers its
+   across the targets (the sum of 1 / rank). A tie goes to the source seen first: by target in the
+   request's order, then by its rank in that target's list, then by source key. A request scoped to one source keeps that one. Each kept source offers its
    own hits and, through its joins (up to three deep), the hits on the sources it reaches, under the
    path a query from it types (`customers.state` on `order_items`), so the joined source needs no
    slot of its own. When `user_prompt` or a target names a period (a year, a month, "monthly",
@@ -515,13 +516,14 @@ on reload (and a reload that changes nothing keeps the warm index):
 An unknown key is an error that names the valid keys, and the package is not served until it is
 fixed (HTTP 424, like any unusable publisher.json).
 
-**Deprecated: keys that no longer do anything.** `engine`, `representation`, `keyphrases`, `refine`, `rerank`,
+**Deprecated: keys that no longer do anything.** `representation`, `keyphrases`, `refine`, `rerank`,
 `sourceMatch`, and the prompts `prompts.keyphrase`, `prompts.refine`, `prompts.rerank` and
 `prompts.sourceMatch` belong to the search that this engine replaced. A package that still sets one
 loads, whatever the value; the key is ignored (a prompt file it names is not read), and the package's
 `warnings` carry one entry for each, naming the key and saying it no longer does anything. Remove them:
 they are deprecated, and a later release refuses them like any other unknown `retrieval` key
 ([#1540](https://github.com/malloydata/publisher/issues/1540)).
+`engine` is not one of them: no release read it, so it is an unknown key and fails the load.
 The judge replaces `refine`, `rerank` and `sourceMatch`: turn it off with `fcj.judge: false`, or give
 it other instructions with `prompts.judge`.
 
