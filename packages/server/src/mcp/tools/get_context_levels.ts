@@ -167,6 +167,34 @@ function withinBudget<T>(entries: readonly T[]): T[] {
    return kept;
 }
 
+/**
+ * The first warning of a search that named no package: nothing was searched,
+ * and the call to make instead. Agent skills key on the opening sentence,
+ * which is the hosted service's, and on "Nothing was searched": keep both.
+ * `cut`: the package list did not fit in one response, so the package meant
+ * may not be in it; the "Returned X of N packages" warning that follows says
+ * so in full.
+ */
+function searchNeedsPackage(
+   all: ReadonlyArray<{ environment: string; package: string }>,
+   cut: boolean,
+   onlyEnvironment: string | undefined,
+   namedEnvironment: string | undefined,
+): string {
+   const [env, pkg] =
+      all.length === 1
+         ? [all[0].environment, all[0].package]
+         : [onlyEnvironment ?? "<environment>", "<package>"];
+   const example = `[{"environment": ${JSON.stringify(env)}, "package": ${JSON.stringify(pkg)}}]`;
+   const where = namedEnvironment
+      ? `environment "${namedEnvironment}"`
+      : "this server";
+   const count = `${all.length} ${all.length === 1 ? "package" : "packages"}`;
+   return cut
+      ? `Search requires a package scope. Call get_context again with the same search_targets and \`scopes\` set to the package that holds the data, e.g. ${example}. Nothing was searched: ${where} serves ${count}, more than fit in this list, so the one you need may not be in it; list_packages names every package.`
+      : `Search requires a package scope. Call get_context again with the same search_targets and \`scopes\` set to the package from this list that holds the data, e.g. ${example}. Nothing was searched: ${where} serves ${count}.`;
+}
+
 /** The targets a call with none lists: a source's fields, or a package's sources. */
 function listingTargets(
    scope: NonNullable<GetContextParams["scopes"]>[number],
@@ -239,8 +267,10 @@ export async function resolveLevel(
     * A search is entered only when the catalog is complete: with an
     * environment that could not be listed, or a package still on its first
     * load, the lone package that loaded may not be the one meant, and a miss
-    * there would read as "not modelled". A listing is entered either way,
-    * since its warnings say what is missing.
+    * there would read as "not modelled". So such a search searches nothing
+    * and is answered like one with several packages in reach: with the
+    * package that loaded, and warnings naming what is missing. A listing is
+    * entered either way, since its warnings say what is missing.
     */
    const enter = (
       env: CatalogEnvironment,
@@ -248,15 +278,8 @@ export async function resolveLevel(
       seen: readonly CatalogEnvironment[],
    ): LevelOutcome => {
       const pkgName = served(env)[0];
-      const gaps = incompleteness(seen);
-      if (ranked && gaps.length > 0) {
-         return {
-            kind: "error",
-            ...(environment ? { environment } : {}),
-            error: new InvalidArgumentError(
-               `Only ${env.name}/${pkgName} has loaded, but ${gaps.join(" and ")}, so it may not be the package to search. Fix: name the package in scopes, e.g. scopes: [{"environment": "${env.name}", "package": "${pkgName}"}], or ask again once the server has finished loading.`,
-            ),
-         };
+      if (ranked && incompleteness(seen).length > 0) {
+         return listPackages([env], seen, { unscopedSearch: true });
       }
       const what = ranked
          ? " and searched it"
@@ -335,15 +358,14 @@ export async function resolveLevel(
          );
       const packages = withinBudget(all);
       const only = envs.length === 1 ? envs[0].name : undefined;
+      const cut = packages.length < all.length;
       const warnings = [
          ...(unscopedSearch
-            ? [
-                 `Search requires a package scope. Call get_context again with the same search_targets and \`scopes\` set to the package from this list that holds the data, e.g. [{"environment": "${only ?? "<environment>"}", "package": "<package>"}]. Nothing was searched: you can read ${all.length} packages.`,
-              ]
+            ? [searchNeedsPackage(all, cut, only, environment)]
             : []),
          ...(entered ? [entered] : []),
          ...healthWarnings(report, true),
-         ...(packages.length < all.length
+         ...(cut
             ? [
                  `Returned ${packages.length} of ${all.length} packages: the rest do not fit in one response. Name a package in scopes to list its sources, or call list_packages for every package.`,
               ]

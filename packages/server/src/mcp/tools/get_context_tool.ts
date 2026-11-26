@@ -56,8 +56,8 @@ const GET_CONTEXT_DESCRIPTION = `Retrieve the entities in a Malloy package most 
 
 ## Contract rules
 - Use returned names verbatim; never invent one.
-- One target per concept, not a list in one search_text. A source returns only its matched fields, not all of them.
-- No search_targets lists environments, packages, sources or fields, alphabetically. A search needs one package in scopes; with none, it lists the packages and searches nothing.
+- One target per concept, not a list in one search_text. A source returns only its matched fields.
+- No search_targets lists environments, packages, sources or fields, alphabetically. A search needs one package in scopes; with none, it searches the only one in reach, or lists them and searches nothing.
 - Read warnings and any error/stale field before trusting a number or calling data absent.
 - A source's joins are all listed: empty means none. In an answer, never write a join; tell the user.
 - Read a source's doc before querying: it holds grain and population rules.
@@ -65,10 +65,10 @@ const GET_CONTEXT_DESCRIPTION = `Retrieve the entities in a Malloy package most 
 - Empty sources: nothing answered; see unresolved_targets.
 
 ## Parameters
-search_targets: {target_type, search_text}; target_type is source|dimension|measure|view|join|dimensional_value, omitting search_text enumerates that type. dimensional_value: search_text is one value as typed, beside its dimension target; stored strings return in entities[].values (gated sources need givens, as in execute_query). scopes: {environment, package} + optional model_path, source, entity_name. offset pages results. include_code or a pinned entity_name returns code.
+search_targets: {target_type, search_text}; target_type is source|dimension|measure|view|join|dimensional_value, omitting search_text enumerates that type. dimensional_value: search_text is one value as typed, beside its dimension target; stored strings return in entities[].values (gated sources need givens). scopes: {environment, package} + optional model_path, source, entity_name. offset pages results. include_code or a pinned entity_name returns code.
 
 ## Response
-sources[], best first; a source repeats once per model_path resolving it, query any. source_info: resource_id (environment/package/model_path/source) -> execute_query's environmentName/packageName/modelPath/sourceName; docs (… = truncated), one_line_summary, complete joins, givens, accessFilter/authorize, filter_params. entities[] nest under it: name, entity_type, description, data_type, classifications, relationship (fan-out), join_path, aliases, relevance, entity_id, values[] {value, relevance}, matched_targets[].match_reason.
+sources[], best first; a source repeats per model_path resolving it; query any. source_info: resource_id (environment/package/model_path/source) -> execute_query's environmentName/packageName/modelPath/sourceName; docs (… = truncated), one_line_summary, complete joins, givens, accessFilter/authorize, filter_params. entities[] nest under it: name, entity_type, description, data_type, classifications, relationship (fan-out), join_path, aliases, relevance, entity_id, values[] {value, relevance}, matched_targets[].match_reason.
 ranking, returned of total_available sources, next_offset: more pages (35,000 chars each), warnings[], clusters, unresolved_targets. retrieval "indexing": still building, retry soon. Errors carry retrieval_reason ("llm-stage-failed" names retrieval_stage).`;
 
 /**
@@ -152,19 +152,24 @@ async function lockedSourceKeys(
    return keys;
 }
 
-/** A source's own row, then its own fields, then fields reached through a join. */
+/**
+ * Where an entity falls within its source's listing: the source's own row,
+ * then its own fields, then the members of its record columns
+ * (`delivery.city`), then the fields reached through its joins (record
+ * members of a joined source included).
+ */
 function listingGroup(e: Entity): number {
    if (e.kind === "source") return 0;
-   return e.joinPath ? 2 : 1;
+   if (e.joinPath) return 3;
+   return e.recordPath ? 2 : 1;
 }
 
 /**
  * The order of every listing: sources alphabetically, ignoring case, and
- * within each source its own row, then its own fields (record members
- * included), then the fields reached through its joins, each group
- * alphabetically, ignoring case. Ties fall to the case-sensitive name, then
- * the model path, the kind and the entity id, so the order never depends on
- * the model's declaration order. A ranked search keeps its own order.
+ * within each source the groups of listingGroup, each alphabetically,
+ * ignoring case. Ties fall to the case-sensitive name, then the model path,
+ * the kind and the entity id, so the order never depends on the model's
+ * declaration order. A ranked search keeps its own order.
  */
 function listingOrder(a: Entity, b: Entity): number {
    return (
@@ -175,6 +180,18 @@ function listingOrder(a: Entity, b: Entity): number {
       compareText(a.kind, b.kind) ||
       compareText(a.id, b.id)
    );
+}
+
+/**
+ * The order the limit keeps rows in: group by group across every source
+ * (every source's own fields, then every record member, then every joined
+ * field), each group in listing order. A cut therefore always drops a
+ * source's last groups, so each source shows a prefix of its full listing,
+ * and a wide record or join cannot spend the limit before another source's
+ * own fields.
+ */
+function keepOrder(a: Entity, b: Entity): number {
+   return listingGroup(a) - listingGroup(b) || listingOrder(a, b);
 }
 
 /** Tier 3: nothing to rank, so enumerate what the targets name. */
@@ -198,14 +215,9 @@ function runListing(
          // A source the caller cannot enter spends no slot and is not counted.
          !droppedSources.has(sourceContextKey(e.modelPath, e.source ?? "")),
    );
-   // Which rows the cap keeps: a record's members (`delivery.city`) after
-   // everything else, so a wide record cannot spend the cap before the
-   // source's other fields, joins and views. The rows kept are then sent in
+   // Which rows the cap keeps (keepOrder); the rows kept are then sent in
    // listing order, below.
-   const inScope = [
-      ...matching.filter((e) => !e.recordPath).sort(listingOrder),
-      ...matching.filter((e) => e.recordPath).sort(listingOrder),
-   ];
+   const inScope = matching.sort(keepOrder);
    // The limit caps entities; a drill-down's source row becomes the card and
    // does not spend a slot. Only a pure browse has a stable order, so only it
    // honours `offset`.

@@ -317,7 +317,7 @@ describe("get_context with no package named", () => {
          returned: 3,
       });
       expect(payload.warnings[0]).toBe(
-         'Search requires a package scope. Call get_context again with the same search_targets and `scopes` set to the package from this list that holds the data, e.g. [{"environment": "<environment>", "package": "<package>"}]. Nothing was searched: you can read 3 packages.',
+         'Search requires a package scope. Call get_context again with the same search_targets and `scopes` set to the package from this list that holds the data, e.g. [{"environment": "<environment>", "package": "<package>"}]. Nothing was searched: this server serves 3 packages.',
       );
       // A failed package is still named, as on any listing.
       expect(payload.warnings.slice(1)).toEqual([
@@ -350,7 +350,30 @@ describe("get_context with no package named", () => {
          ),
       ).toEqual(["prod/finance", "prod/sales"]);
       expect(payload.warnings[0]).toBe(
-         'Search requires a package scope. Call get_context again with the same search_targets and `scopes` set to the package from this list that holds the data, e.g. [{"environment": "prod", "package": "<package>"}]. Nothing was searched: you can read 2 packages.',
+         'Search requires a package scope. Call get_context again with the same search_targets and `scopes` set to the package from this list that holds the data, e.g. [{"environment": "prod", "package": "<package>"}]. Nothing was searched: environment "prod" serves 2 packages.',
+      );
+      expect(spy.searches).toBe(0);
+      expect(spy.indexReads).toBe(0);
+   });
+
+   it("ignores an offset on a whole-server search naming no package, which has no results to page", async () => {
+      const spy = spiedRetrieval(TWO_ENVS);
+      const out = await handlerFor(
+         TWO_ENVS,
+         spy.retrieval,
+      )({
+         search_targets: [{ target_type: "measure", search_text: "revenue" }],
+         // Meant for search results, which were never produced; a listing of
+         // packages with no search would refuse it.
+         offset: 20,
+      });
+      expect(out.isError ?? false).toBe(false);
+      const payload = JSON.parse(out.content[0].resource!.text);
+      expect(payload.listing).toBe("packages");
+      expect(payload.total_available).toBe(3);
+      expect(payload.returned).toBe(3);
+      expect(payload.warnings[0]).toStartWith(
+         "Search requires a package scope.",
       );
       expect(spy.searches).toBe(0);
       expect(spy.indexReads).toBe(0);
@@ -373,9 +396,12 @@ describe("get_context with no package named", () => {
       expect(JSON.stringify(payload.packages).length).toBeLessThanOrEqual(
          35_000,
       );
-      expect(payload.warnings[0]).toEndWith(
-         "Nothing was searched: you can read 400 packages.",
+      // The list was cut, so the first warning does not point into it as
+      // if the package meant must be there.
+      expect(payload.warnings[0]).toBe(
+         'Search requires a package scope. Call get_context again with the same search_targets and `scopes` set to the package that holds the data, e.g. [{"environment": "prod", "package": "<package>"}]. Nothing was searched: this server serves 400 packages, more than fit in this list, so the one you need may not be in it; list_packages names every package.',
       );
+      expect(payload.warnings).toHaveLength(2);
       expect(payload.warnings.at(-1)).toBe(
          `Returned ${payload.returned} of 400 packages: the rest do not fit in one response. Name a package in scopes to list its sources, or call list_packages for every package.`,
       );
@@ -511,40 +537,82 @@ describe("get_context with no package named", () => {
       ]);
    });
 
-   it("refuses to search the lone package when another environment could not be read, or a package is still loading", async () => {
+   it("does not search the lone package that loaded while the rest of the server is unread or loading: it lists it, searching nothing", async () => {
       const search = {
          search_targets: [{ target_type: "measure", search_text: "revenue" }],
       };
-      const unreadable = await call(
+      const answer = async (
+         store: EnvironmentCatalog,
+         params: Record<string, unknown>,
+      ) => {
+         const spy = spiedRetrieval(store);
+         const out = await handlerFor(store, spy.retrieval)(params);
+         expect(out.isError ?? false).toBe(false);
+         expect(spy.searches).toBe(0);
+         expect(spy.indexReads).toBe(0);
+         return JSON.parse(out.content[0].resource!.text);
+      };
+      // Another environment could not be read: the same answer as a search
+      // with several packages in reach, with the one that loaded.
+      const unreadable = await answer(
          storeOf({
             prod: { packages: [{ name: "sales" }] },
             bad: { packages: [], throws: "bucket unreachable" },
          }),
          search,
       );
-      expect(unreadable.isError).toBe(true);
-      expect(unreadable.payload.error).toContain(
-         'Only prod/sales has loaded, but environment bad could not be listed, so it may not be the package to search. Fix: name the package in scopes, e.g. scopes: [{"environment": "prod", "package": "sales"}]',
-      );
-      const loading = await call(
+      expect(unreadable).toMatchObject({
+         sources: [],
+         listing: "packages",
+         packages: [{ environment: "prod", package: "sales" }],
+         total_available: 1,
+         returned: 1,
+      });
+      expect(unreadable.warnings).toEqual([
+         'Search requires a package scope. Call get_context again with the same search_targets and `scopes` set to the package from this list that holds the data, e.g. [{"environment": "prod", "package": "sales"}]. Nothing was searched: this server serves 1 package.',
+         "Environment bad's packages could not be listed: bucket unreachable. Its packages are not missing; the read failed.",
+      ]);
+      // A package still on its first load, server-wide and in a named
+      // environment.
+      const loadingStore = () =>
          storeOf({
             prod: { packages: [{ name: "sales" }], loading: ["fresh"] },
+         });
+      const loading = await answer(loadingStore(), search);
+      expect(loading.listing).toBe("packages");
+      expect(loading.warnings).toEqual([
+         'Search requires a package scope. Call get_context again with the same search_targets and `scopes` set to the package from this list that holds the data, e.g. [{"environment": "prod", "package": "sales"}]. Nothing was searched: this server serves 1 package.',
+         "prod/fresh is still loading and not listed yet. Ask again in a moment.",
+      ]);
+      const inEnvironment = await answer(loadingStore(), {
+         ...search,
+         environment: "prod",
+      });
+      expect(inEnvironment.listing).toBe("packages");
+      expect(inEnvironment.warnings[0]).toEndWith(
+         'Nothing was searched: environment "prod" serves 1 package.',
+      );
+      // The same answer as with two packages loaded and one loading.
+      const two = await answer(
+         storeOf({
+            prod: {
+               packages: [{ name: "sales" }, { name: "finance" }],
+               loading: ["fresh"],
+            },
          }),
          search,
       );
-      expect(loading.isError).toBe(true);
-      expect(loading.payload.error).toContain(
-         "Only prod/sales has loaded, but prod/fresh is still loading",
-      );
+      expect(two.listing).toBe("packages");
+      expect(two.warnings.slice(1)).toEqual([
+         "prod/fresh is still loading and not listed yet. Ask again in a moment.",
+      ]);
       // Named in scopes, the same search runs.
       const named = await resolveLevel(
          {
             ...search,
             scopes: [{ environment: "prod", package: "sales" }],
          } as never,
-         storeOf({
-            prod: { packages: [{ name: "sales" }], loading: ["fresh"] },
-         }),
+         loadingStore(),
       );
       expect(named.kind).toBe("scoped");
    });

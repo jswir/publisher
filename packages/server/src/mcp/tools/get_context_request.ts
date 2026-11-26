@@ -56,7 +56,7 @@ export const convergedContextShape = {
       .min(1)
       .nullish()
       .describe(
-         "What to find. One target per concept; several targets of different types answer one question in one call. Omit to list instead: a source in `scopes` lists its fields (its own, then those reached through joins), a package its sources; with no `scopes`, `environment` lists that environment's packages, and nothing at all lists the environments. Every listing is alphabetical, ignoring case.",
+         "What to find. One target per concept; several targets of different types answer one question in one call. Omit to list instead: a source in `scopes` lists its fields (its own, then its record members, then those reached through joins), a package its sources; with no `scopes`, `environment` lists that environment's packages, and nothing at all lists the environments. Every listing is alphabetical, ignoring case.",
       ),
    scopes: z
       .array(

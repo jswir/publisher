@@ -3,12 +3,13 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { EnvironmentCatalog } from "../../service/environment_ports";
+import { compareNamesIgnoringCase } from "../../compare_text";
 import { readPackageCatalog } from "../../retrieval/model/package_catalog";
 import { buildMalloyUri } from "../handler_utils";
 import { registerGuardedTool } from "../register_tool";
 import { jsonResource } from "../tool_response";
 
-const LIST_ENVIRONMENTS_DESCRIPTION = `List what this Publisher serves: every environment, and the packages in each.
+const LIST_ENVIRONMENTS_DESCRIPTION = `List what this Publisher serves: every environment, and the packages in each, alphabetically.
 
 Call this when you do not already know an environment and package name, or to see a package that failed to load. get_context with no arguments lists the same names; never guess them.
 
@@ -27,6 +28,9 @@ Takes no arguments.`;
  * A package that failed to load is absent from a plain listing, which reads as
  * "does not exist"; reporting it with its error is the only place outside
  * get_status that shows it is broken.
+ *
+ * Alphabetical, ignoring case, as get_context lists: environments by name,
+ * and each environment's packages by name, those that failed among the rest.
  */
 export function registerListPackagesTool(
    mcpServer: McpServer,
@@ -43,7 +47,14 @@ export function registerListPackagesTool(
       errorPayload: { environments: [] },
       run: async (_params, uri) =>
          jsonResource(uri, {
-            environments: await readPackageCatalog(environmentStore),
+            environments: (await readPackageCatalog(environmentStore))
+               .map((env) => ({
+                  ...env,
+                  packages: [...env.packages].sort((a, b) =>
+                     compareNamesIgnoringCase(a.name, b.name),
+                  ),
+               }))
+               .sort((a, b) => compareNamesIgnoringCase(a.name, b.name)),
          }),
    });
 }

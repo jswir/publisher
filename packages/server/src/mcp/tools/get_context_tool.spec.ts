@@ -3078,15 +3078,16 @@ describe("list_packages", () => {
       );
       const { environments } = parse(await handler({}));
       const packages = environments[0].packages;
+      // Alphabetical, so the failed package comes first here.
       expect(packages).toHaveLength(2);
-      expect(packages[0]).toMatchObject({ name: "good" });
-      expect(packages[1]).toEqual({
+      expect(packages[1]).toMatchObject({ name: "good" });
+      expect(packages[0]).toEqual({
          name: "broken",
          error: "Compile failed: unexpected token",
       });
       // No stale marker: this package is not serving anything at all, which is
       // the distinction the marker exists to draw.
-      expect("stale" in packages[1]).toBe(false);
+      expect("stale" in packages[0]).toBe(false);
    });
 
    it("marks a stale package, which listPackages reports as healthy", async () => {

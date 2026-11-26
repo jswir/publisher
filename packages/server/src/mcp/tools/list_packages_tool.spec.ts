@@ -41,6 +41,7 @@ describe("list_packages", () => {
                listPackages: async () => [
                   { name: "sales", description: "orders" },
                   { name: "stale" },
+                  { name: "Analytics" },
                ],
                getFailedPackages: () => new Map([["broken", "bad manifest"]]),
             };
@@ -51,17 +52,20 @@ describe("list_packages", () => {
       expect(result.content[0]!.resource!.uri).toBe(
          "malloy://environment/home#list-environments",
       );
+      // Alphabetical, ignoring case, as get_context lists: a failed package
+      // among the rest, not after them.
       expect(parse(result)).toEqual({
          environments: [
+            { name: "down", error: "bucket unreachable", packages: [] },
             {
                name: "ok",
                packages: [
+                  { name: "Analytics" },
+                  { name: "broken", error: "bad manifest" },
                   { name: "sales", description: "orders" },
                   { name: "stale", error: "parse error", stale: true },
-                  { name: "broken", error: "bad manifest" },
                ],
             },
-            { name: "down", error: "bucket unreachable", packages: [] },
          ],
       });
    });

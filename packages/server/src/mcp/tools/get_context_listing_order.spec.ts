@@ -4,7 +4,8 @@
 /**
  * Every get_context listing is alphabetical, ignoring case, at every level:
  * environments, packages, sources, and a source's fields, with the source's
- * own fields before those reached through a join. The model below declares
+ * own fields, then its record members, then those reached through a join,
+ * and a limit cuts from the end of that order. The model below declares
  * everything out of order and in mixed case, so declaration order and
  * code-unit order (`Z` before `a`) both fail these tests.
  */
@@ -19,6 +20,7 @@ import {
 import { fakeOf } from "../../test_helpers/store_fakes";
 import type { EnvironmentCatalog } from "../../service/environment_ports";
 import { testRetrieval } from "../../test_helpers/test_retrieval";
+import { MAX_LIMIT } from "../../retrieval/model/types";
 
 const MODEL = `
 source: zones is duckdb.sql("select 1 as id, 'n' as nm") extend {
@@ -31,7 +33,7 @@ source: Customers is duckdb.sql("select 1 as id, 30 as age, 'a' as nm") extend {
   join_one: zone is zones on zone.id = id
 }
 
-source: orders is duckdb.sql("select 1 as id, 1 as customer_id, 's' as st, 2 as amt, '8' as zp, {'city': 'Denver'} as delivery") extend {
+source: orders is duckdb.sql("select 1 as id, 1 as customer_id, 's' as st, 2 as amt, '8' as zp, {'city': 'Denver', 'country': 'US'} as delivery") extend {
   dimension: Zip is zp
   dimension: status is st
   measure: Amount is amt.sum()
@@ -142,7 +144,7 @@ describe("get_context listings are alphabetical, ignoring case", () => {
       ).toEqual(["bills", "Customers", "orders", "zones"]);
    });
 
-   it("lists a source's own fields alphabetically, then the fields reached through its joins", async () => {
+   it("lists a source's own fields alphabetically, then its record members, then the fields reached through its joins", async () => {
       const { pkg } = await compileJoinFixture("m.malloy", {
          modelText: MODEL,
       });
@@ -155,8 +157,9 @@ describe("get_context listings are alphabetical, ignoring case", () => {
       const joined = entities.filter((e) => e.join_path).map((e) => e.name);
       // Every own field comes before the first joined one.
       expect(entities.map((e) => e.name)).toEqual([...own, ...joined]);
-      // Own fields, whatever their kind, raw columns and record members
-      // included (`st` and `zp` fold into the dimensions declared over them).
+      // Own fields, whatever their kind, raw columns included (`st` and `zp`
+      // fold into the dimensions declared over them), then the record's
+      // members, which are own fields too.
       expect(own).toEqual([
          "Amount",
          "amt",
@@ -165,16 +168,105 @@ describe("get_context listings are alphabetical, ignoring case", () => {
          "Customer",
          "customer_id",
          "delivery",
-         "delivery.city",
          "id",
          "status",
          "Zip",
+         "delivery.city",
+         "delivery.country",
       ]);
       // Reached through the join: alphabetical too, deeper paths included.
       expect(joined.length).toBeGreaterThan(0);
       expect(joined).toEqual([...joined].sort(compareNamesIgnoringCase));
       expect(joined).toContain("Customer.Age");
       expect(joined).toContain("Customer.name");
+   });
+
+   it("cuts a listing from its end: joined fields first, then record members, so what is shown is a prefix of the full listing", async () => {
+      const { pkg } = await compileJoinFixture("m.malloy", {
+         modelText: MODEL,
+      });
+      const handler = handlerOver(storeServing(pkg));
+      const fieldsOf = async (limit?: number) => {
+         const payload = await payloadOf(handler, {
+            scopes: [{ environment: "env", package: "pkg", source: "orders" }],
+            ...(limit !== undefined ? { limit } : {}),
+         });
+         return {
+            names: (payload.sources[0] as Card).entities!.map((e) => e.name),
+            warnings: (payload.warnings ?? []) as string[],
+         };
+      };
+      const full = (await fieldsOf()).names;
+      const ownCount = full.indexOf("delivery.city");
+      const joinedFrom = full.indexOf("delivery.country") + 1;
+      expect(ownCount).toBe(10);
+      // 10 own fields, 2 record members, 8 reached through the join.
+      expect(joinedFrom).toBe(12);
+      expect(full).toHaveLength(20);
+      expect(
+         full.slice(joinedFrom).every((n) => n.startsWith("Customer.")),
+      ).toBe(true);
+
+      // Under every limit the fields shown are the first ones of the full
+      // listing, and the warning counts them against every field.
+      for (const limit of [
+         ownCount - 1,
+         ownCount,
+         ownCount + 1,
+         joinedFrom,
+         joinedFrom + 1,
+      ]) {
+         const { names, warnings } = await fieldsOf(limit);
+         expect(names).toEqual(full.slice(0, limit));
+         expect(warnings).toContain(
+            `Returned ${limit} of ${full.length} matching entities. Raise limit (max ${MAX_LIMIT}) or narrow the query to see the rest.`,
+         );
+      }
+      // A limit that holds the own fields but not the record keeps no
+      // joined field: the record's members are cut before the source's
+      // other own fields, and the joined fields before either.
+      const { names } = await fieldsOf(ownCount + 1);
+      expect(names).toContain("Zip");
+      expect(names).toContain("delivery.city");
+      expect(names).not.toContain("delivery.country");
+      expect(names.some((n) => n.startsWith("Customer."))).toBe(false);
+   });
+
+   it("spends the limit on every source's own fields before any record member or joined field", async () => {
+      const { pkg } = await compileJoinFixture("m.malloy", {
+         modelText: MODEL,
+      });
+      const handler = handlerOver(storeServing(pkg));
+      const dimensions = async (limit?: number) =>
+         (
+            await payloadOf(handler, {
+               scopes: [{ environment: "env", package: "pkg" }],
+               search_targets: [{ target_type: "dimension" }],
+               ...(limit !== undefined ? { limit } : {}),
+            })
+         ).sources.map((c: Card) => [
+            c.source_info.resource_id.source,
+            c.entities!.map((e) => e.name),
+         ]) as Array<[string, string[]]>;
+      const full = await dimensions();
+      const ownOnly = full.map(
+         ([source, names]) =>
+            [source, names.filter((n) => !n.includes("."))] as [
+               string,
+               string[],
+            ],
+      );
+      const ownCount = ownOnly.reduce((n, [, names]) => n + names.length, 0);
+      // Exactly every own dimension: each source keeps its own, in order,
+      // and a later source is not crowded out by an earlier one's record
+      // members or joined fields.
+      expect(await dimensions(ownCount)).toEqual(ownOnly);
+      // In every source, what is shown is a prefix of its full listing.
+      const cut = await dimensions(ownCount + 1);
+      for (const [source, names] of cut) {
+         const all = full.find(([s]) => s === source)![1];
+         expect(names).toEqual(all.slice(0, names.length));
+      }
    });
 
    it("orders a listing of one kind across sources by source, then name", async () => {
