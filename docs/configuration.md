@@ -326,11 +326,13 @@ index and no model, and works in every state. The engine answers in six steps, e
    orders; it never adds a field search did not find. With no LLM configured, or `fcj.judge: false`,
    each target gets its top few hits and no call is made.
 6. **Format.** One card per source, in that order, each field with its own call's reason. The first
-   source keeps every field its call picked; every other source keeps at most two per target, and a
-   target returns at most eight fields in all. A field reached through a join carries its
-   `join_path` and a sentence on the rows it follows. A date field picked for a period the question
-   names is marked `also_likely`, at most one per card. No caveat or warning names a field the
-   limits or the page cut. Beside `sources` the response carries `clusters` (one
+   source keeps every field of its own its call picked; every other source keeps at most two per
+   target. On any card, the first included, fields reached through a join are served for a target
+   only when the card has no field of its own for it, and then at most two, so they never push the
+   joined source's own card out. A target returns at most eight fields in all, joined ones counted
+   alike. A field reached through a join carries its `join_path` and a sentence on the rows it
+   follows. A date field picked for a period the question names is marked `also_likely`, at most
+   one per card. No caveat, reason or warning names a field the response does not carry. Beside `sources` the response carries `clusters` (one
    entry per card: the source to query from and what it answers), `coverage` (target by entry, when
    there is more than one), `unresolved_targets` and `engine: "fcj"`. An answer longer than one page
    carries `next_offset`; call again with the same arguments and that `offset` for the next page of

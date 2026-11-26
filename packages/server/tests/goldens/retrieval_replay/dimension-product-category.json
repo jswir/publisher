@@ -64,23 +64,6 @@
               ]
             },
             {
-              "name": "products.category",
-              "entity_type": "dimension",
-              "entity_id": "dimension:order_items:products.category",
-              "relevance": 0.9122767857142856,
-              "description": "Reached from order_items through products, a left join: a order_items row with no match keeps a null here, so grouping or counting by it follows order_items's rows.",
-              "data_type": "string",
-              "relationship": "one",
-              "join_path": "products",
-              "matched_targets": [
-                {
-                  "search_text": "product category of the item sold",
-                  "relevance": 0.9123,
-                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
-                }
-              ]
-            },
-            {
               "name": "product_id",
               "entity_type": "dimension",
               "entity_id": "dimension:order_items:product_id",
@@ -93,99 +76,234 @@
                   "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
                 }
               ]
+            }
+          ],
+          "relevance": 1
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "overview.malloy",
+              "source": "overview"
             },
+            "one_line_summary": "The overview report's tiles, each over the order lines its controls select.",
+            "docs": "The overview report's tiles, each over the order lines its controls select",
+            "givens": [
+              {
+                "name": "CATEGORY",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "BRAND",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "REGION",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "SINCE",
+                "type": "date",
+                "default": "@2023-01-01"
+              },
+              {
+                "name": "MIN_SALE",
+                "type": "filter<number>",
+                "default": "f''"
+              }
+            ],
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "entities": [
             {
-              "name": "products.brand",
+              "name": "category",
               "entity_type": "dimension",
-              "entity_id": "dimension:order_items:products.brand",
-              "relevance": 0.7175976884975233,
-              "description": "Reached from order_items through products, a left join: a order_items row with no match keeps a null here, so grouping or counting by it follows order_items's rows.",
+              "entity_id": "dimension:overview:category",
+              "relevance": 0.9838709677419354,
+              "description": "Product category of the item sold",
               "data_type": "string",
-              "relationship": "one",
-              "join_path": "products",
               "matched_targets": [
                 {
                   "search_text": "product category of the item sold",
-                  "relevance": 0.7176,
+                  "relevance": 0.9839,
                   "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
                 }
               ]
             },
             {
-              "name": "products.cost",
+              "name": "product_id",
               "entity_type": "dimension",
-              "entity_id": "dimension:order_items:products.cost",
-              "relevance": 0.7092069892473118,
-              "description": "Reached from order_items through products, a left join: a order_items row with no match keeps a null here, so grouping or counting by it follows order_items's rows.",
+              "entity_id": "dimension:overview:product_id",
+              "relevance": 0.8094988650253186,
               "data_type": "number",
-              "relationship": "one",
-              "join_path": "products",
               "matched_targets": [
                 {
                   "search_text": "product category of the item sold",
-                  "relevance": 0.7092,
-                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
-                }
-              ]
-            },
-            {
-              "name": "products.name",
-              "entity_type": "dimension",
-              "entity_id": "dimension:order_items:products.name",
-              "relevance": 0.8061206746652756,
-              "description": "Reached from order_items through products, a left join: a order_items row with no match keeps a null here, so grouping or counting by it follows order_items's rows.",
-              "data_type": "string",
-              "relationship": "one",
-              "join_path": "products",
-              "matched_targets": [
-                {
-                  "search_text": "product category of the item sold",
-                  "relevance": 0.8061,
-                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
-                }
-              ]
-            },
-            {
-              "name": "products.product_id",
-              "entity_type": "dimension",
-              "entity_id": "dimension:order_items:products.product_id",
-              "relevance": 0.7820512820512819,
-              "description": "Reached from order_items through products, a left join: a order_items row with no match keeps a null here, so grouping or counting by it follows order_items's rows.",
-              "data_type": "number",
-              "relationship": "one",
-              "join_path": "products",
-              "matched_targets": [
-                {
-                  "search_text": "product category of the item sold",
-                  "relevance": 0.7821,
-                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
-                }
-              ]
-            },
-            {
-              "name": "products.retail_price",
-              "entity_type": "dimension",
-              "entity_id": "dimension:order_items:products.retail_price",
-              "relevance": 0.6831757093081134,
-              "description": "Reached from order_items through products, a left join: a order_items row with no match keeps a null here, so grouping or counting by it follows order_items's rows.",
-              "data_type": "number",
-              "relationship": "one",
-              "join_path": "products",
-              "matched_targets": [
-                {
-                  "search_text": "product category of the item sold",
-                  "relevance": 0.6832,
+                  "relevance": 0.8095,
                   "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
                 }
               ]
             }
           ],
-          "relevance": 1
+          "relevance": 0.9838709677419354
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "data_app.malloy",
+              "source": "scoped_orders"
+            },
+            "one_line_summary": "Order lines narrowed by the data app's control row.",
+            "docs": "Order lines narrowed by the data app's control row. Every tile queries this.",
+            "givens": [
+              {
+                "name": "CATEGORY",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "BRAND",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "REGION",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "SINCE",
+                "type": "date",
+                "default": "@2023-01-01"
+              },
+              {
+                "name": "MIN_SALE",
+                "type": "filter<number>",
+                "default": "f''"
+              }
+            ],
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "category",
+              "entity_type": "dimension",
+              "entity_id": "dimension:scoped_orders:category",
+              "relevance": 0.9682539682539681,
+              "description": "Product category of the item sold",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "product category of the item sold",
+                  "relevance": 0.9683,
+                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "product_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:scoped_orders:product_id",
+              "relevance": 0.7867063492063491,
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "product category of the item sold",
+                  "relevance": 0.7867,
+                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 0.9682539682539681
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "storefront.malloy",
+              "source": "products"
+            },
+            "one_line_summary": "Catalog of products, one row per product, with cost and retail price.",
+            "docs": "Catalog of products, one row per product, with cost and retail price",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "category",
+              "entity_type": "dimension",
+              "entity_id": "dimension:products:category",
+              "relevance": 0.9122767857142856,
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "product category of the item sold",
+                  "relevance": 0.9123,
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "product_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:products:product_id",
+              "relevance": 0.7820512820512819,
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "product category of the item sold",
+                  "relevance": 0.7821,
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 0.9122767857142856
         }
       ],
       "ranking": "relevance",
-      "total_available": 1,
-      "returned": 1,
+      "total_available": 4,
+      "returned": 4,
       "retrieval": "semantic",
       "engine": "fcj",
       "clusters": [
@@ -197,9 +315,7 @@
           "sources": [
             {
               "source": "order_items",
-              "joins": [
-                "products"
-              ]
+              "joins": []
             }
           ],
           "covers": [
@@ -208,15 +324,84 @@
           "picks": {
             "0": [
               "dimension:order_items:category",
-              "dimension:order_items:products.category",
-              "dimension:order_items:product_id",
-              "dimension:order_items:products.brand",
-              "dimension:order_items:products.cost",
-              "dimension:order_items:products.name",
-              "dimension:order_items:products.product_id",
-              "dimension:order_items:products.retail_price"
+              "dimension:order_items:product_id"
             ]
           }
+        },
+        {
+          "query_from": {
+            "source": "overview",
+            "model_path": "overview.malloy"
+          },
+          "sources": [
+            {
+              "source": "overview",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "dimension:overview:category",
+              "dimension:overview:product_id"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "scoped_orders",
+            "model_path": "data_app.malloy"
+          },
+          "sources": [
+            {
+              "source": "scoped_orders",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "dimension:scoped_orders:category",
+              "dimension:scoped_orders:product_id"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "products",
+            "model_path": "storefront.malloy"
+          },
+          "sources": [
+            {
+              "source": "products",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "dimension:products:category",
+              "dimension:products:product_id"
+            ]
+          }
+        }
+      ],
+      "coverage": [
+        {
+          "target_index": 0,
+          "search_text": "product category of the item sold",
+          "clusters": [
+            true,
+            true,
+            true,
+            true
+          ]
         }
       ],
       "unresolved_targets": [],

@@ -158,23 +158,6 @@
           },
           "entities": [
             {
-              "name": "dept_row.department_head",
-              "entity_type": "dimension",
-              "entity_id": "dimension:payroll_ledger:dept_row.department_head",
-              "relevance": 1,
-              "description": "Name of the department's head. Reached from payroll_ledger through dept_row, a left join: a payroll_ledger row with no match keeps a null here, so grouping or counting by it follows payroll_ledger's rows.",
-              "data_type": "string",
-              "relationship": "one",
-              "join_path": "dept_row",
-              "matched_targets": [
-                {
-                  "search_text": "department head",
-                  "relevance": 1,
-                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
-                }
-              ]
-            },
-            {
               "name": "department",
               "entity_type": "dimension",
               "entity_id": "dimension:payroll_ledger:department",
@@ -193,7 +176,7 @@
               ]
             }
           ],
-          "relevance": 1
+          "relevance": 0.9760624679979518
         },
         {
           "source_info": {
@@ -288,9 +271,7 @@
           "sources": [
             {
               "source": "payroll_ledger",
-              "joins": [
-                "dept_row"
-              ]
+              "joins": []
             }
           ],
           "covers": [
@@ -298,7 +279,6 @@
           ],
           "picks": {
             "1": [
-              "dimension:payroll_ledger:dept_row.department_head",
               "dimension:payroll_ledger:department"
             ]
           }

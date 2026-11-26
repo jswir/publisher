@@ -84,23 +84,6 @@
               ]
             },
             {
-              "name": "customers.state",
-              "entity_type": "dimension",
-              "entity_id": "dimension:order_items:customers.state",
-              "relevance": 0.9581714285714286,
-              "description": "Reached from order_items through customers, a left join: a order_items row with no match keeps a null here, so grouping or counting by it follows order_items's rows.",
-              "data_type": "string",
-              "relationship": "one",
-              "join_path": "customers",
-              "matched_targets": [
-                {
-                  "search_text": "customer state",
-                  "relevance": 0.9582,
-                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
-                }
-              ]
-            },
-            {
               "name": "customer_id",
               "entity_type": "dimension",
               "entity_id": "dimension:order_items:customer_id",
@@ -110,74 +93,6 @@
                 {
                   "search_text": "customer state",
                   "relevance": 0.8388,
-                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
-                }
-              ]
-            },
-            {
-              "name": "customers.city",
-              "entity_type": "dimension",
-              "entity_id": "dimension:order_items:customers.city",
-              "relevance": 0.8871297340854148,
-              "description": "Reached from order_items through customers, a left join: a order_items row with no match keeps a null here, so grouping or counting by it follows order_items's rows.",
-              "data_type": "string",
-              "relationship": "one",
-              "join_path": "customers",
-              "matched_targets": [
-                {
-                  "search_text": "customer state",
-                  "relevance": 0.8871,
-                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
-                }
-              ]
-            },
-            {
-              "name": "customers.customer_id",
-              "entity_type": "dimension",
-              "entity_id": "dimension:order_items:customers.customer_id",
-              "relevance": 0.899927031509121,
-              "description": "Reached from order_items through customers, a left join: a order_items row with no match keeps a null here, so grouping or counting by it follows order_items's rows.",
-              "data_type": "number",
-              "relationship": "one",
-              "join_path": "customers",
-              "matched_targets": [
-                {
-                  "search_text": "customer state",
-                  "relevance": 0.8999,
-                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
-                }
-              ]
-            },
-            {
-              "name": "customers.full_name",
-              "entity_type": "dimension",
-              "entity_id": "dimension:order_items:customers.full_name",
-              "relevance": 0.8746917352134743,
-              "description": "Reached from order_items through customers, a left join: a order_items row with no match keeps a null here, so grouping or counting by it follows order_items's rows.",
-              "data_type": "string",
-              "relationship": "one",
-              "join_path": "customers",
-              "matched_targets": [
-                {
-                  "search_text": "customer state",
-                  "relevance": 0.8747,
-                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
-                }
-              ]
-            },
-            {
-              "name": "customers.signup_date",
-              "entity_type": "dimension",
-              "entity_id": "dimension:order_items:customers.signup_date",
-              "relevance": 0.8860587525150904,
-              "description": "Reached from order_items through customers, a left join: a order_items row with no match keeps a null here, so grouping or counting by it follows order_items's rows.",
-              "data_type": "date",
-              "relationship": "one",
-              "join_path": "customers",
-              "matched_targets": [
-                {
-                  "search_text": "customer state",
-                  "relevance": 0.8861,
                   "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
                 }
               ]
@@ -196,26 +111,9 @@
                   "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
                 }
               ]
-            },
-            {
-              "name": "regions.state",
-              "entity_type": "dimension",
-              "entity_id": "dimension:order_items:regions.state",
-              "relevance": 0.9924923076923077,
-              "description": "Reached from order_items through regions, a left join: a order_items row with no match keeps a null here, so grouping or counting by it follows order_items's rows.",
-              "data_type": "string",
-              "relationship": "one",
-              "join_path": "regions",
-              "matched_targets": [
-                {
-                  "search_text": "customer state",
-                  "relevance": 0.9925,
-                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
-                }
-              ]
             }
           ],
-          "relevance": 0.9924923076923077
+          "relevance": 0.9852121212121212
         },
         {
           "source_info": {
@@ -300,6 +198,35 @@
                   "search_text": "total revenue",
                   "relevance": 0.9917,
                   "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customer_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:overview:customer_id",
+              "relevance": 0.8563139906103285,
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "customer state",
+                  "relevance": 0.8563,
+                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "region",
+              "entity_type": "dimension",
+              "entity_id": "dimension:overview:region",
+              "relevance": 0.9917419354838708,
+              "description": "Sales region for the customer's home state",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "customer state",
+                  "relevance": 0.9917,
+                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
                 }
               ]
             }
@@ -391,14 +318,87 @@
                   "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
                 }
               ]
+            },
+            {
+              "name": "customer_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:scoped_orders:customer_id",
+              "relevance": 0.834188034188034,
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "customer state",
+                  "relevance": 0.8342,
+                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "region",
+              "entity_type": "dimension",
+              "entity_id": "dimension:scoped_orders:region",
+              "relevance": 0.9762383394383393,
+              "description": "Sales region for the customer's home state",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "customer state",
+                  "relevance": 0.9762,
+                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
+                }
+              ]
             }
           ],
           "relevance": 0.9762383394383393
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "storefront.malloy",
+              "source": "customers"
+            },
+            "one_line_summary": "People who have placed orders — one row per customer, keyed by `customer_id`.",
+            "docs": "People who have placed orders — one row per customer, keyed by `customer_id`",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "customer_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:customers:customer_id",
+              "relevance": 0.899927031509121,
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "customer state",
+                  "relevance": 0.8999,
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "state",
+              "entity_type": "dimension",
+              "entity_id": "dimension:customers:state",
+              "relevance": 0.9581714285714286,
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "customer state",
+                  "relevance": 0.9582,
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 0.9581714285714286
         }
       ],
       "ranking": "relevance",
-      "total_available": 3,
-      "returned": 3,
+      "total_available": 4,
+      "returned": 4,
       "retrieval": "semantic",
       "engine": "fcj",
       "clusters": [
@@ -410,10 +410,7 @@
           "sources": [
             {
               "source": "order_items",
-              "joins": [
-                "customers",
-                "regions"
-              ]
+              "joins": []
             }
           ],
           "covers": [
@@ -426,14 +423,8 @@
               "measure:order_items:total_sales"
             ],
             "1": [
-              "dimension:order_items:customers.state",
               "dimension:order_items:customer_id",
-              "dimension:order_items:customers.city",
-              "dimension:order_items:customers.customer_id",
-              "dimension:order_items:customers.full_name",
-              "dimension:order_items:customers.signup_date",
-              "dimension:order_items:region",
-              "dimension:order_items:regions.state"
+              "dimension:order_items:region"
             ]
           }
         },
@@ -449,12 +440,17 @@
             }
           ],
           "covers": [
-            0
+            0,
+            1
           ],
           "picks": {
             "0": [
               "measure:overview:total_margin",
               "measure:overview:total_sales"
+            ],
+            "1": [
+              "dimension:overview:customer_id",
+              "dimension:overview:region"
             ]
           }
         },
@@ -470,12 +466,38 @@
             }
           ],
           "covers": [
-            0
+            0,
+            1
           ],
           "picks": {
             "0": [
               "measure:scoped_orders:total_margin",
               "measure:scoped_orders:total_sales"
+            ],
+            "1": [
+              "dimension:scoped_orders:customer_id",
+              "dimension:scoped_orders:region"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "customers",
+            "model_path": "storefront.malloy"
+          },
+          "sources": [
+            {
+              "source": "customers",
+              "joins": []
+            }
+          ],
+          "covers": [
+            1
+          ],
+          "picks": {
+            "1": [
+              "dimension:customers:customer_id",
+              "dimension:customers:state"
             ]
           }
         }
@@ -487,7 +509,8 @@
           "clusters": [
             true,
             true,
-            true
+            true,
+            false
           ]
         },
         {
@@ -495,8 +518,9 @@
           "search_text": "customer state",
           "clusters": [
             true,
-            false,
-            false
+            true,
+            true,
+            true
           ]
         }
       ],

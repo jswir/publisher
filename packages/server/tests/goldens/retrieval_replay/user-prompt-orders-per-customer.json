@@ -122,23 +122,6 @@
               ]
             },
             {
-              "name": "customers.customer_count",
-              "entity_type": "measure",
-              "entity_id": "measure:overview:customers.customer_count",
-              "relevance": 0.9684979838709676,
-              "description": "Distinct customers Reached from overview through customers, a left join: a overview row with no match keeps a null here, so grouping or counting by it follows overview's rows.",
-              "data_type": "number",
-              "relationship": "one",
-              "join_path": "customers",
-              "matched_targets": [
-                {
-                  "search_text": "average orders placed per customer",
-                  "relevance": 0.9685,
-                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
-                }
-              ]
-            },
-            {
               "name": "order_count",
               "entity_type": "measure",
               "entity_id": "measure:overview:order_count",
@@ -259,11 +242,58 @@
             }
           ],
           "relevance": 1
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "storefront.malloy",
+              "source": "order_items"
+            },
+            "one_line_summary": "Order line items — the fact table, one row per product sold on an order.",
+            "docs": "Order line items — the fact table, one row per product sold on an order",
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "orders_per_customer",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:orders_per_customer",
+              "relevance": 1,
+              "description": "Average orders placed per customer",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "average orders placed per customer",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 1
         }
       ],
       "ranking": "relevance",
-      "total_available": 2,
-      "returned": 2,
+      "total_available": 3,
+      "returned": 3,
       "retrieval": "semantic",
       "engine": "fcj",
       "clusters": [
@@ -275,9 +305,7 @@
           "sources": [
             {
               "source": "overview",
-              "joins": [
-                "customers"
-              ]
+              "joins": []
             }
           ],
           "covers": [
@@ -288,7 +316,6 @@
               "measure:overview:orders_per_customer",
               "measure:overview:avg_order_value",
               "measure:overview:customer_count",
-              "measure:overview:customers.customer_count",
               "measure:overview:order_count",
               "measure:overview:order_item_count"
             ]
@@ -314,6 +341,26 @@
               "measure:scoped_orders:avg_order_value"
             ]
           }
+        },
+        {
+          "query_from": {
+            "source": "order_items",
+            "model_path": "storefront.malloy"
+          },
+          "sources": [
+            {
+              "source": "order_items",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "measure:order_items:orders_per_customer"
+            ]
+          }
         }
       ],
       "coverage": [
@@ -321,6 +368,7 @@
           "target_index": 0,
           "search_text": "average orders placed per customer",
           "clusters": [
+            true,
             true,
             true
           ]

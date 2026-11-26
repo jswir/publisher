@@ -402,9 +402,15 @@ describe("format (box 6)", () => {
 });
 
 describe("limitPicks", () => {
-   const owner = (k: string) => k.split("|")[0];
+   /** `a|f1` is a field of a; `a|j1` a field a reaches through a join. */
+   const owner = (k: string) => ({
+      sourceKey: k.split("|")[0],
+      joined: k.split("|")[1].startsWith("j"),
+   });
    const keys = (source: string, n: number) =>
       Array.from({ length: n }, (_, i) => `${source}|f${i + 1}`);
+   const joined = (source: string, n: number) =>
+      Array.from({ length: n }, (_, i) => `${source}|j${i + 1}`);
    it("keeps every pick of the first served source, two per pick on the others, eight per target", () => {
       expect(FIELDS_PER_PICK_AFTER_FIRST).toBe(2);
       expect(FIELDS_PER_TARGET).toBe(8);
@@ -465,6 +471,90 @@ describe("limitPicks", () => {
       expect(out[1].picks[0].keys).toEqual([]);
       // b is the first card: it keeps all four.
       expect(out[2].picks[0].keys).toEqual(keys("b", 4));
+   });
+
+   it("serves a target's joined picks on the first card only when it has no own pick for that target, best + 1", () => {
+      const out = limitPicks(
+         [
+            {
+               source: "a",
+               picks: [
+                  // Own and joined picks for target 0: the joined go.
+                  { target: 0, keys: [...joined("a", 3), ...keys("a", 3)] },
+                  // Joined only for target 1: best + 1.
+                  { target: 1, keys: joined("a", 5) },
+               ],
+               caveats: [],
+            },
+         ],
+         owner,
+      );
+      expect(out[0].picks.map((p) => p.keys)).toEqual([
+         keys("a", 3),
+         joined("a", 2),
+      ]);
+   });
+
+   it("serves joined picks on a later card the same way, and counts them toward eight per target", () => {
+      const out = limitPicks(
+         [
+            {
+               source: "a",
+               picks: [{ target: 0, keys: keys("a", 5) }],
+               caveats: [],
+            },
+            {
+               source: "b",
+               picks: [
+                  { target: 0, keys: [...joined("b", 2), ...keys("b", 1)] },
+               ],
+               caveats: [],
+            },
+            {
+               source: "c",
+               picks: [{ target: 0, keys: joined("c", 4) }],
+               caveats: [],
+            },
+            {
+               source: "d",
+               picks: [{ target: 0, keys: keys("d", 3) }],
+               caveats: [],
+            },
+         ],
+         owner,
+      );
+      expect(out.map((r) => r.picks[0].keys)).toEqual([
+         keys("a", 5),
+         // b has an own pick for target 0: its joined picks go.
+         keys("b", 1),
+         // c has none: its best joined pick and one more (5 + 1 + 2 = 8).
+         joined("c", 2),
+         // Target 0 is full.
+         [],
+      ]);
+   });
+
+   it("keeps a joined-only first card's picks to best + 1, so the joined source's own card still gets its share", () => {
+      const out = limitPicks(
+         [
+            {
+               source: "a",
+               picks: [{ target: 0, keys: joined("a", 8) }],
+               caveats: [],
+            },
+            {
+               source: "b",
+               picks: [{ target: 0, keys: keys("b", 4) }],
+               caveats: [],
+            },
+         ],
+         owner,
+      );
+      expect(out.map((r) => r.picks[0].keys)).toEqual([
+         joined("a", 2),
+         // a is the first served card, so b is cut to best + 1.
+         keys("b", 2),
+      ]);
    });
 
    it("counts the first source with a pick as first, and drops a field of another source", () => {

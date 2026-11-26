@@ -129,23 +129,6 @@
               ]
             },
             {
-              "name": "products.brand",
-              "entity_type": "dimension",
-              "entity_id": "dimension:overview:products.brand",
-              "relevance": 0.8480208667002241,
-              "description": "Reached from overview through products, a left join: a overview row with no match keeps a null here, so grouping or counting by it follows overview's rows.",
-              "data_type": "string",
-              "relationship": "one",
-              "join_path": "products",
-              "matched_targets": [
-                {
-                  "search_text": "brand of the item sold",
-                  "relevance": 0.848,
-                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
-                }
-              ]
-            },
-            {
               "name": "region",
               "entity_type": "dimension",
               "entity_id": "dimension:overview:region",
@@ -156,40 +139,6 @@
                 {
                   "search_text": "sales region for the customer's home state",
                   "relevance": 1,
-                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
-                }
-              ]
-            },
-            {
-              "name": "customers.state",
-              "entity_type": "dimension",
-              "entity_id": "dimension:overview:customers.state",
-              "relevance": 0.836335734660742,
-              "description": "Reached from overview through customers, a left join: a overview row with no match keeps a null here, so grouping or counting by it follows overview's rows.",
-              "data_type": "string",
-              "relationship": "one",
-              "join_path": "customers",
-              "matched_targets": [
-                {
-                  "search_text": "sales region for the customer's home state",
-                  "relevance": 0.8363,
-                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
-                }
-              ]
-            },
-            {
-              "name": "regions.state",
-              "entity_type": "dimension",
-              "entity_id": "dimension:overview:regions.state",
-              "relevance": 0.953482645403377,
-              "description": "Reached from overview through regions, a left join: a overview row with no match keeps a null here, so grouping or counting by it follows overview's rows.",
-              "data_type": "string",
-              "relationship": "one",
-              "join_path": "regions",
-              "matched_targets": [
-                {
-                  "search_text": "sales region for the customer's home state",
-                  "relevance": 0.9535,
                   "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
                 }
               ]
@@ -209,69 +158,15 @@
               ]
             },
             {
-              "name": "customers.city",
+              "name": "sale_price",
               "entity_type": "dimension",
-              "entity_id": "dimension:overview:customers.city",
-              "relevance": 0.8142318914478343,
-              "description": "Reached from overview through customers, a left join: a overview row with no match keeps a null here, so grouping or counting by it follows overview's rows.",
-              "data_type": "string",
-              "relationship": "one",
-              "join_path": "customers",
-              "matched_targets": [
-                {
-                  "search_text": "sales region for the customer's home state",
-                  "relevance": 0.8142,
-                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
-                }
-              ]
-            },
-            {
-              "name": "customers.customer_id",
-              "entity_type": "dimension",
-              "entity_id": "dimension:overview:customers.customer_id",
-              "relevance": 0.8116699489976266,
-              "description": "Reached from overview through customers, a left join: a overview row with no match keeps a null here, so grouping or counting by it follows overview's rows.",
+              "entity_id": "dimension:overview:sale_price",
+              "relevance": 0.8254859737786567,
               "data_type": "number",
-              "relationship": "one",
-              "join_path": "customers",
               "matched_targets": [
                 {
                   "search_text": "sales region for the customer's home state",
-                  "relevance": 0.8117,
-                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
-                }
-              ]
-            },
-            {
-              "name": "customers.full_name",
-              "entity_type": "dimension",
-              "entity_id": "dimension:overview:customers.full_name",
-              "relevance": 0.7375052860834004,
-              "description": "Reached from overview through customers, a left join: a overview row with no match keeps a null here, so grouping or counting by it follows overview's rows.",
-              "data_type": "string",
-              "relationship": "one",
-              "join_path": "customers",
-              "matched_targets": [
-                {
-                  "search_text": "sales region for the customer's home state",
-                  "relevance": 0.7375,
-                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
-                }
-              ]
-            },
-            {
-              "name": "customers.signup_date",
-              "entity_type": "dimension",
-              "entity_id": "dimension:overview:customers.signup_date",
-              "relevance": 0.788795897762899,
-              "description": "Reached from overview through customers, a left join: a overview row with no match keeps a null here, so grouping or counting by it follows overview's rows.",
-              "data_type": "date",
-              "relationship": "one",
-              "join_path": "customers",
-              "matched_targets": [
-                {
-                  "search_text": "sales region for the customer's home state",
-                  "relevance": 0.7888,
+                  "relevance": 0.8255,
                   "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
                 }
               ]
@@ -381,19 +276,31 @@
               ]
             },
             {
-              "name": "products.brand",
+              "name": "region",
               "entity_type": "dimension",
-              "entity_id": "dimension:scoped_orders:products.brand",
-              "relevance": 0.8480208667002241,
-              "description": "Reached from scoped_orders through products, a left join: a scoped_orders row with no match keeps a null here, so grouping or counting by it follows scoped_orders's rows.",
+              "entity_id": "dimension:scoped_orders:region",
+              "relevance": 0.9839979352174473,
+              "description": "Sales region for the customer's home state",
               "data_type": "string",
-              "relationship": "one",
-              "join_path": "products",
               "matched_targets": [
                 {
-                  "search_text": "brand of the item sold",
-                  "relevance": 0.848,
-                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
+                  "search_text": "sales region for the customer's home state",
+                  "relevance": 0.984,
+                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customer_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:scoped_orders:customer_id",
+              "relevance": 0.8413907705718903,
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "sales region for the customer's home state",
+                  "relevance": 0.8414,
+                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
                 }
               ]
             }
@@ -475,24 +382,66 @@
               ]
             },
             {
-              "name": "products.brand",
+              "name": "region",
               "entity_type": "dimension",
-              "entity_id": "dimension:order_items:products.brand",
-              "relevance": 0.8480208667002241,
-              "description": "Reached from order_items through products, a left join: a order_items row with no match keeps a null here, so grouping or counting by it follows order_items's rows.",
+              "entity_id": "dimension:order_items:region",
+              "relevance": 0.9921280165182604,
+              "description": "Sales region for the customer's home state",
               "data_type": "string",
-              "relationship": "one",
-              "join_path": "products",
               "matched_targets": [
                 {
-                  "search_text": "brand of the item sold",
-                  "relevance": 0.848,
-                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
+                  "search_text": "sales region for the customer's home state",
+                  "relevance": 0.9921,
+                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customer_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:customer_id",
+              "relevance": 0.8055546274640828,
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "sales region for the customer's home state",
+                  "relevance": 0.8056,
+                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
                 }
               ]
             }
           ],
           "relevance": 1
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "storefront.malloy",
+              "source": "customers"
+            },
+            "one_line_summary": "People who have placed orders — one row per customer, keyed by `customer_id`.",
+            "docs": "People who have placed orders — one row per customer, keyed by `customer_id`",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "customer_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:customers:customer_id",
+              "relevance": 0.8116699489976266,
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "sales region for the customer's home state",
+                  "relevance": 0.8117,
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 0.8116699489976266
         },
         {
           "source_info": {
@@ -557,8 +506,8 @@
         }
       ],
       "ranking": "relevance",
-      "total_available": 5,
-      "returned": 5,
+      "total_available": 6,
+      "returned": 6,
       "retrieval": "semantic",
       "engine": "fcj",
       "clusters": [
@@ -570,11 +519,7 @@
           "sources": [
             {
               "source": "overview",
-              "joins": [
-                "customers",
-                "products",
-                "regions"
-              ]
+              "joins": []
             }
           ],
           "covers": [
@@ -588,18 +533,12 @@
               "measure:overview:total_margin"
             ],
             "1": [
-              "dimension:overview:brand",
-              "dimension:overview:products.brand"
+              "dimension:overview:brand"
             ],
             "2": [
               "dimension:overview:region",
-              "dimension:overview:customers.state",
-              "dimension:overview:regions.state",
               "dimension:overview:customer_id",
-              "dimension:overview:customers.city",
-              "dimension:overview:customers.customer_id",
-              "dimension:overview:customers.full_name",
-              "dimension:overview:customers.signup_date"
+              "dimension:overview:sale_price"
             ]
           }
         },
@@ -611,14 +550,13 @@
           "sources": [
             {
               "source": "scoped_orders",
-              "joins": [
-                "products"
-              ]
+              "joins": []
             }
           ],
           "covers": [
             0,
-            1
+            1,
+            2
           ],
           "picks": {
             "0": [
@@ -626,8 +564,11 @@
               "measure:scoped_orders:total_margin"
             ],
             "1": [
-              "dimension:scoped_orders:brand",
-              "dimension:scoped_orders:products.brand"
+              "dimension:scoped_orders:brand"
+            ],
+            "2": [
+              "dimension:scoped_orders:region",
+              "dimension:scoped_orders:customer_id"
             ]
           }
         },
@@ -639,14 +580,13 @@
           "sources": [
             {
               "source": "order_items",
-              "joins": [
-                "products"
-              ]
+              "joins": []
             }
           ],
           "covers": [
             0,
-            1
+            1,
+            2
           ],
           "picks": {
             "0": [
@@ -654,8 +594,31 @@
               "measure:order_items:total_margin"
             ],
             "1": [
-              "dimension:order_items:brand",
-              "dimension:order_items:products.brand"
+              "dimension:order_items:brand"
+            ],
+            "2": [
+              "dimension:order_items:region",
+              "dimension:order_items:customer_id"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "customers",
+            "model_path": "storefront.malloy"
+          },
+          "sources": [
+            {
+              "source": "customers",
+              "joins": []
+            }
+          ],
+          "covers": [
+            2
+          ],
+          "picks": {
+            "2": [
+              "dimension:customers:customer_id"
             ]
           }
         },
@@ -709,6 +672,7 @@
             true,
             true,
             false,
+            false,
             false
           ]
         },
@@ -719,6 +683,7 @@
             true,
             true,
             true,
+            false,
             true,
             true
           ]
@@ -728,8 +693,9 @@
           "search_text": "sales region for the customer's home state",
           "clusters": [
             true,
-            false,
-            false,
+            true,
+            true,
+            true,
             false,
             false
           ]

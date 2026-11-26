@@ -53,34 +53,62 @@ import { keptValues } from "./judge";
 import { fieldOf, type Field } from "./fields";
 
 /**
- * How many fields a pick keeps on a source after the first served one: its
- * best field and at most one more. The first served source keeps every field
- * its call picked, since a target often needs several fields of the one
- * source the query is written from.
+ * How many fields a pick keeps when it is cut to its best field and at most
+ * one more: every pick on a card after the first served one, and a target's
+ * joined picks on any card. The first served source keeps every field of
+ * its own its call picked, since a target often needs several fields of the
+ * one source the query is written from.
  */
 export const FIELDS_PER_PICK_AFTER_FIRST = 2;
 /** Most fields one target returns over every source, in served order. */
 export const FIELDS_PER_TARGET = 8;
 
+/** What {@link limitPicks} reads of a picked field. */
+export interface PickedField {
+   /** The source whose card the field is on. */
+   sourceKey: string;
+   /** Reached through a join from that source (box 4's joined offer, or a joined copy the model holds). */
+   joined: boolean;
+}
+
 /**
- * The fields box 6 returns, from box 5's picks: every pick of the first
- * served source (the first with a pick), each other source's picks cut to
- * {@link FIELDS_PER_PICK_AFTER_FIRST}, then each target cut to
- * {@link FIELDS_PER_TARGET}, filled in served-source order and the judge's
- * order within a source. Only fields of the source itself are kept. Pure.
+ * The fields box 6 returns, from box 5's picks. Only fields of the card's
+ * own source (its own, or reached through its joins) are kept. Pure.
+ *
+ * - The first served card (the first with a field for a target of the
+ *   Call) keeps every one of its own (not joined) picks for a target; every
+ *   other card keeps its best own pick and at most one more
+ *   ({@link FIELDS_PER_PICK_AFTER_FIRST}).
+ * - On ANY card, the first included, a target's joined picks are served
+ *   only when that card has no own pick for that target, and then only its
+ *   best and at most one more. So joined fields never crowd out the fields
+ *   of the source that holds them on its own card.
+ * - Then each target is cut to {@link FIELDS_PER_TARGET}, filled in
+ *   served-source order and the judge's order within a source; joined and
+ *   own fields count alike.
  */
 export function limitPicks(
    ranked: readonly RankedSource[],
-   ownerOf: (key: string) => string | undefined,
+   fieldOf: (key: string) => PickedField | undefined,
 ): RankedSource[] {
-   const own = (r: RankedSource, keys: readonly string[]) =>
-      keys.filter((k) => ownerOf(k) === r.source);
+   const mine = (r: RankedSource, keys: readonly string[]) => {
+      const own: string[] = [];
+      const joined: string[] = [];
+      for (const k of keys) {
+         const f = fieldOf(k);
+         if (f?.sourceKey !== r.source) continue;
+         (f.joined ? joined : own).push(k);
+      }
+      return { own, joined };
+   };
    // The first served card: the first source with a field placed on its
    // own card for a target of the Call.
    const first = ranked.findIndex((r) =>
-      r.picks.some(
-         (p) => p.target !== PERIOD_TARGET && own(r, p.keys).length > 0,
-      ),
+      r.picks.some((p) => {
+         if (p.target === PERIOD_TARGET) return false;
+         const { own, joined } = mine(r, p.keys);
+         return own.length + joined.length > 0;
+      }),
    );
    const perTarget = new Map<number, number>();
    return ranked.map((r, i) => ({
@@ -88,12 +116,16 @@ export function limitPicks(
       picks: [...r.picks]
          .sort((a, b) => a.target - b.target)
          .map((p) => {
-            const mine = own(r, p.keys);
+            const { own, joined } = mine(r, p.keys);
             if (p.target === PERIOD_TARGET) {
-               return { ...p, keys: mine.slice(0, PERIOD_FIELDS_PER_SOURCE) };
+               return { ...p, keys: own.slice(0, PERIOD_FIELDS_PER_SOURCE) };
             }
             const cut =
-               i === first ? mine : mine.slice(0, FIELDS_PER_PICK_AFTER_FIRST);
+               own.length > 0
+                  ? i === first
+                     ? own
+                     : own.slice(0, FIELDS_PER_PICK_AFTER_FIRST)
+                  : joined.slice(0, FIELDS_PER_PICK_AFTER_FIRST);
             const used = perTarget.get(p.target) ?? 0;
             const keys = cut.slice(0, Math.max(0, FIELDS_PER_TARGET - used));
             perTarget.set(p.target, used + keys.length);
@@ -308,10 +340,10 @@ export async function format(args: FormatArgs): Promise<Formatted> {
    /** Every name a served field goes by, on any card. */
    const servedNames = new Set<string>();
    const answered = new Set<number>();
-   const limited = limitPicks(
-      ranked,
-      (key) => fieldOf(index.catalog, key)?.sourceKey,
-   );
+   const limited = limitPicks(ranked, (key) => {
+      const f = fieldOf(index.catalog, key);
+      return f && { sourceKey: f.sourceKey, joined: f.joinPath !== undefined };
+   });
    for (const r of limited) {
       const source = index.catalog.sources.get(r.source);
       if (!source) continue;

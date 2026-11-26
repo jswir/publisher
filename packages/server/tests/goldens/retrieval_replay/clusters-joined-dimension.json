@@ -163,108 +163,6 @@
               ]
             },
             {
-              "name": "customer.customer_segment",
-              "entity_type": "dimension",
-              "entity_id": "dimension:orders:customer.customer_segment",
-              "relevance": 1,
-              "description": "Market segment of the customer: retail or wholesale. Reached from orders through customer, a left join: a orders row with no match keeps a null here, so grouping or counting by it follows orders's rows.",
-              "data_type": "string",
-              "relationship": "one",
-              "join_path": "customer",
-              "matched_targets": [
-                {
-                  "search_text": "customer segment",
-                  "relevance": 1,
-                  "match_reason": "stand-in: 7 candidate(s) scored 2 or more"
-                }
-              ]
-            },
-            {
-              "name": "customer.billing_city",
-              "entity_type": "dimension",
-              "entity_id": "dimension:orders:customer.billing_city",
-              "relevance": 0.9198412698412697,
-              "description": "City the customer is billed in. Reached from orders through customer, a left join: a orders row with no match keeps a null here, so grouping or counting by it follows orders's rows.",
-              "data_type": "string",
-              "relationship": "one",
-              "join_path": "customer",
-              "matched_targets": [
-                {
-                  "search_text": "customer segment",
-                  "relevance": 0.9198,
-                  "match_reason": "stand-in: 7 candidate(s) scored 2 or more"
-                }
-              ]
-            },
-            {
-              "name": "customer.city_row.city_name",
-              "entity_type": "dimension",
-              "entity_id": "dimension:orders:customer.city_row.city_name",
-              "relevance": 0.4295774647887324,
-              "description": "Reached from orders through customer.city_row, a left join: a orders row with no match keeps a null here, so grouping or counting by it follows orders's rows.",
-              "data_type": "string",
-              "relationship": "one",
-              "join_path": "customer.city_row",
-              "matched_targets": [
-                {
-                  "search_text": "customer segment",
-                  "relevance": 0.4296,
-                  "match_reason": "stand-in: 7 candidate(s) scored 2 or more"
-                }
-              ]
-            },
-            {
-              "name": "customer.city_row.state_row.census_region_name",
-              "entity_type": "dimension",
-              "entity_id": "dimension:orders:customer.city_row.state_row.census_region_name",
-              "relevance": 0.4919354838709677,
-              "description": "Census region name of the state. Reached from orders through customer.city_row.state_row, a left join: a orders row with no match keeps a null here, so grouping or counting by it follows orders's rows.",
-              "data_type": "string",
-              "relationship": "one",
-              "join_path": "customer.city_row.state_row",
-              "matched_targets": [
-                {
-                  "search_text": "customer segment",
-                  "relevance": 0.4919,
-                  "match_reason": "stand-in: 7 candidate(s) scored 2 or more"
-                }
-              ]
-            },
-            {
-              "name": "customer.city_row.state_row.state_code",
-              "entity_type": "dimension",
-              "entity_id": "dimension:orders:customer.city_row.state_row.state_code",
-              "relevance": 0.44202898550724634,
-              "description": "Reached from orders through customer.city_row.state_row, a left join: a orders row with no match keeps a null here, so grouping or counting by it follows orders's rows.",
-              "data_type": "string",
-              "relationship": "one",
-              "join_path": "customer.city_row.state_row",
-              "matched_targets": [
-                {
-                  "search_text": "customer segment",
-                  "relevance": 0.442,
-                  "match_reason": "stand-in: 7 candidate(s) scored 2 or more"
-                }
-              ]
-            },
-            {
-              "name": "customer.customer_id",
-              "entity_type": "dimension",
-              "entity_id": "dimension:orders:customer.customer_id",
-              "relevance": 0.9760624679979518,
-              "description": "Reached from orders through customer, a left join: a orders row with no match keeps a null here, so grouping or counting by it follows orders's rows.",
-              "data_type": "number",
-              "relationship": "one",
-              "join_path": "customer",
-              "matched_targets": [
-                {
-                  "search_text": "customer segment",
-                  "relevance": 0.9761,
-                  "match_reason": "stand-in: 7 candidate(s) scored 2 or more"
-                }
-              ]
-            },
-            {
               "name": "customer_id",
               "entity_type": "dimension",
               "entity_id": "dimension:orders:customer_id",
@@ -279,7 +177,7 @@
               ]
             }
           ],
-          "relevance": 1
+          "relevance": 0.953125
         },
         {
           "source_info": {
@@ -301,19 +199,106 @@
           },
           "entities": [
             {
-              "name": "customer.customer_segment",
+              "name": "customer_id",
               "entity_type": "dimension",
-              "entity_id": "dimension:store_orders:customer.customer_segment",
+              "entity_id": "dimension:store_orders:customer_id",
+              "relevance": 0.8928418803418803,
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "customer segment",
+                  "relevance": 0.8928,
+                  "match_reason": "stand-in: 7 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 0.8928418803418803
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-clusters",
+              "model_path": "clusters.malloy",
+              "source": "web_orders"
+            },
+            "one_line_summary": "Web orders only: the rows of orders whose channel is web, with the same fields.",
+            "docs": "Web orders only: the rows of orders whose channel is web, with the same fields.",
+            "joins": [
+              {
+                "name": "customer",
+                "relationship": "one",
+                "doc": "The customer who placed the order."
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "customer_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:web_orders:customer_id",
+              "relevance": 0.8799294312992942,
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "customer segment",
+                  "relevance": 0.8799,
+                  "match_reason": "stand-in: 7 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 0.8799294312992942
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-clusters",
+              "model_path": "clusters.malloy",
+              "source": "customers"
+            },
+            "one_line_summary": "One row per customer account.",
+            "docs": "One row per customer account.",
+            "joins": [
+              {
+                "name": "city_row",
+                "relationship": "one",
+                "doc": "The city the customer is billed in."
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "customer_segment",
+              "entity_type": "dimension",
+              "entity_id": "dimension:customers:customer_segment",
               "relevance": 1,
-              "description": "Market segment of the customer: retail or wholesale. Reached from store_orders through customer, a left join: a store_orders row with no match keeps a null here, so grouping or counting by it follows store_orders's rows.",
+              "description": "Market segment of the customer: retail or wholesale.",
               "data_type": "string",
-              "relationship": "one",
-              "join_path": "customer",
               "matched_targets": [
                 {
                   "search_text": "customer segment",
                   "relevance": 1,
-                  "match_reason": "stand-in: 7 candidate(s) scored 2 or more"
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
+                }
+              ],
+              "aliases": [
+                "segment"
+              ]
+            },
+            {
+              "name": "customer_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:customers:customer_id",
+              "relevance": 0.9760624679979518,
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "customer segment",
+                  "relevance": 0.9761,
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
                 }
               ]
             }
@@ -322,8 +307,8 @@
         }
       ],
       "ranking": "relevance",
-      "total_available": 2,
-      "returned": 2,
+      "total_available": 4,
+      "returned": 4,
       "retrieval": "semantic",
       "engine": "fcj",
       "clusters": [
@@ -335,11 +320,7 @@
           "sources": [
             {
               "source": "orders",
-              "joins": [
-                "customer",
-                "customer.city_row",
-                "customer.city_row.state_row"
-              ]
+              "joins": []
             }
           ],
           "covers": [
@@ -358,12 +339,6 @@
               "measure:orders:web_order_total"
             ],
             "1": [
-              "dimension:orders:customer.customer_segment",
-              "dimension:orders:customer.billing_city",
-              "dimension:orders:customer.city_row.city_name",
-              "dimension:orders:customer.city_row.state_row.census_region_name",
-              "dimension:orders:customer.city_row.state_row.state_code",
-              "dimension:orders:customer.customer_id",
               "dimension:orders:customer_id"
             ]
           }
@@ -376,9 +351,7 @@
           "sources": [
             {
               "source": "store_orders",
-              "joins": [
-                "customer"
-              ]
+              "joins": []
             }
           ],
           "covers": [
@@ -386,7 +359,48 @@
           ],
           "picks": {
             "1": [
-              "dimension:store_orders:customer.customer_segment"
+              "dimension:store_orders:customer_id"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "web_orders",
+            "model_path": "clusters.malloy"
+          },
+          "sources": [
+            {
+              "source": "web_orders",
+              "joins": []
+            }
+          ],
+          "covers": [
+            1
+          ],
+          "picks": {
+            "1": [
+              "dimension:web_orders:customer_id"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "customers",
+            "model_path": "clusters.malloy"
+          },
+          "sources": [
+            {
+              "source": "customers",
+              "joins": []
+            }
+          ],
+          "covers": [
+            1
+          ],
+          "picks": {
+            "1": [
+              "dimension:customers:customer_segment",
+              "dimension:customers:customer_id"
             ]
           }
         }
@@ -397,6 +411,8 @@
           "search_text": "order total",
           "clusters": [
             true,
+            false,
+            false,
             false
           ]
         },
@@ -404,6 +420,8 @@
           "target_index": 1,
           "search_text": "customer segment",
           "clusters": [
+            true,
+            true,
             true,
             true
           ]

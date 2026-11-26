@@ -331,23 +331,6 @@
           },
           "entities": [
             {
-              "name": "state_row.census_region_name",
-              "entity_type": "dimension",
-              "entity_id": "dimension:cities:state_row.census_region_name",
-              "relevance": 1,
-              "description": "Census region name of the state. Reached from cities through state_row, a left join: a cities row with no match keeps a null here, so grouping or counting by it follows cities's rows.",
-              "data_type": "string",
-              "relationship": "one",
-              "join_path": "state_row",
-              "matched_targets": [
-                {
-                  "search_text": "census region name",
-                  "relevance": 1,
-                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
-                }
-              ]
-            },
-            {
               "name": "city_name",
               "entity_type": "dimension",
               "entity_id": "dimension:cities:city_name",
@@ -362,12 +345,51 @@
               ]
             }
           ],
+          "relevance": 0.9540566959921798
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-clusters",
+              "model_path": "clusters.malloy",
+              "source": "customers"
+            },
+            "one_line_summary": "One row per customer account.",
+            "docs": "One row per customer account.",
+            "joins": [
+              {
+                "name": "city_row",
+                "relationship": "one",
+                "doc": "The city the customer is billed in."
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "city_row.state_row.census_region_name",
+              "entity_type": "dimension",
+              "entity_id": "dimension:customers:city_row.state_row.census_region_name",
+              "relevance": 1,
+              "description": "Census region name of the state. Reached from customers through city_row.state_row, a left join: a customers row with no match keeps a null here, so grouping or counting by it follows customers's rows.",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "city_row.state_row",
+              "matched_targets": [
+                {
+                  "search_text": "census region name",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
           "relevance": 1
         }
       ],
       "ranking": "relevance",
-      "total_available": 4,
-      "returned": 4,
+      "total_available": 5,
+      "returned": 5,
       "retrieval": "semantic",
       "engine": "fcj",
       "clusters": [
@@ -462,8 +484,28 @@
           "sources": [
             {
               "source": "cities",
+              "joins": []
+            }
+          ],
+          "covers": [
+            1
+          ],
+          "picks": {
+            "1": [
+              "dimension:cities:city_name"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "customers",
+            "model_path": "clusters.malloy"
+          },
+          "sources": [
+            {
+              "source": "customers",
               "joins": [
-                "state_row"
+                "city_row.state_row"
               ]
             }
           ],
@@ -472,8 +514,7 @@
           ],
           "picks": {
             "1": [
-              "dimension:cities:state_row.census_region_name",
-              "dimension:cities:city_name"
+              "dimension:customers:city_row.state_row.census_region_name"
             ]
           }
         }
@@ -486,6 +527,7 @@
             true,
             false,
             false,
+            false,
             false
           ]
         },
@@ -493,6 +535,7 @@
           "target_index": 1,
           "search_text": "census region name",
           "clusters": [
+            true,
             true,
             true,
             true,

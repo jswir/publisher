@@ -140,23 +140,6 @@
               ]
             },
             {
-              "name": "invoice.invoiced_amount",
-              "entity_type": "measure",
-              "entity_id": "measure:payments:invoice.invoiced_amount",
-              "relevance": 0.9490425799949607,
-              "description": "Total invoiced amount, in US dollars. Reached from payments through invoice, a left join: a payments row with no match keeps a null here, so grouping or counting by it follows payments's rows.",
-              "data_type": "number",
-              "relationship": "one",
-              "join_path": "invoice",
-              "matched_targets": [
-                {
-                  "search_text": "total amount",
-                  "relevance": 0.949,
-                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
-                }
-              ]
-            },
-            {
               "name": "invoice.billing_region",
               "entity_type": "dimension",
               "entity_id": "dimension:payments:invoice.billing_region",
@@ -386,6 +369,21 @@
           },
           "entities": [
             {
+              "name": "invoiced_amount",
+              "entity_type": "measure",
+              "entity_id": "measure:invoices:invoiced_amount",
+              "relevance": 0.9490425799949607,
+              "description": "Total invoiced amount, in US dollars.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "total amount",
+                  "relevance": 0.949,
+                  "match_reason": "stand-in: 1 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
               "name": "billing_region",
               "entity_type": "dimension",
               "entity_id": "dimension:invoices:billing_region",
@@ -404,7 +402,7 @@
               ]
             }
           ],
-          "relevance": 0.9477531199677938
+          "relevance": 0.9490425799949607
         }
       ],
       "ranking": "relevance",
@@ -458,8 +456,7 @@
           ],
           "picks": {
             "0": [
-              "measure:payments:total_paid_amount",
-              "measure:payments:invoice.invoiced_amount"
+              "measure:payments:total_paid_amount"
             ],
             "1": [
               "dimension:payments:invoice.billing_region"
@@ -574,9 +571,13 @@
             }
           ],
           "covers": [
+            0,
             1
           ],
           "picks": {
+            "0": [
+              "measure:invoices:invoiced_amount"
+            ],
             "1": [
               "dimension:invoices:billing_region"
             ]
@@ -594,7 +595,7 @@
             true,
             true,
             true,
-            false
+            true
           ]
         },
         {
