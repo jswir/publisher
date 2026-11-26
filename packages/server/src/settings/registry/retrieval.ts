@@ -73,7 +73,8 @@ export const retrieval = [
    setting({
       key: "retrieval.llm.timeoutMs",
       type: integer({ min: 1 }),
-      description: "Milliseconds one chat call may take.",
+      description:
+         "Milliseconds one chat call may take. A get_context judge attempt gets a fifth of it, at least 6 s and at most this.",
       defaultText: `\`${DEFAULT_LLM_TIMEOUT_MS}\` with a provider`,
       aliases: { file: ["retrieval.llm.timeoutMs"] },
    }),
@@ -96,7 +97,7 @@ export const retrieval = [
       key: "retrieval.llm.maxCallsPerRequest",
       type: integer({ min: 1 }),
       description:
-         "Most chat calls one get_context request may make; a request past it fails, naming this setting.",
+         "Most chat requests one get_context request may send; a judge call past it is not sent, and that source is left out.",
       defaultText: `\`${DEFAULT_LLM_MAX_CALLS_PER_REQUEST}\` with a provider`,
       aliases: { file: ["retrieval.llm.maxCallsPerRequest"] },
    }),

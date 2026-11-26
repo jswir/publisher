@@ -7,7 +7,6 @@ import * as os from "os";
 import * as path from "path";
 import { PackageManifestError } from "../errors";
 import {
-   alsoLikelyOn,
    DEFAULT_FCJ_SETTINGS,
    DEFAULT_PACKAGE_RETRIEVAL,
    fcjSettingsOf,
@@ -38,211 +37,62 @@ describe("publisher.json retrieval block", () => {
 
    it("reads the fcj knobs, defaulting each unset knob", () => {
       const parsed = parsePackageRetrieval({
-         fcj: { perTarget: 50, judge: false },
+         fcj: { valueCap: 50, judge: false },
       });
       expect(parsed.fcj).toEqual({
          ...DEFAULT_FCJ_SETTINGS,
-         perTarget: 50,
+         valueCap: 50,
          judge: false,
       });
       expect(fcjSettingsOf(undefined)).toEqual(DEFAULT_FCJ_SETTINGS);
       expect(DEFAULT_FCJ_SETTINGS).toEqual({
-         perTarget: 30,
-         hopDiscount: 0.9,
-         coverFraction: 0.5,
-         measureWeight: 1.5,
-         maxClusters: 3,
-         clusterTopK: 10,
-         reachDepth: 3,
-         keyword: true,
          questions: "auto",
          docParts: "auto",
          values: true,
          valueCap: 5_000,
          valueEmbeddings: true,
          judge: "auto",
-         contenderShare: 0,
-         collapseCopies: false,
-         connect: "list",
-         listTopK: 30,
-         questionsPrompt: "questions",
-         questionsPerNode: 3,
-         alsoLikely: "auto",
-         alsoLikelyTwins: 2,
-         joinedCopies: "indexed",
-         listRoutes: 3,
-         dropRoutesAt: 4,
-         unservedCopies: 3,
-         splitBundles: false,
-         splitItemPicks: 0,
-         dateRange: false,
-         listUnion: 30,
-         readingsRule: true,
-         twinRule: false,
-         judgeLlm: null,
       });
-      expect(
-         parsePackageRetrieval({ fcj: { connect: "clusters", listTopK: 12 } })
-            .fcj,
-      ).toEqual({ ...DEFAULT_FCJ_SETTINGS, connect: "clusters", listTopK: 12 });
-      expect(
-         parsePackageRetrieval({
-            fcj: { questionsPrompt: "phrases", questionsPerNode: 5 },
-         }).fcj,
-      ).toEqual({
-         ...DEFAULT_FCJ_SETTINGS,
-         questionsPrompt: "phrases",
-         questionsPerNode: 5,
-      });
-   });
-
-   it("reads alsoLikely, alsoLikelyTwins and joinedCopies, and says when alsoLikely is on", () => {
-      expect(
-         parsePackageRetrieval({
-            fcj: {
-               alsoLikely: false,
-               alsoLikelyTwins: 1,
-               joinedCopies: "routes",
-            },
-         }).fcj,
-      ).toEqual({
-         ...DEFAULT_FCJ_SETTINGS,
-         alsoLikely: false,
-         alsoLikelyTwins: 1,
-         joinedCopies: "routes",
-      });
-      expect(alsoLikelyOn({ alsoLikely: "auto", connect: "list" })).toBe(true);
-      expect(alsoLikelyOn({ alsoLikely: "auto", connect: "clusters" })).toBe(
-         false,
-      );
-      expect(alsoLikelyOn({ alsoLikely: false, connect: "list" })).toBe(false);
-      expect(alsoLikelyOn({ alsoLikely: true, connect: "clusters" })).toBe(
-         true,
-      );
-      expect(() =>
-         parsePackageRetrieval({ fcj: { alsoLikely: "yes" } }),
-      ).toThrow(
-         'Invalid publisher.json retrieval.fcj.alsoLikely: expected "auto", true or false, got "yes". Fix: "alsoLikely": "auto" (on with connect "list", off with "clusters").',
-      );
-      expect(() =>
-         parsePackageRetrieval({ fcj: { alsoLikelyTwins: 11 } }),
-      ).toThrow(
-         'Invalid publisher.json retrieval.fcj.alsoLikelyTwins: expected an integer from 0 to 10, got 11. Fix: "alsoLikelyTwins": 2',
-      );
-      expect(() =>
-         parsePackageRetrieval({ fcj: { joinedCopies: "deep" } }),
-      ).toThrow(
-         'Invalid publisher.json retrieval.fcj.joinedCopies: expected one of indexed, routes, got "deep". Fix: "joinedCopies": "indexed" (joined copies are searchable rows) or "routes" (each field is searched on its own source and shown with its routes).',
-      );
-   });
-
-   it("reads unservedCopies from 0 to 20, 3 by default, and rejects anything else with a fix", () => {
-      expect(DEFAULT_FCJ_SETTINGS.unservedCopies).toBe(3);
-      expect(
-         parsePackageRetrieval({ fcj: { unservedCopies: 0 } }).fcj
-            ?.unservedCopies,
-      ).toBe(0);
-      expect(
-         parsePackageRetrieval({ fcj: { unservedCopies: 20 } }).fcj
-            ?.unservedCopies,
-      ).toBe(20);
-      expect(() =>
-         parsePackageRetrieval({ fcj: { unservedCopies: 21 } }),
-      ).toThrow(
-         'Invalid publisher.json retrieval.fcj.unservedCopies: expected an integer from 0 to 20, got 21. Fix: "unservedCopies": 3',
-      );
-   });
-
-   it("reads dropRoutesAt from 0 to 20, 4 by default, and rejects anything else with a fix", () => {
-      expect(DEFAULT_FCJ_SETTINGS.dropRoutesAt).toBe(4);
-      expect(parsePackageRetrieval({ fcj: { dropRoutesAt: 0 } }).fcj).toEqual({
-         ...DEFAULT_FCJ_SETTINGS,
-         dropRoutesAt: 0,
-      });
-      expect(
-         parsePackageRetrieval({ fcj: { dropRoutesAt: 20 } }).fcj?.dropRoutesAt,
-      ).toBe(20);
-      expect(() =>
-         parsePackageRetrieval({ fcj: { dropRoutesAt: 21 } }),
-      ).toThrow(
-         'Invalid publisher.json retrieval.fcj.dropRoutesAt: expected an integer from 0 to 20, got 21. Fix: "dropRoutesAt": 4',
-      );
-      expect(() =>
-         parsePackageRetrieval({ fcj: { dropRoutesAt: 2.5 } }),
-      ).toThrow(
-         'Invalid publisher.json retrieval.fcj.dropRoutesAt: expected an integer from 0 to 20, got 2.5. Fix: "dropRoutesAt": 4',
-      );
-   });
-
-   it("reads listRoutes from 0 to 20 and rejects anything else with a fix", () => {
-      expect(parsePackageRetrieval({ fcj: { listRoutes: 0 } }).fcj).toEqual({
-         ...DEFAULT_FCJ_SETTINGS,
-         listRoutes: 0,
-      });
-      expect(
-         parsePackageRetrieval({ fcj: { listRoutes: 20 } }).fcj?.listRoutes,
-      ).toBe(20);
-      expect(() => parsePackageRetrieval({ fcj: { listRoutes: 21 } })).toThrow(
-         'Invalid publisher.json retrieval.fcj.listRoutes: expected an integer from 0 to 20, got 21. Fix: "listRoutes": 3',
-      );
-      expect(() => parsePackageRetrieval({ fcj: { listRoutes: -1 } })).toThrow(
-         'Invalid publisher.json retrieval.fcj.listRoutes: expected an integer from 0 to 20, got -1. Fix: "listRoutes": 3',
-      );
-   });
-
-   it("rejects an unknown question wording or a row count out of range, with a fix", () => {
-      expect(() =>
-         parsePackageRetrieval({ fcj: { questionsPrompt: "keyphrases" } }),
-      ).toThrow(
-         'Invalid publisher.json retrieval.fcj.questionsPrompt: expected one of questions, phrases, values, got "keyphrases". Fix: "questionsPrompt": "questions" (what a person asks), "phrases" (what an agent types as a search target) or "values" (questions that filter by the field\'s values).',
-      );
-      expect(() =>
-         parsePackageRetrieval({ fcj: { questionsPerNode: 9 } }),
-      ).toThrow(
-         'Invalid publisher.json retrieval.fcj.questionsPerNode: expected an integer from 1 to 8, got 9. Fix: "questionsPerNode": 3',
-      );
    });
 
    it("rejects a bad knob with the range and a fix", () => {
-      expect(() =>
-         parsePackageRetrieval({ fcj: { coverFraction: 1.5 } }),
-      ).toThrow(
-         'Invalid publisher.json retrieval.fcj.coverFraction: expected a number from 0 to 1, got 1.5. Fix: "coverFraction": 0.5',
+      expect(() => parsePackageRetrieval({ fcj: { valueCap: 2.5 } })).toThrow(
+         'Invalid publisher.json retrieval.fcj.valueCap: expected an integer from 1 to 1000000, got 2.5. Fix: "valueCap": 5000',
       );
-      expect(() => parsePackageRetrieval({ fcj: { perTarget: 2.5 } })).toThrow(
-         'Invalid publisher.json retrieval.fcj.perTarget: expected an integer from 1 to 500, got 2.5. Fix: "perTarget": 30',
+      expect(() => parsePackageRetrieval({ fcj: { values: "yes" } })).toThrow(
+         'Invalid publisher.json retrieval.fcj.values: expected true or false, got "yes". Fix: "values": true',
       );
       expect(() => parsePackageRetrieval({ fcj: { window: 3 } })).toThrow(
-         "Invalid publisher.json retrieval.fcj: unknown key 'window'. Valid keys: perTarget, hopDiscount, coverFraction, measureWeight, maxClusters, clusterTopK, reachDepth, keyword, questions, docParts, values, valueCap, valueEmbeddings, judge, contenderShare, collapseCopies, connect, listTopK, questionsPrompt, questionsPerNode, alsoLikely, alsoLikelyTwins, joinedCopies, listRoutes, dropRoutesAt, unservedCopies, splitBundles, splitItemPicks, dateRange, listUnion, readingsRule, twinRule, judgeLlm.",
-      );
-      expect(() => parsePackageRetrieval({ fcj: { connect: "tree" } })).toThrow(
-         'Invalid publisher.json retrieval.fcj.connect: expected one of clusters, list, got "tree". Fix: "connect": "clusters" (source groups) or "list" (the find stage\'s top listTopK per target).',
-      );
-      expect(() => parsePackageRetrieval({ fcj: { listTopK: 0 } })).toThrow(
-         'Invalid publisher.json retrieval.fcj.listTopK: expected an integer from 1 to 500, got 0. Fix: "listTopK": 30',
+         "Invalid publisher.json retrieval.fcj: unknown key 'window'. Valid keys: questions, docParts, values, valueCap, valueEmbeddings, judge, perTarget,",
       );
    });
 
-   it("reads judgeLlm, a model name only, and rejects a provider, host or key", () => {
-      expect(
-         parsePackageRetrieval({
-            fcj: { judgeLlm: { model: " claude-haiku-5-5 " } },
-         }).fcj?.judgeLlm,
-      ).toEqual({ model: "claude-haiku-5-5" });
-      expect(
-         parsePackageRetrieval({ fcj: { judgeLlm: null } }).fcj?.judgeLlm,
-      ).toBeNull();
-      expect(() => parsePackageRetrieval({ fcj: { judgeLlm: {} } })).toThrow(
-         'Invalid publisher.json retrieval.fcj.judgeLlm.model: expected a non-empty string, got nothing. The provider, host and key are the server\'s retrieval.llm settings. Fix: "judgeLlm": { "model": "claude-haiku-5-5" }',
+   it("loads a retired fcj knob, whatever its value, ignores it, and warns once naming it", () => {
+      const raw = {
+         fcj: {
+            connect: "clusters",
+            perTarget: "not even a number",
+            listRoutes: 3,
+            judgeLlm: { model: "m" },
+            values: false,
+         },
+      };
+      expect(parsePackageRetrieval(raw).fcj).toEqual({
+         ...DEFAULT_FCJ_SETTINGS,
+         values: false,
+      });
+      const warnings = ignoredRetrievalWarnings(raw);
+      expect(warnings).toHaveLength(4);
+      expect(warnings[0]).toBe(
+         "publisher.json retrieval.fcj.perTarget no longer does anything and is ignored: the search engine it tuned is gone; get_context now ranks by source with one judge call per source. Fix: remove the key.",
       );
-      // A package must not choose where the server's key and prompts go.
-      for (const key of ["provider", "baseUrl", "projectId", "location"]) {
-         expect(() =>
-            parsePackageRetrieval({
-               fcj: { judgeLlm: { model: "m", [key]: "x" } },
-            }),
-         ).toThrow(`retrieval.fcj.judgeLlm: unknown key '${key}'.`);
-      }
+      expect(warnings.map((w) => w.split(" ")[1])).toEqual([
+         "retrieval.fcj.perTarget",
+         "retrieval.fcj.connect",
+         "retrieval.fcj.listRoutes",
+         "retrieval.fcj.judgeLlm",
+      ]);
+      expect(ignoredRetrievalWarnings({ fcj: { values: false } })).toEqual([]);
    });
 
    it("an unknown key is an error that names the valid keys, so a typo or a later release's key is not silently ignored", () => {
@@ -302,10 +152,10 @@ describe("keys of the retrieval block that an earlier release read", () => {
    it("keep the keys that still work beside them", async () => {
       const parsed = parsePackageRetrieval({
          ...OLD_BLOCK,
-         fcj: { perTarget: 50 },
+         fcj: { valueCap: 50 },
          sourceSummary: { enabled: false },
       });
-      expect(parsed.fcj?.perTarget).toBe(50);
+      expect(parsed.fcj?.valueCap).toBe(50);
       expect(parsed.sourceSummary).toEqual({ enabled: false });
    });
 
@@ -329,7 +179,7 @@ describe("keys of the retrieval block that an earlier release read", () => {
       expect(ignoredRetrievalWarnings("on")).toEqual([]);
       expect(
          ignoredRetrievalWarnings({
-            fcj: { perTarget: 50 },
+            fcj: { valueCap: 50 },
             sourceSummary: { enabled: "auto" },
             prompts: { judge: "prompts/j.md" },
          }),

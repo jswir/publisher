@@ -1049,12 +1049,12 @@ run: mid_ungated -> { aggregate: c }`,
          /retrieval: unknown key 'rephrase'\. Valid keys: sourceSummary, prompts, fcj\./,
       ],
       [
-         "an invalid retrieval.fcj.perTarget",
+         "an invalid retrieval.fcj.valueCap",
          JSON.stringify({
             name: "pkg",
-            retrieval: { fcj: { perTarget: 0 } },
+            retrieval: { fcj: { valueCap: 0 } },
          }),
-         /retrieval\.fcj\.perTarget: expected an integer from 1 to 500/,
+         /retrieval\.fcj\.valueCap: expected an integer from 1 to 1000000/,
       ],
       [
          "an invalid retrieval.sourceSummary.enabled",
@@ -1113,7 +1113,7 @@ run: mid_ungated -> { aggregate: c }`,
          JSON.stringify({
             name: "pkg",
             retrieval: {
-               fcj: { perTarget: 50 },
+               fcj: { valueCap: 50 },
                prompts: { judge: "prompts/j.md" },
             },
          }),
@@ -1126,7 +1126,7 @@ run: mid_ungated -> { aggregate: c }`,
       try {
          const pkg = await Package.create("env", "pkg", tempDir, malloyConfig);
          const settings = pkg.getRetrievalSettings();
-         expect(settings.fcj?.perTarget).toBe(50);
+         expect(settings.fcj?.valueCap).toBe(50);
          expect(settings.prompts.judge?.text).toBe("first prompt");
 
          // A package with no block takes the defaults.
@@ -1159,7 +1159,7 @@ run: mid_ungated -> { aggregate: c }`,
                sourceMatch: { enabled: false },
                // No such file: a prompt of a removed step is never read.
                prompts: { refine: "prompts/refine.md" },
-               fcj: { perTarget: 50 },
+               fcj: { valueCap: 50, perTarget: 50 },
             },
          }),
       );
@@ -1172,7 +1172,7 @@ run: mid_ungated -> { aggregate: c }`,
          const pkg = await Package.create("env", "pkg", tempDir, malloyConfig);
          // The settings that still work are read; the rest are not in them.
          expect(pkg.getRetrievalSettings()).toEqual({
-            fcj: expect.objectContaining({ perTarget: 50 }),
+            fcj: expect.objectContaining({ valueCap: 50 }),
             prompts: {},
          });
          const messages = (pkg.getPackageMetadata().warnings ?? []).map(
@@ -1185,6 +1185,7 @@ run: mid_ungated -> { aggregate: c }`,
             "retrieval.rerank",
             "retrieval.sourceMatch",
             "retrieval.prompts.refine",
+            "retrieval.fcj.perTarget",
          ]) {
             const mine = messages.filter((m) =>
                m?.startsWith(`publisher.json ${key} no longer does anything`),

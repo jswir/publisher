@@ -21,10 +21,16 @@
  */
 
 import type { ChatModel, EmbeddingModel } from "../llm/types";
-import {
-   DEFAULT_FCJ_SETTINGS,
-   type FcjSettings,
+import type {
+   FcjSettings,
+   QuestionsPrompt,
 } from "../../service/package_retrieval_settings";
+
+/**
+ * Joined copies a field of an unserved source gets on the served sources
+ * that reach it (catalog.ts, `unservedCopies`), shortest path first.
+ */
+const UNSERVED_COPIES = 3;
 import type { PackageLookup } from "../../service/environment_ports";
 import type { DuckDBConnection } from "../../storage/duckdb/DuckDBConnection";
 import { logger } from "../../logger";
@@ -221,10 +227,7 @@ export async function buildFcjIndex(args: {
    const { db, environmentName, packageName, settings } = args;
    const catalog = buildCatalog({
       ...(await catalogInputOf(args.pkgIndex)),
-      collapseCopies: settings.collapseCopies,
-      joinedCopies: settings.joinedCopies ?? "indexed",
-      unservedCopies:
-         settings.unservedCopies ?? DEFAULT_FCJ_SETTINGS.unservedCopies,
+      unservedCopies: UNSERVED_COPIES,
    });
    // A folded copy is never searched, so it gets no row and no keyword text.
    const searched = [...catalog.nodes.values()].filter((n) => !n.copyOf);
@@ -322,8 +325,8 @@ export async function buildFcjIndex(args: {
    }
 
    // Questions.
-   const perNode = settings.questionsPerNode ?? QUESTIONS_PER_NODE;
-   const variant = settings.questionsPrompt ?? "questions";
+   const perNode = QUESTIONS_PER_NODE;
+   const variant: QuestionsPrompt = "questions";
    const lineValues = promptShowsValues(variant)
       ? questionLineValues(values, parts)
       : undefined;
