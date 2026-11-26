@@ -44,6 +44,7 @@ const t = (index: number, type: Target["type"], text: string): Target => ({
 function groups(targets: Target[]): SourceGroup[] {
    return groupBySource({
       index: f.index,
+      allow: () => true,
       hits: search({
          index: f.index,
          queries: targets.map((x) => ({

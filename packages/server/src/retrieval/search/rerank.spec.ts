@@ -46,6 +46,7 @@ function grouped(
 ): Grouped {
    return groupBySource({
       index: f.index,
+      allow: (n) => allow(n),
       hits: search({
          index: f.index,
          queries: targets.map((x) => ({

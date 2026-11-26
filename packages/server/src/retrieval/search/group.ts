@@ -26,7 +26,7 @@
  * the sources its joins reach (at most {@link JOIN_REACH_DEPTH} joins), as
  * the field under the path a query from it types (`customers.state` on
  * `order_items`). Those are fields search found, read through the model's
- * join graph, not a second search: a source reached only through a join
+ * join graph, not a second search (fields.ts names them): a source reached only through a join
  * needs no slot of its own for its fields to be offered, and the keep rule
  * reads only each source's own hits. A field is offered through a join only
  * when the model holds it there as a field the scope admits.
@@ -38,7 +38,7 @@
  */
 
 import type { FcjIndex } from "../index/index_build";
-import { nodeKeyOf, type CatalogNode } from "../model/catalog";
+import type { CatalogNode } from "../model/catalog";
 import { joinedKey } from "./fields";
 import type { Hit, Hits } from "./find";
 
@@ -171,11 +171,13 @@ export const JOIN_PATHS_PER_FIELD = 3;
 
 /**
  * The keys under which source `from` offers `node`, a field of another
- * source, through its joins (at most {@link JOIN_REACH_DEPTH} joins, the
- * {@link JOIN_PATHS_PER_FIELD} shortest paths, then by path): the model's
- * joined copy there when it holds one, else the field under the join path
- * ({@link joinedKey}). None for a source or a view, a joined copy itself,
- * or a copy the scope refuses.
+ * source, through its joins ({@link joinedKey}): at most
+ * {@link JOIN_REACH_DEPTH} joins, the {@link JOIN_PATHS_PER_FIELD} shortest
+ * paths, then by path. Each is the field as `from` holds it (its name the
+ * dotted path, on `from`'s model files), and the scope must admit that too,
+ * as it admits a field of `from` itself (a pinned field name, a model
+ * path). None for a source, a view, or a field that is itself a joined
+ * copy.
  */
 function joinedOffers(
    index: FcjIndex,
@@ -185,7 +187,9 @@ function joinedOffers(
 ): string[] {
    if (node.kind !== "dimension" && node.kind !== "measure") return [];
    if (node.joinPath) return [];
-   const hops = (index.catalog.joins.get(from) ?? [])
+   const source = index.catalog.sources.get(from);
+   if (!source) return [];
+   return (index.catalog.joins.get(from) ?? [])
       .filter(
          (h) =>
             h.to === node.sourceKey &&
@@ -197,19 +201,19 @@ function joinedOffers(
             a.path.length - b.path.length ||
             (a.path.join(".") < b.path.join(".") ? -1 : 1),
       )
-      .slice(0, JOIN_PATHS_PER_FIELD);
-   const out: string[] = [];
-   for (const hop of hops) {
-      const copy = index.catalog.nodes.get(
-         nodeKeyOf(node.kind, from, `${hop.path.join(".")}.${node.name}`),
-      );
-      if (copy) {
-         if (allow(copy)) out.push(copy.key);
-      } else {
-         out.push(joinedKey(from, hop.path, node.key));
-      }
-   }
-   return out;
+      .slice(0, JOIN_PATHS_PER_FIELD)
+      .filter((hop) =>
+         allow({
+            ...node,
+            key: joinedKey(from, hop.path, node.key),
+            sourceKey: from,
+            source: source.name,
+            name: `${hop.path.join(".")}.${node.name}`,
+            joinPath: hop.path.join("."),
+            modelPaths: source.modelPaths,
+         }),
+      )
+      .map((hop) => joinedKey(from, hop.path, node.key));
 }
 
 /** Box 4: group `hits` by source and keep the most likely sources. */
@@ -217,13 +221,13 @@ export function groupBySource(args: {
    index: FcjIndex;
    hits: readonly Hits[];
    /** Box 1's scope, for the fields a kept source offers through its joins. */
-   allow?: (node: CatalogNode) => boolean;
+   allow: (node: CatalogNode) => boolean;
    /** The caller's question, read for a period only. */
    question?: string;
    keep?: number;
 }): Grouped {
    const { index, hits } = args;
-   const allow = args.allow ?? (() => true);
+   const allow = args.allow;
    const sourceOf = (key: string) => index.catalog.nodes.get(key)?.sourceKey;
    const ranks = hits.map((h) => {
       const best = new Map<string, number>();

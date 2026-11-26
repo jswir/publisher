@@ -1,6 +1,6 @@
 {
   "case": "retired-fcj-keys-load",
-  "about": "replay-clusters sets retired retrieval.fcj keys (connect, collapseCopies, twinRule): the package still loads, and its listing carries a warning naming each key.",
+  "about": "replay-clusters sets retired retrieval.fcj keys (connect, collapseCopies, twinRule): the package still loads and lists its sources; _index_build.json records one load warning naming each key.",
   "request": {
     "scopes": [
       {

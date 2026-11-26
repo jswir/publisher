@@ -79,7 +79,7 @@ async function answer(
       allow,
       pinned: req.entityName !== undefined,
    });
-   const grouped = groupBySource({ index: f.index, hits });
+   const grouped = groupBySource({ index: f.index, hits, allow: () => true });
    const ranked: RankedSource[] = pickFor
       ? grouped.sources.map((g) => ({
            source: g.source,

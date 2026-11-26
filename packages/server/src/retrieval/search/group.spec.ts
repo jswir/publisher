@@ -16,7 +16,8 @@ import {
    keepSources,
    namesPeriod,
 } from "./group";
-import { fieldOf } from "./fields";
+import { fieldOf, joinedKey } from "./fields";
+import type { Hits } from "./find";
 
 const pairs = (...xs: Array<[string, number]>) =>
    xs.map(([source, rank]) => ({ source, rank }));
@@ -54,6 +55,17 @@ describe("keepSources (box 4's keep rule)", () => {
       ]);
       const kept = keepSources([pairs(...many)]);
       expect(kept).toEqual(["s0", "s1", "s2", "s3", "s4", "s5", "s6"]);
+   });
+
+   it("breaks a score tie by the rank where a source is first seen, before its key", () => {
+      // a scores 1/4 + 1/4 and b 1/2, both first seen under target 0; b at
+      // rank 2 comes before a at rank 4, though "a" < "b".
+      expect(
+         keepSources(
+            [pairs(["t", 1], ["a", 4], ["b", 2]), pairs(["u", 1], ["a", 4])],
+            4,
+         ),
+      ).toEqual(["t", "u", "b", "a"]);
    });
 
    it("breaks ties by the first target that names the source, then its rank there, then the key", () => {
@@ -99,6 +111,7 @@ describe("groupBySource over the fixture", () => {
    ) =>
       groupBySource({
          index: f.index,
+         allow,
          hits: search({
             index: f.index,
             queries: targets.map((x) => ({
@@ -214,12 +227,14 @@ describe("groupBySource over the fixture", () => {
       const targets = [t(0, "measure", "number of flights")];
       const none = groupBySource({
          index: f.index,
+         allow: () => true,
          hits: hits(targets),
          question: "How many flights?",
       });
       expect(none.sources.every((g) => g.periodDates === undefined)).toBe(true);
       const monthly = groupBySource({
          index: f.index,
+         allow: () => true,
          hits: hits(targets),
          question: "How many flights each month in 2024?",
       });
@@ -230,6 +245,7 @@ describe("groupBySource over the fixture", () => {
       // A target's own text names one as well.
       const byTarget = groupBySource({
          index: f.index,
+         allow: () => true,
          hits: hits([t(0, "measure", "flights per month")]),
       });
       expect(byTarget.sources.some((g) => g.periodDates?.length)).toBe(true);
@@ -256,5 +272,53 @@ describe("groupBySource over the fixture", () => {
       ]) {
          expect(namesPeriod(no)).toBe(false);
       }
+   });
+});
+
+describe("groupBySource, a field through a join that the scope refuses", () => {
+   let p: FcjIndexFixture;
+   beforeAll(async () => {
+      p = await buildFcjIndexFixture();
+   });
+   afterAll(async () => p.close());
+
+   it("offers it only when the scope admits it as a field of the joining source", () => {
+      const name = "dimension:airports@travel.malloy:airport_name";
+      const count = "measure:flights@travel.malloy:flight_count";
+      const target = (index: number, type: "dimension" | "measure") => ({
+         index,
+         type,
+         text: "x",
+         kinds: [type],
+      });
+      const hit = (
+         index: number,
+         type: "dimension" | "measure",
+         key: string,
+      ): Hits => ({
+         target: target(index, type),
+         candidates: [{ key, score: 1, ranks: {} }],
+         lists: { close: 0, keyword: 0, value: 0, valueMeaning: 0 },
+         valuePhrases: [],
+         meaningPhrases: [],
+      });
+      const hits = [hit(0, "measure", count), hit(1, "dimension", name)];
+      const offersOf = (
+         allow: (n: { name: string; kind: string }) => boolean,
+      ) =>
+         (
+            groupBySource({ index: p.index, hits, allow })
+               .sources.find((g) => g.source === "flights@travel.malloy")
+               ?.offers.get(1) ?? []
+         ).map((o) => o.hit.key);
+      expect(offersOf(() => true)).toEqual([
+         joinedKey("flights@travel.malloy", ["arrival"], name),
+         joinedKey("flights@travel.malloy", ["origin"], name),
+      ]);
+      // A scope pinned to the field's own name (entity_name) admits the
+      // airports field, not flights' arrival.airport_name.
+      expect(
+         offersOf((n) => n.kind === "measure" || n.name === "airport_name"),
+      ).toEqual([]);
    });
 });

@@ -76,7 +76,7 @@ async function completeAnswer() {
       valueMeaning: false,
       allow: () => true,
    });
-   const grouped = groupBySource({ index: f.index, hits });
+   const grouped = groupBySource({ index: f.index, hits, allow: () => true });
    const verdicts = unjudged(grouped, targets);
    const answer = await format({
       index: f.index,
