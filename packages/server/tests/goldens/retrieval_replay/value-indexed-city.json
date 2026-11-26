@@ -47,12 +47,12 @@
                 {
                   "search_text": "city the store is in",
                   "relevance": 1,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                  "match_reason": "stand-in: 1 candidate(s) scored 2 or more"
                 },
                 {
                   "search_text": "Denver",
                   "relevance": 1,
-                  "match_reason": "stand-in: a value matched by spelling, or the one pinned field"
+                  "match_reason": "stand-in: a stored value matched by spelling, or the one pinned field"
                 }
               ],
               "aliases": [
@@ -63,38 +63,6 @@
                   "value": "Denver",
                   "relevance": 1,
                   "search_text": "Denver"
-                }
-              ]
-            },
-            {
-              "name": "item_category",
-              "entity_type": "dimension",
-              "entity_id": "dimension:store_visits:item_category",
-              "relevance": 0.9760624679979518,
-              "description": "Product category of the item bought.",
-              "data_type": "string",
-              "matched_targets": [
-                {
-                  "search_text": "city the store is in",
-                  "relevance": 0.9761,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
-                }
-              ],
-              "aliases": [
-                "category"
-              ]
-            },
-            {
-              "name": "id",
-              "entity_type": "dimension",
-              "entity_id": "dimension:store_visits:id",
-              "relevance": 0.9684979838709676,
-              "data_type": "number",
-              "matched_targets": [
-                {
-                  "search_text": "city the store is in",
-                  "relevance": 0.9685,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
                 }
               ]
             }
@@ -125,9 +93,7 @@
           ],
           "picks": {
             "0": [
-              "dimension:store_visits:store_city",
-              "dimension:store_visits:item_category",
-              "dimension:store_visits:id"
+              "dimension:store_visits:store_city"
             ],
             "1": [
               "dimension:store_visits:store_city"
@@ -141,8 +107,8 @@
   "traffic": {
     "embedding_calls": 1,
     "embedded_texts": [
-      "city the store is in",
-      "Denver"
+      "Denver",
+      "city the store is in"
     ],
     "judge_calls": 1,
     "judge": [
@@ -175,23 +141,21 @@
             {
               "target": 1,
               "candidates": [
-                1,
-                2,
-                3
+                1
               ],
-              "best": 1,
-              "reason": "stand-in: listed candidates sharing a word with the target"
+              "reason": "stand-in: 1 candidate(s) scored 2 or more",
+              "best": 1
             },
             {
               "target": 2,
               "candidates": [
                 1
               ],
-              "best": 1,
+              "reason": "stand-in: a stored value matched by spelling, or the one pinned field",
               "values": [
                 "1a"
               ],
-              "reason": "stand-in: a value matched by spelling, or the one pinned field"
+              "best": 1
             }
           ],
           "caveats": []

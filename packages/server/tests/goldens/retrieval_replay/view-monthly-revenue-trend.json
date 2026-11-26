@@ -85,7 +85,77 @@
                 {
                   "search_text": "monthly revenue trend",
                   "relevance": 1,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                  "match_reason": "stand-in: 15 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "sales_by_month",
+              "entity_type": "view",
+              "entity_id": "view:overview:sales_by_month",
+              "relevance": 0.8932512733446518,
+              "description": "Monthly revenue trend",
+              "matched_targets": [
+                {
+                  "search_text": "monthly revenue trend",
+                  "relevance": 0.8933,
+                  "match_reason": "stand-in: 15 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "business_overview",
+              "entity_type": "view",
+              "entity_id": "view:overview:business_overview",
+              "relevance": 0.8553067185978578,
+              "description": "Business overview: KPIs, monthly trend, geography, and top sellers",
+              "matched_targets": [
+                {
+                  "search_text": "monthly revenue trend",
+                  "relevance": 0.8553,
+                  "match_reason": "stand-in: 15 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "revenue_by_category",
+              "entity_type": "view",
+              "entity_id": "view:overview:revenue_by_category",
+              "relevance": 0.7786178861788617,
+              "description": "Revenue by product category",
+              "matched_targets": [
+                {
+                  "search_text": "monthly revenue trend",
+                  "relevance": 0.7786,
+                  "match_reason": "stand-in: 15 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "revenue_by_state",
+              "entity_type": "view",
+              "entity_id": "view:overview:revenue_by_state",
+              "relevance": 0.8813929313929314,
+              "description": "Revenue by customer state (US choropleth)",
+              "matched_targets": [
+                {
+                  "search_text": "monthly revenue trend",
+                  "relevance": 0.8814,
+                  "match_reason": "stand-in: 15 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "sales_by_year",
+              "entity_type": "view",
+              "entity_id": "view:overview:sales_by_year",
+              "relevance": 0.8116246498599439,
+              "description": "Annual revenue (shows the growth trend)",
+              "matched_targets": [
+                {
+                  "search_text": "monthly revenue trend",
+                  "relevance": 0.8116,
+                  "match_reason": "stand-in: 15 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -99,7 +169,7 @@
                 {
                   "search_text": "monthly revenue trend",
                   "relevance": 0.9137,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                  "match_reason": "stand-in: 15 candidate(s) scored 2 or more"
                 }
               ]
             }
@@ -136,14 +206,63 @@
           },
           "entities": [
             {
+              "name": "sales_by_month",
+              "entity_type": "view",
+              "entity_id": "view:order_items:sales_by_month",
+              "relevance": 0.8832291666666667,
+              "description": "Monthly revenue trend",
+              "matched_targets": [
+                {
+                  "search_text": "monthly revenue trend",
+                  "relevance": 0.8832,
+                  "match_reason": "stand-in: 15 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "business_overview",
+              "entity_type": "view",
+              "entity_id": "view:order_items:business_overview",
+              "relevance": 0.8462495216226559,
+              "description": "Business overview: KPIs, monthly trend, geography, and top sellers",
+              "matched_targets": [
+                {
+                  "search_text": "monthly revenue trend",
+                  "relevance": 0.8462,
+                  "match_reason": "stand-in: 15 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "sales_by_year",
+              "entity_type": "view",
+              "entity_id": "view:order_items:sales_by_year",
+              "relevance": 0.803184165232358,
+              "description": "Annual revenue (shows the growth trend)",
+              "matched_targets": [
+                {
+                  "search_text": "monthly revenue trend",
+                  "relevance": 0.8032,
+                  "match_reason": "stand-in: 15 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
               "name": "seasonality",
               "entity_type": "view",
               "entity_id": "view:order_items:seasonality",
+              "relevance": 0.9097437030490498,
               "description": "Seasonality: monthly revenue with one line per year (holiday spikes)",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick overview.seasonality, on another source."
+              "matched_targets": [
+                {
+                  "search_text": "monthly revenue trend",
+                  "relevance": 0.9097,
+                  "match_reason": "stand-in: 15 candidate(s) scored 2 or more"
+                }
+              ]
             }
-          ]
+          ],
+          "relevance": 0.9097437030490498
         },
         {
           "source_info": {
@@ -202,14 +321,63 @@
           },
           "entities": [
             {
+              "name": "sales_by_month",
+              "entity_type": "view",
+              "entity_id": "view:scoped_orders:sales_by_month",
+              "relevance": 0.8802308802308801,
+              "description": "Monthly revenue trend",
+              "matched_targets": [
+                {
+                  "search_text": "monthly revenue trend",
+                  "relevance": 0.8802,
+                  "match_reason": "stand-in: 15 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "business_overview",
+              "entity_type": "view",
+              "entity_id": "view:scoped_orders:business_overview",
+              "relevance": 0.8433712121212121,
+              "description": "Business overview: KPIs, monthly trend, geography, and top sellers",
+              "matched_targets": [
+                {
+                  "search_text": "monthly revenue trend",
+                  "relevance": 0.8434,
+                  "match_reason": "stand-in: 15 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "sales_by_year",
+              "entity_type": "view",
+              "entity_id": "view:scoped_orders:sales_by_year",
+              "relevance": 0.8008525149190111,
+              "description": "Annual revenue (shows the growth trend)",
+              "matched_targets": [
+                {
+                  "search_text": "monthly revenue trend",
+                  "relevance": 0.8009,
+                  "match_reason": "stand-in: 15 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
               "name": "seasonality",
               "entity_type": "view",
               "entity_id": "view:scoped_orders:seasonality",
+              "relevance": 0.900173611111111,
               "description": "Seasonality: monthly revenue with one line per year (holiday spikes)",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick overview.seasonality, on another source."
+              "matched_targets": [
+                {
+                  "search_text": "monthly revenue trend",
+                  "relevance": 0.9002,
+                  "match_reason": "stand-in: 15 candidate(s) scored 2 or more"
+                }
+              ]
             }
-          ]
+          ],
+          "relevance": 0.900173611111111
         }
       ],
       "ranking": "relevance",
@@ -235,9 +403,71 @@
           "picks": {
             "0": [
               "view:overview:revenue_trend",
+              "view:overview:sales_by_month",
+              "view:overview:business_overview",
+              "view:overview:revenue_by_category",
+              "view:overview:revenue_by_state",
+              "view:overview:sales_by_year",
               "view:overview:seasonality"
             ]
           }
+        },
+        {
+          "query_from": {
+            "source": "order_items",
+            "model_path": "storefront.malloy"
+          },
+          "sources": [
+            {
+              "source": "order_items",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "view:order_items:sales_by_month",
+              "view:order_items:business_overview",
+              "view:order_items:sales_by_year",
+              "view:order_items:seasonality"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "scoped_orders",
+            "model_path": "data_app.malloy"
+          },
+          "sources": [
+            {
+              "source": "scoped_orders",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "view:scoped_orders:sales_by_month",
+              "view:scoped_orders:business_overview",
+              "view:scoped_orders:sales_by_year",
+              "view:scoped_orders:seasonality"
+            ]
+          }
+        }
+      ],
+      "coverage": [
+        {
+          "target_index": 0,
+          "search_text": "monthly revenue trend",
+          "clusters": [
+            true,
+            true,
+            true
+          ]
         }
       ],
       "unresolved_targets": [],
@@ -333,10 +563,23 @@
               "target": 1,
               "candidates": [
                 1,
-                2
+                18,
+                3,
+                29,
+                19,
+                5,
+                30,
+                9,
+                4,
+                21,
+                7,
+                32,
+                17,
+                2,
+                28
               ],
-              "best": 1,
-              "reason": "stand-in: listed candidates sharing a word with the target"
+              "reason": "stand-in: 15 candidate(s) scored 2 or more",
+              "best": 1
             }
           ],
           "caveats": []

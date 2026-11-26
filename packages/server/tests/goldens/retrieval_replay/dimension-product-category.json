@@ -59,22 +59,7 @@
                 {
                   "search_text": "product category of the item sold",
                   "relevance": 1,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
-                }
-              ]
-            },
-            {
-              "name": "brand",
-              "entity_type": "dimension",
-              "entity_id": "dimension:order_items:brand",
-              "relevance": 0.9457932692307692,
-              "description": "Brand of the item sold",
-              "data_type": "string",
-              "matched_targets": [
-                {
-                  "search_text": "product category of the item sold",
-                  "relevance": 0.9458,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -88,7 +73,7 @@
                 {
                   "search_text": "product category of the item sold",
                   "relevance": 0.9107,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
                 }
               ]
             }
@@ -155,20 +140,33 @@
               "name": "category",
               "entity_type": "dimension",
               "entity_id": "dimension:overview:category",
+              "relevance": 0.9838709677419354,
               "description": "Product category of the item sold",
               "data_type": "string",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick order_items.category, on another source."
+              "matched_targets": [
+                {
+                  "search_text": "product category of the item sold",
+                  "relevance": 0.9839,
+                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
+                }
+              ]
             },
             {
               "name": "product_id",
               "entity_type": "dimension",
               "entity_id": "dimension:overview:product_id",
+              "relevance": 0.8094988650253186,
               "data_type": "number",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick order_items.product_id, on another source."
+              "matched_targets": [
+                {
+                  "search_text": "product category of the item sold",
+                  "relevance": 0.8095,
+                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
+                }
+              ]
             }
-          ]
+          ],
+          "relevance": 0.9838709677419354
         },
         {
           "source_info": {
@@ -230,29 +228,33 @@
               "name": "category",
               "entity_type": "dimension",
               "entity_id": "dimension:scoped_orders:category",
+              "relevance": 0.9682539682539681,
               "description": "Product category of the item sold",
               "data_type": "string",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick order_items.category, on another source."
-            },
-            {
-              "name": "brand",
-              "entity_type": "dimension",
-              "entity_id": "dimension:scoped_orders:brand",
-              "description": "Brand of the item sold",
-              "data_type": "string",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick order_items.brand, on another source."
+              "matched_targets": [
+                {
+                  "search_text": "product category of the item sold",
+                  "relevance": 0.9683,
+                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
+                }
+              ]
             },
             {
               "name": "product_id",
               "entity_type": "dimension",
               "entity_id": "dimension:scoped_orders:product_id",
+              "relevance": 0.7867063492063491,
               "data_type": "number",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick order_items.product_id, on another source."
+              "matched_targets": [
+                {
+                  "search_text": "product category of the item sold",
+                  "relevance": 0.7867,
+                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
+                }
+              ]
             }
-          ]
+          ],
+          "relevance": 0.9682539682539681
         },
         {
           "source_info": {
@@ -260,23 +262,43 @@
               "environment": "examples",
               "package": "storefront",
               "model_path": "storefront.malloy",
-              "source": "brand_suggest"
+              "source": "products"
             },
-            "one_line_summary": "Distinct brands, for the Brand filter control's option list.",
-            "docs": "Distinct brands, for the Brand filter control's option list",
+            "one_line_summary": "Catalog of products, one row per product, with cost and retail price.",
+            "docs": "Catalog of products, one row per product, with cost and retail price",
             "joins": []
           },
           "entities": [
             {
-              "name": "brand",
+              "name": "category",
               "entity_type": "dimension",
-              "entity_id": "dimension:brand_suggest:brand",
-              "description": "Brand of the item sold",
+              "entity_id": "dimension:products:category",
+              "relevance": 0.9122767857142856,
               "data_type": "string",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick order_items.brand, on another source."
+              "matched_targets": [
+                {
+                  "search_text": "product category of the item sold",
+                  "relevance": 0.9123,
+                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "product_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:products:product_id",
+              "relevance": 0.7820512820512819,
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "product category of the item sold",
+                  "relevance": 0.7821,
+                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
+                }
+              ]
             }
-          ]
+          ],
+          "relevance": 0.9122767857142856
         }
       ],
       "ranking": "relevance",
@@ -294,6 +316,12 @@
             {
               "source": "order_items",
               "joins": []
+            },
+            {
+              "source": "products",
+              "joins": [
+                "products"
+              ]
             }
           ],
           "covers": [
@@ -302,10 +330,80 @@
           "picks": {
             "0": [
               "dimension:order_items:category",
-              "dimension:order_items:brand",
-              "dimension:order_items:product_id"
+              "dimension:products:category",
+              "dimension:order_items:product_id",
+              "dimension:products:product_id"
             ]
           }
+        },
+        {
+          "query_from": {
+            "source": "overview",
+            "model_path": "overview.malloy"
+          },
+          "sources": [
+            {
+              "source": "overview",
+              "joins": []
+            },
+            {
+              "source": "products",
+              "joins": [
+                "products"
+              ]
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "dimension:overview:category",
+              "dimension:products:category",
+              "dimension:overview:product_id",
+              "dimension:products:product_id"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "scoped_orders",
+            "model_path": "data_app.malloy"
+          },
+          "sources": [
+            {
+              "source": "scoped_orders",
+              "joins": []
+            },
+            {
+              "source": "products",
+              "joins": [
+                "products"
+              ]
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "dimension:scoped_orders:category",
+              "dimension:products:category",
+              "dimension:products:product_id",
+              "dimension:scoped_orders:product_id"
+            ]
+          }
+        }
+      ],
+      "coverage": [
+        {
+          "target_index": 0,
+          "search_text": "product category of the item sold",
+          "clusters": [
+            true,
+            true,
+            true
+          ]
         }
       ],
       "unresolved_targets": [],
@@ -429,11 +527,16 @@
               "target": 1,
               "candidates": [
                 1,
-                2,
-                3
+                12,
+                20,
+                28,
+                3,
+                14,
+                36,
+                22
               ],
-              "best": 1,
-              "reason": "stand-in: listed candidates sharing a word with the target"
+              "reason": "stand-in: 8 candidate(s) scored 2 or more",
+              "best": 1
             }
           ],
           "caveats": []

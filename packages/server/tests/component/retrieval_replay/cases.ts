@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: MIT
 
 /**
- * The fixed corpus of get_context requests the retrieval replay sends, over
- * the bundled `storefront` example. Each case is one call; its snapshot is
+ * The fixed corpus of get_context requests the retrieval replay sends. Each
+ * case is one call, or a short sequence of calls that belong together (a
+ * page and the calls for the pages after it); its snapshot is
  * `tests/goldens/retrieval_replay/<id>.json`.
  *
  * Add a case at the end, run the replay with UPDATE_GOLDENS=1, and commit the
@@ -12,13 +13,49 @@
  */
 
 export const ENVIRONMENT = "examples";
-export const PACKAGE = "storefront";
+
 /**
- * A synthetic package (tests/fixtures/retrieval-replay-values) whose
- * dimensions are tagged #(index), for the stored-value cases that need an
- * index to match against: storefront tags none.
+ * The packages the replay loads, each from a committed fixture under
+ * `tests/fixtures/`. `manifest` replaces the fixture's publisher.json in the
+ * loaded copy, so one model serves under several retrieval settings.
  */
+export interface ReplayPackage {
+   /** The fixture directory, under tests/fixtures. */
+   fixture: string;
+   manifest?: Record<string, unknown>;
+   /** Files added to the loaded copy, by path. */
+   files?: Record<string, string>;
+   /**
+    * Built and searched with no embedding provider, as on a server with none
+    * configured: the lexical mode.
+    */
+   lexical?: boolean;
+}
+
+/** A frozen copy of examples/storefront (its README says from which commit). */
+export const PACKAGE = "storefront";
+/** Dimensions tagged #(index), for the stored-value cases. */
 export const VALUES_PACKAGE = "replay-values";
+
+export const PACKAGES: Record<string, ReplayPackage> = {
+   [PACKAGE]: { fixture: "retrieval-replay-storefront" },
+   [VALUES_PACKAGE]: { fixture: "retrieval-replay-values" },
+};
+
+/**
+ * Packages a listing shows that are not loaded, with the description each
+ * one's publisher.json carried when this was written: listed, never searched.
+ */
+export const LISTED_ONLY: Record<string, Record<string, string>> = {
+   [ENVIRONMENT]: {
+      "html-data-app":
+         "In-package HTML data app demo — a SaaS subscriptions dashboard. Put your web files in a public/ directory next to your .malloy files and Publisher serves them at /environments/<env>/packages/<pkg>/<file>. Live reload, embeddable iframe, no build step.",
+   },
+   governed: {
+      "governed-analytics":
+         "Givens, authorization, row-level access, and discovery curation in one small package.",
+   },
+};
 
 const scope = { environment: ENVIRONMENT, package: PACKAGE };
 const valuesScope = { environment: ENVIRONMENT, package: VALUES_PACKAGE };
@@ -28,8 +65,10 @@ export interface ReplayCase {
    id: string;
    /** What the case covers. */
    about: string;
-   /** The get_context arguments, sent as written. */
-   params: Record<string, unknown>;
+   /** The get_context arguments, sent as written (through the tool's input schema). */
+   params?: Record<string, unknown>;
+   /** Several calls, in order, recorded together: a page and the pages after it. */
+   steps?: Array<Record<string, unknown>>;
 }
 
 export const CASES: readonly ReplayCase[] = [

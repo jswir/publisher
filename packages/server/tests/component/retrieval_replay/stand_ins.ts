@@ -14,14 +14,19 @@
  *   mean something without any network.
  * - Chat: the real ChatModelImpl (JSON extraction, the one repair re-ask,
  *   usage counts) over a RawChat whose reply is a RULE of the prompt, not a
- *   recording. The judge's rule is in {@link standInJudgeReply}. Index-time
+ *   recording. The judge's rule is {@link standInJudgeReply}. Index-time
  *   prompts (doc parts, questions, source summaries) get rule replies too,
  *   so the index is built the way it is on a server with an LLM.
  *
  * Rules rather than a recorded model: a recording keyed by the prompt goes
  * missing the moment a change touches the prompt, which is exactly the change
- * the replay is for. A rule always answers, and the prompt's hash and text in
- * the snapshot show that the prompt moved.
+ * the replay is for. A rule always answers, and the prompt's text in the
+ * snapshot shows that the prompt moved.
+ *
+ * A rule reads its prompt through an explicit grammar. A prompt the grammar
+ * does not match throws a {@link StandInError}, and the spec fails that case
+ * naming the line, rather than letting the engine read an empty reply as a
+ * target nothing answered.
  */
 
 import { createHash } from "crypto";
@@ -36,11 +41,22 @@ import { splitDocByRules } from "../../../src/retrieval/index/doc_parts";
 import {
    embedText,
    NO_WAIT_RETRY,
-   summaryReply,
 } from "../../../src/test_helpers/get_context_llm_harness";
 
 export function sha256(text: string): string {
    return createHash("sha256").update(text).digest("hex");
+}
+
+/**
+ * The stand-in could not read a prompt: its format changed, or a part the
+ * rule relies on is missing. Not an engine failure: the replay's stand-in
+ * needs updating with the prompt.
+ */
+export class StandInError extends Error {
+   constructor(message: string) {
+      super(`retrieval replay stand-in: ${message}`);
+      this.name = "StandInError";
+   }
 }
 
 /** What kind of call a chat prompt is, from its shape. */
@@ -55,7 +71,12 @@ export interface ChatCall {
    kind: ChatKind;
    system: string;
    prompt: string;
+   /** The reply sent; empty when the call threw. */
    reply: string;
+   /** Why the call threw, when it did. */
+   error?: string;
+   /** The call threw because the stand-in could not read the prompt. */
+   standInError?: boolean;
 }
 
 /** Every outbound call since the last {@link Traffic.reset}. */
@@ -71,12 +92,26 @@ export class Traffic {
    }
 }
 
+/**
+ * A delay of a few milliseconds that depends on the text, so concurrent
+ * calls complete in an order other than the one they were sent in. With
+ * `REPLAY_JITTER_SEED` set, the seed moves every delay: a run under another
+ * seed completes the calls in another order, and must record the same
+ * snapshots.
+ */
+async function jitter(text: string): Promise<void> {
+   const seed = process.env.REPLAY_JITTER_SEED ?? "";
+   const ms = parseInt(sha256(`${seed}\u0000${text}`).slice(0, 4), 16) % 7;
+   await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 /** The embedding provider of the replay: real client, stub endpoint. */
 export function replayEmbeddingProvider(traffic: Traffic): EmbeddingProvider {
    const fetchStub = (async (_url: RequestInfo | URL, init?: RequestInit) => {
       const body = JSON.parse(String(init?.body)) as { input: string[] };
       traffic.embeddingCalls += 1;
       traffic.embeddedTexts.push(...body.input);
+      await jitter(body.input.join("\n"));
       const data = body.input.map((text, index) => ({
          index,
          embedding: embedText(text),
@@ -108,18 +143,23 @@ function kindOf(system: string, prompt: string): ChatKind {
    return "unrecognized";
 }
 
-/** The numbered lines of a batch prompt, as [number, text]. */
-function numbered(prompt: string): Array<[number, string]> {
-   return [...prompt.matchAll(/^\[(\d+)\] (.*)$/gm)].map((m) => [
-      Number(m[1]),
-      m[2],
-   ]);
+/** The numbered lines of a batch prompt, as [number, text]; at least one. */
+function numbered(prompt: string, kind: ChatKind): Array<[number, string]> {
+   const lines = [...prompt.matchAll(/^\[(\d+)\] (.*)$/gm)].map(
+      (m) => [Number(m[1]), m[2]] as [number, string],
+   );
+   if (lines.length === 0) {
+      throw new StandInError(
+         `a ${kind} prompt has no numbered "[n] ..." lines to answer`,
+      );
+   }
+   return lines;
 }
 
 /** Doc parts: the engine's own rule split of each doc. */
 function docPartsReply(prompt: string): string {
    return JSON.stringify({
-      results: numbered(prompt).map(([index, doc]) => ({
+      results: numbered(prompt, "doc_parts").map(([index, doc]) => ({
          index,
          ...splitDocByRules(doc),
       })),
@@ -128,10 +168,15 @@ function docPartsReply(prompt: string): string {
 
 /** Questions: the right number of plain rewordings of each field's line. */
 function questionsReply(prompt: string): string {
-   const slots = /"questions": \[([^\]]*)\]/.exec(prompt)?.[1] ?? "";
+   const slots = /"questions": \[([^\]]*)\]/.exec(prompt)?.[1];
+   if (slots === undefined) {
+      throw new StandInError(
+         'a questions prompt has no "questions": [...] reply shape to count the questions per field from',
+      );
+   }
    const perNode = Math.max(1, (slots.match(/"\.\.\."/g) ?? []).length);
    return JSON.stringify({
-      results: numbered(prompt).map(([index, line]) => {
+      results: numbered(prompt, "questions").map(([index, line]) => {
          // "(dimension, string) name: doc" -> the words after the kind.
          const words = line
             .replace(/^\([^)]*\)\s*/, "")
@@ -154,6 +199,334 @@ function questionsReply(prompt: string): string {
    });
 }
 
+/** A source summary: the doc, then the field names, as the harness writes it. */
+function summaryReply(prompt: string): string {
+   const source = /^Source name: (.*)$/m.exec(prompt)?.[1];
+   const doc = /^Source documentation:\n(.*)$/m.exec(prompt)?.[1];
+   if (source === undefined || doc === undefined) {
+      throw new StandInError(
+         'a source summary prompt has no "Source name:" line or no "Source documentation:" block',
+      );
+   }
+   const fields = [...prompt.matchAll(/^\s*- ([^ :(]+)/gm)].map((m) => m[1]);
+   const oneLine =
+      doc === "No source docs."
+         ? `The \`${source}\` source.`
+         : (doc.split(". ")[0].replace(/\.$/, "") + ".").slice(0, 120);
+   return JSON.stringify({
+      summary: `${doc} Fields: ${fields.map((f) => `\`${f}\``).join(", ")}.`,
+      one_line_summary: oneLine,
+   });
+}
+
+// ---------------------------------------------------------------------------
+// The judge prompt's grammar
+// ---------------------------------------------------------------------------
+
+/** One stored value shown under a candidate. */
+export interface ShownValue {
+   /** `3a`; only a dimensional_value target's values carry one. */
+   label?: string;
+   value: string;
+   how: "exact" | "words" | "typo" | "meaning";
+}
+
+/** One numbered line the judge may pick. */
+export interface JudgeCandidate {
+   number: number;
+   /** The field's name as listed (a joined copy's is dotted). */
+   name: string;
+   kind: string;
+   dataType?: string;
+   source: string;
+   /** The field's doc; empty when the line says it has none. */
+   doc: string;
+   /** A route option: its joining source and join path. */
+   route?: { from: string; path: string; field: string; owner: string };
+   /** The field a route option is listed under. */
+   under?: number;
+   /** The stored values shown (`stored values matching the target`). */
+   values?: ShownValue[];
+   /** Shown with `no stored values`. */
+   bare?: boolean;
+   /** An extra (`Also in this group`), with its reason. */
+   extra?: string;
+}
+
+export interface JudgeTarget {
+   number: number;
+   type: string;
+   text: string;
+   candidates: JudgeCandidate[];
+}
+
+export interface JudgePrompt {
+   targets: JudgeTarget[];
+   extras: JudgeCandidate[];
+   /** The prompt is the repair re-ask of an earlier reply. */
+   repair: boolean;
+}
+
+const NAME = "[A-Za-z_][A-Za-z0-9_]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)*";
+const TARGET_LINE = /^Target (\d+) \(([a-z_]+)((?:; [^;)]+)*)\): (".*")$/;
+const HEAD = new RegExp(
+   `^\\[(\\d+)\\] (${NAME}) \\(([a-z_]+)(?:, ([^;)]+))?; source ([A-Za-z_][A-Za-z0-9_]*)`,
+);
+const ROUTE_LINE = new RegExp(
+   `^\\[(\\d+)\\] (${NAME}) \\(route from ([A-Za-z_][A-Za-z0-9_]*) through (${NAME}), (join_[a-z]+)[^)]*\\): only the ([A-Za-z_][A-Za-z0-9_]*) rows [A-Za-z_][A-Za-z0-9_]* reaches( \\(.*\\))?$`,
+);
+const REPLY_FORMAT_START = "Reply with one JSON object and nothing else:";
+const REPAIR_START = "Your previous reply was:";
+
+/**
+ * The end of a `(...)` group that starts at `at` (the `(`), skipping JSON
+ * strings and nested parentheses. -1 when it does not close.
+ */
+function closingParen(text: string, at: number): number {
+   let depth = 0;
+   for (let i = at; i < text.length; i++) {
+      const ch = text[i];
+      if (ch === '"') {
+         i++;
+         while (i < text.length && text[i] !== '"') {
+            if (text[i] === "\\") i++;
+            i++;
+         }
+         continue;
+      }
+      if (ch === "(") depth++;
+      if (ch === ")") {
+         depth--;
+         if (depth === 0) return i;
+      }
+   }
+   return -1;
+}
+
+const VALUE_ITEM =
+   /^(?:(\d+[a-z]) )?("(?:[^"\\]|\\.)*") \((exact|words|typo|meaning), \d+\.\d\d\)/;
+
+/** `3a "Jeans" (exact, 1.00), 3b ... , and 2 more not shown`. */
+function parseValues(text: string, line: string): ShownValue[] {
+   const out: ShownValue[] = [];
+   let rest = text;
+   for (;;) {
+      const m = VALUE_ITEM.exec(rest);
+      if (!m) {
+         throw new StandInError(
+            `cannot read the stored values of a candidate line: ${JSON.stringify(line)}`,
+         );
+      }
+      out.push({
+         ...(m[1] ? { label: m[1] } : {}),
+         value: JSON.parse(m[2]) as string,
+         how: m[3] as ShownValue["how"],
+      });
+      rest = rest.slice(m[0].length);
+      if (rest === "" || /^, and \d+ more not shown$/.test(rest)) return out;
+      if (!rest.startsWith(", ")) {
+         throw new StandInError(
+            `cannot read the stored values of a candidate line: ${JSON.stringify(line)}`,
+         );
+      }
+      rest = rest.slice(2);
+   }
+}
+
+/**
+ * One candidate line, after its indent:
+ * `[n] name (kind[, type]; source S[; how it is reached]): doc[ | values][ | added because: why]`.
+ */
+export function parseCandidateLine(line: string): JudgeCandidate {
+   const head = HEAD.exec(line);
+   if (!head) {
+      throw new StandInError(
+         `cannot read a judge candidate line: ${JSON.stringify(line)}`,
+      );
+   }
+   // The `(` of the kind group; the group may go on with how the field is
+   // reached, which can quote docs holding parentheses.
+   const open = line.indexOf(" (", head[1].length + head[2].length + 3) + 1;
+   const close = closingParen(line, open);
+   if (close < 0 || line.slice(close, close + 3) !== "): ") {
+      throw new StandInError(
+         `a judge candidate line has no "(...): " after its name: ${JSON.stringify(line)}`,
+      );
+   }
+   let body = line.slice(close + 3);
+   const candidate: JudgeCandidate = {
+      number: Number(head[1]),
+      name: head[2],
+      kind: head[3],
+      ...(head[4] ? { dataType: head[4] } : {}),
+      source: head[5],
+      doc: "",
+   };
+   const extraAt = body.lastIndexOf(" | added because: ");
+   if (extraAt >= 0) {
+      candidate.extra = body.slice(extraAt + " | added because: ".length);
+      body = body.slice(0, extraAt);
+   }
+   if (body.endsWith(" | no stored values")) {
+      candidate.bare = true;
+      body = body.slice(0, -" | no stored values".length);
+   } else {
+      const marker = " | stored values matching the target: ";
+      const at = body.lastIndexOf(marker);
+      if (at >= 0) {
+         candidate.values = parseValues(body.slice(at + marker.length), line);
+         body = body.slice(0, at);
+      }
+   }
+   if (body.startsWith("(no doc; name in words: ")) {
+      if (!body.endsWith(")")) {
+         throw new StandInError(
+            `a judge candidate line has an unclosed "(no doc; ...)": ${JSON.stringify(line)}`,
+         );
+      }
+      candidate.doc = "";
+   } else {
+      candidate.doc = body;
+   }
+   return candidate;
+}
+
+/**
+ * Read a judge prompt through its grammar: a header, then
+ *
+ *    <targets>
+ *    Target 1 (measure): "total revenue"
+ *      [1] name (kind, type; source s): doc                       (a cluster)
+ *      From s:                                                    (a list)
+ *        [1] name (kind, type; source s): doc
+ *            [2] s2.path.name (route from s2 through path, join_one): ...
+ *      (no candidates in this group)
+ *    </targets>
+ *
+ *    Also in this group:
+ *      [9] name (...): doc | added because: why
+ *
+ *    Reply with one JSON object and nothing else: ...
+ *    [the repair re-ask's "Your previous reply was: ..." tail]
+ *
+ * Every line between the targets tags must be one of those; anything else,
+ * a candidate before the first target, or no target at all, throws.
+ */
+export function parseJudgePrompt(prompt: string): JudgePrompt {
+   const lines = prompt.split("\n");
+   const open = lines.indexOf("<targets>");
+   const close = lines.indexOf("</targets>");
+   if (open < 0 || close < open) {
+      throw new StandInError(
+         "a judge prompt has no <targets> ... </targets> block",
+      );
+   }
+   const formatAt = lines.findIndex(
+      (l, i) => i > close && l === REPLY_FORMAT_START,
+   );
+   if (formatAt < 0) {
+      throw new StandInError(
+         `a judge prompt has no "${REPLY_FORMAT_START}" line after </targets>`,
+      );
+   }
+   const targets: JudgeTarget[] = [];
+   let current: JudgeTarget | undefined;
+   let lastField: JudgeCandidate | undefined;
+   for (const line of lines.slice(open + 1, close)) {
+      const t = TARGET_LINE.exec(line);
+      if (t) {
+         let text: string;
+         try {
+            text = JSON.parse(t[4]) as string;
+         } catch {
+            throw new StandInError(
+               `a judge target's text is not a JSON string: ${JSON.stringify(line)}`,
+            );
+         }
+         current = {
+            number: Number(t[1]),
+            type: t[2],
+            text,
+            candidates: [],
+         };
+         if (current.number !== targets.length + 1) {
+            throw new StandInError(
+               `judge targets are not numbered 1, 2, ... in order: ${JSON.stringify(line)}`,
+            );
+         }
+         targets.push(current);
+         lastField = undefined;
+         continue;
+      }
+      if (!current) {
+         throw new StandInError(
+            `a judge prompt has a line before its first target: ${JSON.stringify(line)}`,
+         );
+      }
+      if (line === "  (no candidates in this group)") continue;
+      if (
+         /^ {2}From [A-Za-z_][A-Za-z0-9_]*( \(its doc: ".*"\))?:$/.test(line)
+      ) {
+         continue;
+      }
+      const route = /^ {8}(\[.*)$/.exec(line);
+      if (route) {
+         const m = ROUTE_LINE.exec(route[1]);
+         if (!m || !lastField) {
+            throw new StandInError(
+               `cannot read a judge route option line: ${JSON.stringify(line)}`,
+            );
+         }
+         const field = m[2].slice(m[4].length + m[3].length + 2);
+         current.candidates.push({
+            number: Number(m[1]),
+            name: m[2],
+            kind: lastField.kind,
+            source: m[3],
+            doc: lastField.doc,
+            route: { from: m[3], path: m[4], field, owner: m[6] },
+            under: lastField.number,
+         });
+         continue;
+      }
+      const field = /^( {2}| {4})(\[.*)$/.exec(line);
+      if (!field) {
+         throw new StandInError(
+            `a judge prompt has a line the stand-in cannot read: ${JSON.stringify(line)}`,
+         );
+      }
+      lastField = parseCandidateLine(field[2]);
+      current.candidates.push(lastField);
+   }
+   if (targets.length === 0) {
+      throw new StandInError("a judge prompt lists no target");
+   }
+   const extras: JudgeCandidate[] = [];
+   const tail = lines.slice(close + 1, formatAt).filter((l) => l !== "");
+   if (tail.length > 0) {
+      if (tail[0] !== "Also in this group:") {
+         throw new StandInError(
+            `a judge prompt has a line the stand-in cannot read after </targets>: ${JSON.stringify(tail[0])}`,
+         );
+      }
+      for (const line of tail.slice(1)) {
+         const m = /^ {2}(\[.*)$/.exec(line);
+         if (!m) {
+            throw new StandInError(
+               `cannot read a judge extra line: ${JSON.stringify(line)}`,
+            );
+         }
+         extras.push(parseCandidateLine(m[1]));
+      }
+   }
+   const repair = lines.slice(formatAt).includes(REPAIR_START);
+   return { targets, extras, repair };
+}
+
+// ---------------------------------------------------------------------------
+// The judge's decision rule
+// ---------------------------------------------------------------------------
+
 /** Words that never decide a judge pick on their own. */
 const STOP = new Set([
    "the",
@@ -166,7 +539,6 @@ const STOP = new Set([
    "each",
    "what",
    "which",
-   "of",
    "per",
    "how",
    "many",
@@ -175,164 +547,246 @@ const STOP = new Set([
    "item",
    "line",
    "lines",
+   "were",
+   "was",
+   "are",
+   "its",
+   "one",
+   "row",
+   "all",
+   "any",
+   "not",
+   "only",
+   "every",
 ]);
 
-/** Lower-case content words of a text, a trailing "s" dropped. */
-function contentWords(text: string): Set<string> {
+/**
+ * Reserved words a case puts in a target's search_text to ask the stand-in
+ * judge for a harder reply. They never count as words of the target.
+ */
+export const MARKERS = {
+   /** `best` is the second candidate of the pick, not the first. */
+   best2: "zzbest2",
+   /** The pick carries `readings: true`. */
+   readings: "zzreadings",
+   /** The reply carries a caveat naming the target's best field. */
+   caveat: "zzcaveat",
+   /** Every route option shown under a picked field is picked beside it. */
+   routes: "zzroutes",
+   /** The first reply names a candidate that was not offered; the repair re-ask gets a valid one. */
+   badPick: "zzbadpick",
+   /** Every reply is not JSON, so the judge fails after its repair re-ask. */
+   fail: "zzjudgefail",
+   /**
+    * `zzname_<field>`: the reply carries a caveat naming `<field>`, which
+    * need not be picked (`zzname_order_count`).
+    */
+   name: "zzname_",
+} as const;
+
+/** A target's text without its markers: what its words are read from. */
+function unmarked(text: string): string {
+   return text.replace(/\bzz[a-z0-9_]*/gi, " ");
+}
+
+/** Words read as another word: a target's "number of" is a field's "count". */
+const SYNONYMS: Readonly<Record<string, string>> = { number: "count" };
+
+/**
+ * Lower-case content words of a text: split on anything not a letter or
+ * digit (so `total_amount` is two words), a plural "s" or a past "ed"
+ * dropped, then stop words out and {@link SYNONYMS} applied.
+ */
+export function contentWords(text: string): Set<string> {
    return new Set(
       (text.toLowerCase().match(/[a-z0-9]+/g) ?? [])
-         .filter((w) => w.length >= 3 && !STOP.has(w))
-         .map((w) => (w.length > 4 && w.endsWith("s") ? w.slice(0, -1) : w)),
+         .filter((w) => w.length >= 3)
+         .map((w) =>
+            w.length > 5 && w.endsWith("ed")
+               ? w.slice(0, -2)
+               : w.length > 4 && w.endsWith("s")
+                 ? w.slice(0, -1)
+                 : w,
+         )
+         .filter((w) => !STOP.has(w))
+         .map((w) => SYNONYMS[w] ?? w),
    );
 }
 
-/** Most candidates the stand-in judge picks per target, by target type. */
-const PICKS_BY_TYPE: Record<string, number> = {
-   measure: 2,
-   dimension: 3,
-   dimensional_value: 1,
-};
-const DEFAULT_PICKS = 2;
+/** A name word counts this many times a doc word. */
+export const NAME_WEIGHT = 2;
+/** The lowest score that picks a field: one target word in its name, or two in its doc. */
+export const PICK_THRESHOLD = 2;
 
 /**
- * The stand-in judge. For each target in the prompt, it walks the candidates
- * listed under that target in the order the engine listed them (route lines,
- * indented under their field, are skipped) and picks those whose line shares
- * a content word with the target's text, up to {@link PICKS_BY_TYPE}. The
- * first pick is `best`. A target with no such candidate gets an empty pick:
- * that is how a not-found target looks to the engine.
+ * A field's score for a target: {@link NAME_WEIGHT} for each target word in
+ * its name, 1 for each other target word in its doc. A function of the
+ * target's text and the field's own name and doc only.
+ */
+export function fieldScore(
+   target: ReadonlySet<string>,
+   name: string,
+   doc: string,
+): number {
+   const nameWords = contentWords(name);
+   const docWords = contentWords(doc);
+   let score = 0;
+   for (const w of target) {
+      if (nameWords.has(w)) score += NAME_WEIGHT;
+      else if (docWords.has(w)) score += 1;
+   }
+   return score;
+}
+
+/** The value labels a value target names on one candidate, by spelling. */
+function namedValues(
+   targetText: string,
+   values: readonly ShownValue[],
+): ShownValue[] {
+   const spelled = values.filter(
+      (v) =>
+         v.how !== "meaning" ||
+         v.value.toLowerCase() === targetText.trim().toLowerCase(),
+   );
+   // Values holding every word of the target as a whole word, when any do:
+   // "Springfield" names "West Springfield", not "Springfeld Heights".
+   const words = targetText.toLowerCase().match(/[a-z0-9]+/g) ?? [];
+   const whole = spelled.filter((v) => {
+      const own = new Set(v.value.toLowerCase().match(/[a-z0-9]+/g) ?? []);
+      return words.length > 0 && words.every((w) => own.has(w));
+   });
+   return whole.length > 0 ? whole : spelled;
+}
+
+interface Pick {
+   target: number;
+   candidates: number[];
+   best?: number;
+   values?: string[];
+   readings?: true;
+   reason: string;
+}
+
+/** Best first: score, then name, then source, then route path. */
+function byScore(
+   a: { score: number; c: JudgeCandidate },
+   b: { score: number; c: JudgeCandidate },
+): number {
+   const key = (c: JudgeCandidate) =>
+      `${c.name}\u0000${c.source}\u0000${c.route?.path ?? ""}`;
+   return b.score - a.score || (key(a.c) < key(b.c) ? -1 : 1);
+}
+
+/**
+ * The stand-in judge: a fixed function of the prompt, so the replay shows
+ * what the engine does with a judge's answer. For each target, independently
+ * of every other candidate line and of the order they are listed in:
  *
- * A value target (`dimensional_value`) is picked by its values instead: the
- * first candidate shown with a stored value the engine matched by spelling
- * (`exact`, `words` or `typo`), or equal to the target's text ignoring case,
- * naming those value labels in `values`; a value matched only by `meaning`
- * is not picked. When the target's
- * only candidate is shown with no stored values (a dimension the caller
- * pinned), that candidate is picked. No caveats and no `readings`, ever.
+ * - A field is picked when its {@link fieldScore} for the target is at least
+ *   {@link PICK_THRESHOLD}. Picks are listed by score, then name, then
+ *   source; the first is `best`. There is no cap per call, so the same field
+ *   gets the same decision in one big call or in a call per source.
+ * - A route option (a field reached from another listed source) is picked in
+ *   place of its field when the field qualifies and every content word of
+ *   the joining source's name is in the target: the target names the rows
+ *   the route reads.
+ * - A value target (`dimensional_value`) picks every candidate shown with a
+ *   stored value matched by spelling (`exact`, `words`, `typo`) or equal to
+ *   the target ignoring case, naming in `values` those of its values that
+ *   hold every word of the target, or all of them when none does. A
+ *   candidate shown with `no stored values` is picked only when it is the
+ *   target's only candidate (a dimension the caller pinned).
+ * - Extras (`Also in this group`) are never picked.
  *
- * This is not a model and is not meant to agree with one: it is a fixed
- * function of the prompt, so the replay shows what the engine does with a
- * judge's answer, and a change to what the judge is shown changes the picks.
+ * {@link MARKERS} in a target's text change the reply for that target.
  */
 export function standInJudgeReply(prompt: string): string {
-   const picks: Array<{
-      target: number;
-      candidates: number[];
-      best?: number;
-      values?: string[];
-      reason: string;
-   }> = [];
-   let current:
-      | {
-           target: number;
-           type: string;
-           text: string;
-           words: Set<string>;
-           chosen: number[];
-           /** Value labels named for a value target. */
-           values: string[];
-           /** Candidates listed under the target (routes not counted). */
-           listed: number;
-           /** Value-target candidates shown with no stored values. */
-           bare: number[];
-        }
-      | undefined;
-   const close = () => {
-      if (!current) return;
-      // A value target whose one candidate has no indexed values is a
-      // dimension the caller pinned (scopes[].entity_name): take it, as a
-      // model reading the field's doc against the value would.
-      if (
-         current.type === "dimensional_value" &&
-         current.chosen.length === 0 &&
-         current.listed === 1 &&
-         current.bare.length === 1
-      ) {
-         current.chosen.push(current.bare[0]);
+   const parsed = parseJudgePrompt(prompt);
+   const picks: Pick[] = [];
+   const caveats: string[] = [];
+   for (const t of parsed.targets) {
+      const marked = new Set(t.text.toLowerCase().match(/[a-z0-9_]+/g) ?? []);
+      if (marked.has(MARKERS.fail)) {
+         return `stand-in: no JSON here, as ${MARKERS.fail} asks`;
       }
-      picks.push({
-         target: current.target,
-         candidates: current.chosen,
-         ...(current.chosen.length > 0 ? { best: current.chosen[0] } : {}),
-         ...(current.values.length > 0 ? { values: current.values } : {}),
-         reason:
-            current.type === "dimensional_value"
-               ? current.chosen.length > 0
-                  ? "stand-in: a value matched by spelling, or the one pinned field"
-                  : "stand-in: no value matched by spelling"
-               : current.chosen.length > 0
-                 ? "stand-in: listed candidates sharing a word with the target"
-                 : "stand-in: no listed candidate shares a word with the target",
-      });
-      current = undefined;
-   };
-   let inTargets = false;
-   for (const line of prompt.split("\n")) {
-      if (line === "<targets>") {
-         inTargets = true;
-         continue;
-      }
-      if (line === "</targets>") {
-         close();
-         inTargets = false;
-         continue;
-      }
-      if (!inTargets) continue;
-      const target = /^Target (\d+) \(([a-z_]+)[;)].*?: (".*")$/.exec(line);
-      if (target) {
-         close();
-         const text = JSON.parse(target[3]) as string;
-         current = {
-            target: Number(target[1]),
-            type: target[2],
-            text,
-            words: contentWords(text),
-            chosen: [],
-            values: [],
-            listed: 0,
-            bare: [],
-         };
-         continue;
-      }
-      const candidate = /^( +)\[(\d+)\] (.*)$/.exec(line);
-      // Route options sit eight spaces in, under their field.
-      if (!candidate || !current || candidate[1].length >= 8) continue;
-      current.listed += 1;
-      const number = Number(candidate[2]);
-      if (current.type === "dimensional_value") {
-         if (/\| no stored values$/.test(candidate[3])) {
-            current.bare.push(number);
-            continue;
+      const words = contentWords(unmarked(t.text));
+      const aside = /\bzzname_([a-z0-9_]+)/i.exec(t.text)?.[1];
+      const pick: Pick = { target: t.number, candidates: [], reason: "" };
+      if (t.type === "dimensional_value") {
+         const named: string[] = [];
+         const fields = t.candidates.filter((c) => !c.route);
+         for (const c of fields) {
+            const values = namedValues(t.text, c.values ?? []);
+            if (values.length > 0) {
+               pick.candidates.push(c.number);
+               named.push(...values.map((v) => v.label ?? v.value));
+            } else if (c.bare && fields.length === 1) {
+               pick.candidates.push(c.number);
+            }
          }
-         // `3a "Jeans" (exact, 1.00)`: the labels of the values matched by
-         // spelling (exact, words or typo), or equal to the target ignoring
-         // case; a value matched only by meaning is a look-alike.
-         const same = [
-            ...candidate[3].matchAll(
-               /(\d+[a-z]) ("(?:[^"\\]|\\.)*") \(([a-z]+), [\d.]+\)/g,
-            ),
-         ]
-            .filter(
-               ([, , v, how]) =>
-                  how !== "meaning" ||
-                  (JSON.parse(v) as string).toLowerCase() ===
-                     current!.text.toLowerCase(),
-            )
-            .map(([, label]) => label);
-         if (same.length > 0 && current.chosen.length < 1) {
-            current.chosen.push(number);
-            current.values.push(...same);
+         if (named.length > 0) pick.values = named;
+         pick.reason =
+            pick.candidates.length > 0
+               ? "stand-in: a stored value matched by spelling, or the one pinned field"
+               : "stand-in: no stored value matched by spelling";
+      } else {
+         const scored = t.candidates
+            .filter((c) => !c.route)
+            .map((c) => ({ c, score: fieldScore(words, c.name, c.doc) }))
+            .filter((x) => x.score >= PICK_THRESHOLD)
+            .sort(byScore);
+         const chosen: Array<{ c: JudgeCandidate; score: number }> = [];
+         for (const x of scored) {
+            const routes = t.candidates.filter((r) => r.under === x.c.number);
+            const named = routes.filter((r) =>
+               [...contentWords(r.route!.from)].every((w) => words.has(w)),
+            );
+            if (named.length > 0) {
+               chosen.push(...named.map((r) => ({ c: r, score: x.score })));
+            } else {
+               chosen.push(x);
+            }
+            if (marked.has(MARKERS.routes)) {
+               for (const r of routes) {
+                  if (!chosen.some((y) => y.c === r)) {
+                     chosen.push({ c: r, score: x.score });
+                  }
+               }
+            }
          }
-         continue;
+         pick.candidates = chosen.map((x) => x.c.number);
+         pick.reason =
+            chosen.length > 0
+               ? `stand-in: ${chosen.length} candidate(s) scored ${PICK_THRESHOLD} or more`
+               : "stand-in: no candidate scored high enough";
+         if (chosen.length > 0 && marked.has(MARKERS.caveat)) {
+            caveats.push(
+               `stand-in caveat: ${chosen[0].c.name} on ${chosen[0].c.source} was a close call for target ${t.number}.`,
+            );
+         }
       }
-      const cap = PICKS_BY_TYPE[current.type] ?? DEFAULT_PICKS;
-      if (current.chosen.length >= cap) continue;
-      const text = candidate[3].replace(/_/g, " ");
-      const shared = [...contentWords(text)].some((w) => current!.words.has(w));
-      if (shared) current.chosen.push(number);
+      if (aside) {
+         caveats.push(
+            `stand-in caveat: ${aside} may answer target ${t.number} too.`,
+         );
+      }
+      if (pick.candidates.length > 0) {
+         pick.best =
+            marked.has(MARKERS.best2) && pick.candidates.length > 1
+               ? pick.candidates[1]
+               : pick.candidates[0];
+         if (marked.has(MARKERS.readings)) pick.readings = true;
+      }
+      if (marked.has(MARKERS.badPick) && !parsed.repair) {
+         const numbers = [
+            ...parsed.targets.flatMap((x) => x.candidates.map((c) => c.number)),
+            ...parsed.extras.map((c) => c.number),
+         ];
+         pick.candidates = [...pick.candidates, Math.max(0, ...numbers) + 100];
+      }
+      picks.push(pick);
    }
-   close();
-   return JSON.stringify({ picks, caveats: [] });
+   return JSON.stringify({ picks, caveats });
 }
 
 function replyFor(kind: ChatKind, prompt: string): string {
@@ -346,15 +800,17 @@ function replyFor(kind: ChatKind, prompt: string): string {
       case "source_summary":
          return summaryReply(prompt);
       case "unrecognized":
-         // Fails the call, so a new kind of prompt shows up in a snapshot
-         // as a failure rather than as a made-up answer.
-         throw new Error(
-            "replay stand-in: a chat prompt of a kind it does not recognize",
+         throw new StandInError(
+            `a chat prompt of a kind it does not recognize, starting ${JSON.stringify(prompt.slice(0, 120))}`,
          );
    }
 }
 
-/** The chat model of the replay: real ChatModelImpl, rule replies. */
+/**
+ * The chat model of the replay: real ChatModelImpl, rule replies. Each call
+ * waits a few milliseconds (see {@link jitter}) before it answers, so calls
+ * the engine sends together complete out of order.
+ */
 export function replayChat(traffic: Traffic): ChatModel {
    const raw: RawChat = {
       async send(req) {
@@ -367,7 +823,14 @@ export function replayChat(traffic: Traffic): ChatModel {
             reply: "",
          };
          traffic.chatCalls.push(call);
-         call.reply = replyFor(kind, req.prompt);
+         await jitter(req.prompt);
+         try {
+            call.reply = replyFor(kind, req.prompt);
+         } catch (error) {
+            call.error = error instanceof Error ? error.message : String(error);
+            call.standInError = error instanceof StandInError;
+            throw error;
+         }
          return {
             text: call.reply,
             usage: { inputTokens: 0, outputTokens: 0 },

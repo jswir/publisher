@@ -32,6 +32,126 @@
             "resource_id": {
               "environment": "examples",
               "package": "storefront",
+              "model_path": "storefront.malloy",
+              "source": "order_items"
+            },
+            "one_line_summary": "Order line items — the fact table, one row per product sold on an order.",
+            "docs": "Order line items — the fact table, one row per product sold on an order",
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "margin_rate",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:margin_rate",
+              "relevance": 0.9921280165182604,
+              "description": "Gross margin as a share of revenue",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "gross margin as a share of revenue",
+                  "relevance": 0.9921,
+                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "total_margin",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:total_margin",
+              "relevance": 0.9248031829029281,
+              "description": "Total gross margin (revenue minus cost of goods sold), summed per line",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "gross margin as a share of revenue",
+                  "relevance": 0.9248,
+                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "brand",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:brand",
+              "relevance": 1,
+              "description": "Brand of the item sold",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "brand of the item sold",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 5 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "region",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:region",
+              "relevance": 0.9921280165182604,
+              "description": "Sales region for the customer's home state",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "sales region for the customer's home state",
+                  "relevance": 0.9921,
+                  "match_reason": "stand-in: 13 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customer_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:customer_id",
+              "relevance": 0.8055546274640828,
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "sales region for the customer's home state",
+                  "relevance": 0.8056,
+                  "match_reason": "stand-in: 13 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "sale_price",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:sale_price",
+              "relevance": 0.6998003083214568,
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "sales region for the customer's home state",
+                  "relevance": 0.6998,
+                  "match_reason": "stand-in: 13 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 1
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
               "model_path": "overview.malloy",
               "source": "overview"
             },
@@ -94,7 +214,7 @@
                 {
                   "search_text": "gross margin as a share of revenue",
                   "relevance": 1,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -109,7 +229,22 @@
                 {
                   "search_text": "gross margin as a share of revenue",
                   "relevance": 0.9463,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "brand",
+              "entity_type": "dimension",
+              "entity_id": "dimension:overview:brand",
+              "relevance": 0.9761259517357077,
+              "description": "Brand of the item sold",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "brand of the item sold",
+                  "relevance": 0.9761,
+                  "match_reason": "stand-in: 5 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -124,7 +259,7 @@
                 {
                   "search_text": "sales region for the customer's home state",
                   "relevance": 1,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                  "match_reason": "stand-in: 13 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -138,7 +273,7 @@
                 {
                   "search_text": "sales region for the customer's home state",
                   "relevance": 0.9111,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                  "match_reason": "stand-in: 13 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -152,163 +287,9 @@
                 {
                   "search_text": "sales region for the customer's home state",
                   "relevance": 0.8255,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                  "match_reason": "stand-in: 13 candidate(s) scored 2 or more"
                 }
               ]
-            },
-            {
-              "name": "brand",
-              "entity_type": "dimension",
-              "entity_id": "dimension:overview:brand",
-              "description": "Brand of the item sold",
-              "data_type": "string",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick brand_suggest.brand, on another source."
-            },
-            {
-              "name": "category",
-              "entity_type": "dimension",
-              "entity_id": "dimension:overview:category",
-              "description": "Product category of the item sold",
-              "data_type": "string",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick order_items.category, on another source."
-            }
-          ],
-          "relevance": 1
-        },
-        {
-          "source_info": {
-            "resource_id": {
-              "environment": "examples",
-              "package": "storefront",
-              "model_path": "storefront.malloy",
-              "source": "brand_suggest"
-            },
-            "one_line_summary": "Distinct brands, for the Brand filter control's option list.",
-            "docs": "Distinct brands, for the Brand filter control's option list",
-            "joins": []
-          },
-          "entities": [
-            {
-              "name": "brand",
-              "entity_type": "dimension",
-              "entity_id": "dimension:brand_suggest:brand",
-              "relevance": 1,
-              "description": "Brand of the item sold",
-              "data_type": "string",
-              "matched_targets": [
-                {
-                  "search_text": "brand of the item sold",
-                  "relevance": 1,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
-                }
-              ]
-            }
-          ],
-          "relevance": 1
-        },
-        {
-          "source_info": {
-            "resource_id": {
-              "environment": "examples",
-              "package": "storefront",
-              "model_path": "storefront.malloy",
-              "source": "order_items"
-            },
-            "one_line_summary": "Order line items — the fact table, one row per product sold on an order.",
-            "docs": "Order line items — the fact table, one row per product sold on an order",
-            "joins": [
-              {
-                "name": "customers",
-                "relationship": "one",
-                "doc": "Customer who placed the order"
-              },
-              {
-                "name": "products",
-                "relationship": "one",
-                "doc": "Product sold on this line"
-              },
-              {
-                "name": "regions",
-                "relationship": "one",
-                "doc": "Sales region for the customer's home state"
-              }
-            ]
-          },
-          "entities": [
-            {
-              "name": "brand",
-              "entity_type": "dimension",
-              "entity_id": "dimension:order_items:brand",
-              "relevance": 1,
-              "description": "Brand of the item sold",
-              "data_type": "string",
-              "matched_targets": [
-                {
-                  "search_text": "brand of the item sold",
-                  "relevance": 1,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
-                }
-              ]
-            },
-            {
-              "name": "category",
-              "entity_type": "dimension",
-              "entity_id": "dimension:order_items:category",
-              "relevance": 0.9389239486800461,
-              "description": "Product category of the item sold",
-              "data_type": "string",
-              "matched_targets": [
-                {
-                  "search_text": "brand of the item sold",
-                  "relevance": 0.9389,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
-                }
-              ]
-            },
-            {
-              "name": "margin_rate",
-              "entity_type": "measure",
-              "entity_id": "measure:order_items:margin_rate",
-              "description": "Gross margin as a share of revenue",
-              "data_type": "number",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick overview.margin_rate, on another source."
-            },
-            {
-              "name": "total_margin",
-              "entity_type": "measure",
-              "entity_id": "measure:order_items:total_margin",
-              "description": "Total gross margin (revenue minus cost of goods sold), summed per line",
-              "data_type": "number",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick overview.total_margin, on another source."
-            },
-            {
-              "name": "region",
-              "entity_type": "dimension",
-              "entity_id": "dimension:order_items:region",
-              "description": "Sales region for the customer's home state",
-              "data_type": "string",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick overview.region, on another source."
-            },
-            {
-              "name": "customer_id",
-              "entity_type": "dimension",
-              "entity_id": "dimension:order_items:customer_id",
-              "data_type": "number",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick overview.customer_id, on another source."
-            },
-            {
-              "name": "sale_price",
-              "entity_type": "dimension",
-              "entity_id": "dimension:order_items:sale_price",
-              "data_type": "number",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick overview.sale_price, on another source."
             }
           ],
           "relevance": 1
@@ -373,69 +354,246 @@
               "name": "margin_rate",
               "entity_type": "measure",
               "entity_id": "measure:scoped_orders:margin_rate",
+              "relevance": 0.9839979352174473,
               "description": "Gross margin as a share of revenue",
               "data_type": "number",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick overview.margin_rate, on another source."
+              "matched_targets": [
+                {
+                  "search_text": "gross margin as a share of revenue",
+                  "relevance": 0.984,
+                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                }
+              ]
             },
             {
               "name": "total_margin",
               "entity_type": "measure",
               "entity_id": "measure:scoped_orders:total_margin",
+              "relevance": 0.953482645403377,
               "description": "Total gross margin (revenue minus cost of goods sold), summed per line",
               "data_type": "number",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick overview.total_margin, on another source."
+              "matched_targets": [
+                {
+                  "search_text": "gross margin as a share of revenue",
+                  "relevance": 0.9535,
+                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                }
+              ]
             },
             {
               "name": "brand",
               "entity_type": "dimension",
               "entity_id": "dimension:scoped_orders:brand",
+              "relevance": 0.9608739837398372,
               "description": "Brand of the item sold",
               "data_type": "string",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick brand_suggest.brand, on another source."
-            },
-            {
-              "name": "category",
-              "entity_type": "dimension",
-              "entity_id": "dimension:scoped_orders:category",
-              "description": "Product category of the item sold",
-              "data_type": "string",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick order_items.category, on another source."
+              "matched_targets": [
+                {
+                  "search_text": "brand of the item sold",
+                  "relevance": 0.9609,
+                  "match_reason": "stand-in: 5 candidate(s) scored 2 or more"
+                }
+              ]
             },
             {
               "name": "region",
               "entity_type": "dimension",
               "entity_id": "dimension:scoped_orders:region",
+              "relevance": 0.9839979352174473,
               "description": "Sales region for the customer's home state",
               "data_type": "string",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick overview.region, on another source."
+              "matched_targets": [
+                {
+                  "search_text": "sales region for the customer's home state",
+                  "relevance": 0.984,
+                  "match_reason": "stand-in: 13 candidate(s) scored 2 or more"
+                }
+              ]
             },
             {
               "name": "customer_id",
               "entity_type": "dimension",
               "entity_id": "dimension:scoped_orders:customer_id",
+              "relevance": 0.8413907705718903,
               "data_type": "number",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick overview.customer_id, on another source."
+              "matched_targets": [
+                {
+                  "search_text": "sales region for the customer's home state",
+                  "relevance": 0.8414,
+                  "match_reason": "stand-in: 13 candidate(s) scored 2 or more"
+                }
+              ]
             },
             {
               "name": "sale_price",
               "entity_type": "dimension",
               "entity_id": "dimension:scoped_orders:sale_price",
+              "relevance": 0.7441899375515494,
               "data_type": "number",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick overview.sale_price, on another source."
+              "matched_targets": [
+                {
+                  "search_text": "sales region for the customer's home state",
+                  "relevance": 0.7442,
+                  "match_reason": "stand-in: 13 candidate(s) scored 2 or more"
+                }
+              ]
             }
-          ]
+          ],
+          "relevance": 0.9839979352174473
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "storefront.malloy",
+              "source": "brand_suggest"
+            },
+            "one_line_summary": "Distinct brands, for the Brand filter control's option list.",
+            "docs": "Distinct brands, for the Brand filter control's option list",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "brand",
+              "entity_type": "dimension",
+              "entity_id": "dimension:brand_suggest:brand",
+              "relevance": 1,
+              "description": "Brand of the item sold",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "brand of the item sold",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 5 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 1
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "storefront.malloy",
+              "source": "products"
+            },
+            "one_line_summary": "Catalog of products, one row per product, with cost and retail price.",
+            "docs": "Catalog of products, one row per product, with cost and retail price",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "brand",
+              "entity_type": "dimension",
+              "entity_id": "dimension:products:brand",
+              "relevance": 0.8480208667002241,
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "brand of the item sold",
+                  "relevance": 0.848,
+                  "match_reason": "stand-in: 5 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 0.8480208667002241
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "storefront.malloy",
+              "source": "customers"
+            },
+            "one_line_summary": "People who have placed orders — one row per customer, keyed by `customer_id`.",
+            "docs": "People who have placed orders — one row per customer, keyed by `customer_id`",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "customer_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:customers:customer_id",
+              "relevance": 0.8116699489976266,
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "sales region for the customer's home state",
+                  "relevance": 0.8117,
+                  "match_reason": "stand-in: 13 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "state",
+              "entity_type": "dimension",
+              "entity_id": "dimension:customers:state",
+              "relevance": 0.836335734660742,
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "sales region for the customer's home state",
+                  "relevance": 0.8363,
+                  "match_reason": "stand-in: 13 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 0.836335734660742
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "storefront.malloy",
+              "source": "regions"
+            },
+            "one_line_summary": "Sales region for each US state, one row per state, keyed by `state`.",
+            "docs": "Sales region for each US state, one row per state, keyed by `state`",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "region",
+              "entity_type": "dimension",
+              "entity_id": "dimension:regions:region",
+              "relevance": 0.953482645403377,
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "sales region for the customer's home state",
+                  "relevance": 0.9535,
+                  "match_reason": "stand-in: 13 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "state",
+              "entity_type": "dimension",
+              "entity_id": "dimension:regions:state",
+              "relevance": 0.953482645403377,
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "sales region for the customer's home state",
+                  "relevance": 0.9535,
+                  "match_reason": "stand-in: 13 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 0.953482645403377
         }
       ],
       "ranking": "relevance",
-      "total_available": 4,
-      "returned": 4,
+      "total_available": 7,
+      "returned": 7,
       "retrieval": "semantic",
       "engine": "fcj",
       "clusters": [
@@ -448,10 +606,29 @@
             {
               "source": "overview",
               "joins": []
+            },
+            {
+              "source": "customers",
+              "joins": [
+                "customers"
+              ]
+            },
+            {
+              "source": "products",
+              "joins": [
+                "products"
+              ]
+            },
+            {
+              "source": "regions",
+              "joins": [
+                "regions"
+              ]
             }
           ],
           "covers": [
             0,
+            1,
             2
           ],
           "picks": {
@@ -459,10 +636,18 @@
               "measure:overview:margin_rate",
               "measure:overview:total_margin"
             ],
+            "1": [
+              "dimension:overview:brand",
+              "dimension:products:brand"
+            ],
             "2": [
               "dimension:overview:region",
+              "dimension:customers:customer_id",
               "dimension:overview:customer_id",
-              "dimension:overview:sale_price"
+              "dimension:regions:region",
+              "dimension:overview:sale_price",
+              "dimension:customers:state",
+              "dimension:regions:state"
             ]
           }
         },
@@ -475,15 +660,102 @@
             {
               "source": "order_items",
               "joins": []
+            },
+            {
+              "source": "customers",
+              "joins": [
+                "customers"
+              ]
+            },
+            {
+              "source": "products",
+              "joins": [
+                "products"
+              ]
+            },
+            {
+              "source": "regions",
+              "joins": [
+                "regions"
+              ]
             }
           ],
           "covers": [
-            1
+            0,
+            1,
+            2
           ],
           "picks": {
+            "0": [
+              "measure:order_items:margin_rate",
+              "measure:order_items:total_margin"
+            ],
             "1": [
               "dimension:order_items:brand",
-              "dimension:order_items:category"
+              "dimension:products:brand"
+            ],
+            "2": [
+              "dimension:order_items:region",
+              "dimension:customers:customer_id",
+              "dimension:order_items:customer_id",
+              "dimension:regions:region",
+              "dimension:order_items:sale_price",
+              "dimension:customers:state",
+              "dimension:regions:state"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "scoped_orders",
+            "model_path": "data_app.malloy"
+          },
+          "sources": [
+            {
+              "source": "scoped_orders",
+              "joins": []
+            },
+            {
+              "source": "customers",
+              "joins": [
+                "customers"
+              ]
+            },
+            {
+              "source": "products",
+              "joins": [
+                "products"
+              ]
+            },
+            {
+              "source": "regions",
+              "joins": [
+                "regions"
+              ]
+            }
+          ],
+          "covers": [
+            0,
+            1,
+            2
+          ],
+          "picks": {
+            "0": [
+              "measure:scoped_orders:margin_rate",
+              "measure:scoped_orders:total_margin"
+            ],
+            "1": [
+              "dimension:scoped_orders:brand",
+              "dimension:products:brand"
+            ],
+            "2": [
+              "dimension:scoped_orders:region",
+              "dimension:customers:customer_id",
+              "dimension:scoped_orders:customer_id",
+              "dimension:regions:region",
+              "dimension:scoped_orders:sale_price",
+              "dimension:customers:state",
+              "dimension:regions:state"
             ]
           }
         },
@@ -514,7 +786,8 @@
           "search_text": "gross margin as a share of revenue",
           "clusters": [
             true,
-            false,
+            true,
+            true,
             false
           ]
         },
@@ -522,7 +795,8 @@
           "target_index": 1,
           "search_text": "brand of the item sold",
           "clusters": [
-            false,
+            true,
+            true,
             true,
             true
           ]
@@ -532,7 +806,8 @@
           "search_text": "sales region for the customer's home state",
           "clusters": [
             true,
-            false,
+            true,
+            true,
             false
           ]
         }
@@ -554,8 +829,8 @@
   "traffic": {
     "embedding_calls": 1,
     "embedded_texts": [
-      "gross margin as a share of revenue",
       "brand of the item sold",
+      "gross margin as a share of revenue",
       "sales region for the customer's home state"
     ],
     "judge_calls": 1,
@@ -767,31 +1042,47 @@
             {
               "target": 1,
               "candidates": [
+                10,
                 1,
-                2
+                19,
+                11,
+                2,
+                20
               ],
-              "best": 1,
-              "reason": "stand-in: listed candidates sharing a word with the target"
+              "reason": "stand-in: 6 candidate(s) scored 2 or more",
+              "best": 10
             },
             {
               "target": 2,
               "candidates": [
                 37,
                 38,
-                39
+                49,
+                59,
+                64
               ],
-              "best": 37,
-              "reason": "stand-in: listed candidates sharing a word with the target"
+              "reason": "stand-in: 5 candidate(s) scored 2 or more",
+              "best": 37
             },
             {
               "target": 3,
               "candidates": [
+                42,
                 56,
+                61,
+                95,
+                41,
                 52,
-                57
+                63,
+                76,
+                44,
+                57,
+                81,
+                87,
+                72
               ],
-              "best": 56,
-              "reason": "stand-in: listed candidates sharing a word with the target"
+              "reason": "stand-in: 13 candidate(s) scored 2 or more",
+              "best": 42
             }
           ],
           "caveats": []

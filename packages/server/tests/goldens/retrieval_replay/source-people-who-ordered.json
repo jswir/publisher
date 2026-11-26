@@ -62,11 +62,68 @@
             ]
           },
           "relevance": 0.9838709677419354
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "data_app.malloy",
+              "source": "scoped_orders"
+            },
+            "one_line_summary": "Order lines narrowed by the data app's control row.",
+            "docs": "Order lines narrowed by the data app's control row. Every tile queries this.",
+            "givens": [
+              {
+                "name": "CATEGORY",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "BRAND",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "REGION",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "SINCE",
+                "type": "date",
+                "default": "@2023-01-01"
+              },
+              {
+                "name": "MIN_SALE",
+                "type": "filter<number>",
+                "default": "f''"
+              }
+            ],
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "relevance": 0.9682539682539681
         }
       ],
       "ranking": "relevance",
-      "total_available": 2,
-      "returned": 2,
+      "total_available": 3,
+      "returned": 3,
       "retrieval": "semantic",
       "engine": "fcj",
       "clusters": [
@@ -96,6 +153,43 @@
               "source:order_items:order_items"
             ]
           }
+        },
+        {
+          "query_from": {
+            "source": "scoped_orders",
+            "model_path": "data_app.malloy"
+          },
+          "sources": [
+            {
+              "source": "scoped_orders",
+              "joins": []
+            },
+            {
+              "source": "customers",
+              "joins": [
+                "customers"
+              ]
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "source:customers:customers",
+              "source:scoped_orders:scoped_orders"
+            ]
+          }
+        }
+      ],
+      "coverage": [
+        {
+          "target_index": 0,
+          "search_text": "people who placed orders",
+          "clusters": [
+            true,
+            true
+          ]
         }
       ],
       "unresolved_targets": [],
@@ -174,10 +268,11 @@
               "target": 1,
               "candidates": [
                 1,
-                2
+                2,
+                3
               ],
-              "best": 1,
-              "reason": "stand-in: listed candidates sharing a word with the target"
+              "reason": "stand-in: 3 candidate(s) scored 2 or more",
+              "best": 1
             }
           ],
           "caveats": []

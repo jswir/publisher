@@ -24,6 +24,68 @@
             "resource_id": {
               "environment": "examples",
               "package": "storefront",
+              "model_path": "storefront.malloy",
+              "source": "order_items"
+            },
+            "one_line_summary": "Order line items — the fact table, one row per product sold on an order.",
+            "docs": "Order line items — the fact table, one row per product sold on an order",
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "total_margin",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:total_margin",
+              "relevance": 0.9258498023715415,
+              "description": "Total gross margin (revenue minus cost of goods sold), summed per line",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "total revenue",
+                  "relevance": 0.9258,
+                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "total_sales",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:total_sales",
+              "relevance": 0.9852121212121212,
+              "description": "Total revenue",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "total revenue",
+                  "relevance": 0.9852,
+                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 0.9852121212121212
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
               "model_path": "overview.malloy",
               "source": "overview"
             },
@@ -76,17 +138,17 @@
           },
           "entities": [
             {
-              "name": "margin_rate",
+              "name": "total_margin",
               "entity_type": "measure",
-              "entity_id": "measure:overview:margin_rate",
-              "relevance": 1,
-              "description": "Gross margin as a share of revenue",
+              "entity_id": "measure:overview:total_margin",
+              "relevance": 0.9322985074626864,
+              "description": "Total gross margin (revenue minus cost of goods sold), summed per line",
               "data_type": "number",
               "matched_targets": [
                 {
                   "search_text": "total revenue",
-                  "relevance": 1,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                  "relevance": 0.9323,
+                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -101,12 +163,12 @@
                 {
                   "search_text": "total revenue",
                   "relevance": 0.9917,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
                 }
               ]
             }
           ],
-          "relevance": 1
+          "relevance": 0.9917419354838708
         },
         {
           "source_info": {
@@ -165,73 +227,37 @@
           },
           "entities": [
             {
-              "name": "margin_rate",
+              "name": "total_margin",
               "entity_type": "measure",
-              "entity_id": "measure:scoped_orders:margin_rate",
-              "description": "Gross margin as a share of revenue",
+              "entity_id": "measure:scoped_orders:total_margin",
+              "relevance": 0.9185882352941175,
+              "description": "Total gross margin (revenue minus cost of goods sold), summed per line",
               "data_type": "number",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick overview.margin_rate, on another source."
+              "matched_targets": [
+                {
+                  "search_text": "total revenue",
+                  "relevance": 0.9186,
+                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                }
+              ]
             },
             {
               "name": "total_sales",
               "entity_type": "measure",
               "entity_id": "measure:scoped_orders:total_sales",
+              "relevance": 0.9762383394383393,
               "description": "Total revenue",
               "data_type": "number",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick overview.total_sales, on another source."
+              "matched_targets": [
+                {
+                  "search_text": "total revenue",
+                  "relevance": 0.9762,
+                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                }
+              ]
             }
-          ]
-        },
-        {
-          "source_info": {
-            "resource_id": {
-              "environment": "examples",
-              "package": "storefront",
-              "model_path": "storefront.malloy",
-              "source": "order_items"
-            },
-            "one_line_summary": "Order line items — the fact table, one row per product sold on an order.",
-            "docs": "Order line items — the fact table, one row per product sold on an order",
-            "joins": [
-              {
-                "name": "customers",
-                "relationship": "one",
-                "doc": "Customer who placed the order"
-              },
-              {
-                "name": "products",
-                "relationship": "one",
-                "doc": "Product sold on this line"
-              },
-              {
-                "name": "regions",
-                "relationship": "one",
-                "doc": "Sales region for the customer's home state"
-              }
-            ]
-          },
-          "entities": [
-            {
-              "name": "margin_rate",
-              "entity_type": "measure",
-              "entity_id": "measure:order_items:margin_rate",
-              "description": "Gross margin as a share of revenue",
-              "data_type": "number",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick overview.margin_rate, on another source."
-            },
-            {
-              "name": "total_sales",
-              "entity_type": "measure",
-              "entity_id": "measure:order_items:total_sales",
-              "description": "Total revenue",
-              "data_type": "number",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick overview.total_sales, on another source."
-            }
-          ]
+          ],
+          "relevance": 0.9762383394383393
         }
       ],
       "ranking": "relevance",
@@ -256,10 +282,63 @@
           ],
           "picks": {
             "0": [
-              "measure:overview:margin_rate",
+              "measure:overview:total_margin",
               "measure:overview:total_sales"
             ]
           }
+        },
+        {
+          "query_from": {
+            "source": "order_items",
+            "model_path": "storefront.malloy"
+          },
+          "sources": [
+            {
+              "source": "order_items",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "measure:order_items:total_margin",
+              "measure:order_items:total_sales"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "scoped_orders",
+            "model_path": "data_app.malloy"
+          },
+          "sources": [
+            {
+              "source": "scoped_orders",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "measure:scoped_orders:total_margin",
+              "measure:scoped_orders:total_sales"
+            ]
+          }
+        }
+      ],
+      "coverage": [
+        {
+          "target_index": 0,
+          "search_text": "total revenue",
+          "clusters": [
+            true,
+            true,
+            true
+          ]
         }
       ],
       "unresolved_targets": [],
@@ -367,11 +446,15 @@
             {
               "target": 1,
               "candidates": [
-                1,
-                2
+                13,
+                3,
+                23,
+                11,
+                2,
+                22
               ],
-              "best": 1,
-              "reason": "stand-in: listed candidates sharing a word with the target"
+              "reason": "stand-in: 6 candidate(s) scored 2 or more",
+              "best": 13
             }
           ],
           "caveats": []

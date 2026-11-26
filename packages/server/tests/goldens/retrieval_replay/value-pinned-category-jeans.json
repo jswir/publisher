@@ -62,7 +62,7 @@
                 {
                   "search_text": "jeans",
                   "relevance": 1,
-                  "match_reason": "stand-in: a value matched by spelling, or the one pinned field"
+                  "match_reason": "stand-in: a stored value matched by spelling, or the one pinned field"
                 }
               ]
             }
@@ -147,8 +147,8 @@
               "candidates": [
                 1
               ],
-              "best": 1,
-              "reason": "stand-in: a value matched by spelling, or the one pinned field"
+              "reason": "stand-in: a stored value matched by spelling, or the one pinned field",
+              "best": 1
             }
           ],
           "caveats": []

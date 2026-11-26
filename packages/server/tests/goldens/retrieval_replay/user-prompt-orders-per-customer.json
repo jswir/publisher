@@ -60,103 +60,89 @@
                 {
                   "search_text": "average orders placed per customer",
                   "relevance": 1,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
                 }
               ]
             },
             {
-              "name": "margin_rate",
+              "name": "avg_order_value",
               "entity_type": "measure",
-              "entity_id": "measure:order_items:margin_rate",
-              "relevance": 0.8594154948993658,
-              "description": "Gross margin as a share of revenue",
+              "entity_id": "measure:order_items:avg_order_value",
+              "relevance": 0.8271772069444051,
+              "description": "Average order value",
               "data_type": "number",
               "matched_targets": [
                 {
                   "search_text": "average orders placed per customer",
-                  "relevance": 0.8594,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                  "relevance": 0.8272,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customers.customer_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:customers.customer_count",
+              "relevance": 0.9684979838709676,
+              "description": "Distinct customers Reached from order_items through customers, a left join: a order_items row with no match keeps a null here, so grouping or counting by it follows order_items's rows.",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "customers",
+              "matched_targets": [
+                {
+                  "search_text": "average orders placed per customer",
+                  "relevance": 0.9685,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customer_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:customer_count",
+              "relevance": 0.8365576788218793,
+              "description": "Distinct customers",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "average orders placed per customer",
+                  "relevance": 0.8366,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "order_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:order_count",
+              "relevance": 0.7968774764113563,
+              "description": "Distinct orders",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "average orders placed per customer",
+                  "relevance": 0.7969,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "order_item_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:order_item_count",
+              "relevance": 0.7556788029263485,
+              "description": "Line items sold",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "average orders placed per customer",
+                  "relevance": 0.7557,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
                 }
               ]
             }
           ],
           "relevance": 1
-        },
-        {
-          "source_info": {
-            "resource_id": {
-              "environment": "examples",
-              "package": "storefront",
-              "model_path": "data_app.malloy",
-              "source": "scoped_orders"
-            },
-            "one_line_summary": "Order lines narrowed by the data app's control row.",
-            "docs": "Order lines narrowed by the data app's control row. Every tile queries this.",
-            "givens": [
-              {
-                "name": "CATEGORY",
-                "type": "filter<string>",
-                "default": "f''"
-              },
-              {
-                "name": "BRAND",
-                "type": "filter<string>",
-                "default": "f''"
-              },
-              {
-                "name": "REGION",
-                "type": "filter<string>",
-                "default": "f''"
-              },
-              {
-                "name": "SINCE",
-                "type": "date",
-                "default": "@2023-01-01"
-              },
-              {
-                "name": "MIN_SALE",
-                "type": "filter<number>",
-                "default": "f''"
-              }
-            ],
-            "joins": [
-              {
-                "name": "customers",
-                "relationship": "one",
-                "doc": "Customer who placed the order"
-              },
-              {
-                "name": "products",
-                "relationship": "one",
-                "doc": "Product sold on this line"
-              },
-              {
-                "name": "regions",
-                "relationship": "one",
-                "doc": "Sales region for the customer's home state"
-              }
-            ]
-          },
-          "entities": [
-            {
-              "name": "orders_per_customer",
-              "entity_type": "measure",
-              "entity_id": "measure:scoped_orders:orders_per_customer",
-              "description": "Average orders placed per customer",
-              "data_type": "number",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick order_items.orders_per_customer, on another source."
-            },
-            {
-              "name": "margin_rate",
-              "entity_type": "measure",
-              "entity_id": "measure:scoped_orders:margin_rate",
-              "description": "Gross margin as a share of revenue",
-              "data_type": "number",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick order_items.margin_rate, on another source."
-            }
-          ]
         },
         {
           "source_info": {
@@ -218,21 +204,213 @@
               "name": "orders_per_customer",
               "entity_type": "measure",
               "entity_id": "measure:overview:orders_per_customer",
+              "relevance": 0.9997398543184182,
               "description": "Average orders placed per customer",
               "data_type": "number",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick order_items.orders_per_customer, on another source."
+              "matched_targets": [
+                {
+                  "search_text": "average orders placed per customer",
+                  "relevance": 0.9997,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
             },
             {
-              "name": "margin_rate",
+              "name": "avg_order_value",
               "entity_type": "measure",
-              "entity_id": "measure:overview:margin_rate",
-              "description": "Gross margin as a share of revenue",
+              "entity_id": "measure:overview:avg_order_value",
+              "relevance": 0.8475252127887847,
+              "description": "Average order value",
               "data_type": "number",
-              "also_likely": true,
-              "also_likely_reason": "Same name and kind as the pick order_items.margin_rate, on another source."
+              "matched_targets": [
+                {
+                  "search_text": "average orders placed per customer",
+                  "relevance": 0.8475,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customer_count",
+              "entity_type": "measure",
+              "entity_id": "measure:overview:customer_count",
+              "relevance": 0.8559677419354838,
+              "description": "Distinct customers",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "average orders placed per customer",
+                  "relevance": 0.856,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "order_count",
+              "entity_type": "measure",
+              "entity_id": "measure:overview:order_count",
+              "relevance": 0.7979438744815762,
+              "description": "Distinct orders",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "average orders placed per customer",
+                  "relevance": 0.7979,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "order_item_count",
+              "entity_type": "measure",
+              "entity_id": "measure:overview:order_item_count",
+              "relevance": 0.7468475073313782,
+              "description": "Line items sold",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "average orders placed per customer",
+                  "relevance": 0.7468,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
             }
-          ]
+          ],
+          "relevance": 0.9997398543184182
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "data_app.malloy",
+              "source": "scoped_orders"
+            },
+            "one_line_summary": "Order lines narrowed by the data app's control row.",
+            "docs": "Order lines narrowed by the data app's control row. Every tile queries this.",
+            "givens": [
+              {
+                "name": "CATEGORY",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "BRAND",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "REGION",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "SINCE",
+                "type": "date",
+                "default": "@2023-01-01"
+              },
+              {
+                "name": "MIN_SALE",
+                "type": "filter<number>",
+                "default": "f''"
+              }
+            ],
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "orders_per_customer",
+              "entity_type": "measure",
+              "entity_id": "measure:scoped_orders:orders_per_customer",
+              "relevance": 1,
+              "description": "Average orders placed per customer",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "average orders placed per customer",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "avg_order_value",
+              "entity_type": "measure",
+              "entity_id": "measure:scoped_orders:avg_order_value",
+              "relevance": 0.8741315136476426,
+              "description": "Average order value",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "average orders placed per customer",
+                  "relevance": 0.8741,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customer_count",
+              "entity_type": "measure",
+              "entity_id": "measure:scoped_orders:customer_count",
+              "relevance": 0.8803108185386394,
+              "description": "Distinct customers",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "average orders placed per customer",
+                  "relevance": 0.8803,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "order_count",
+              "entity_type": "measure",
+              "entity_id": "measure:scoped_orders:order_count",
+              "relevance": 0.8130600358422938,
+              "description": "Distinct orders",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "average orders placed per customer",
+                  "relevance": 0.8131,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "order_item_count",
+              "entity_type": "measure",
+              "entity_id": "measure:scoped_orders:order_item_count",
+              "relevance": 0.7694549499443827,
+              "description": "Line items sold",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "average orders placed per customer",
+                  "relevance": 0.7695,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 1
         }
       ],
       "ranking": "relevance",
@@ -258,9 +436,72 @@
           "picks": {
             "0": [
               "measure:order_items:orders_per_customer",
-              "measure:order_items:margin_rate"
+              "measure:order_items:avg_order_value",
+              "measure:order_items:customers.customer_count",
+              "measure:order_items:customer_count",
+              "measure:order_items:order_count",
+              "measure:order_items:order_item_count"
             ]
           }
+        },
+        {
+          "query_from": {
+            "source": "scoped_orders",
+            "model_path": "data_app.malloy"
+          },
+          "sources": [
+            {
+              "source": "scoped_orders",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "measure:scoped_orders:orders_per_customer",
+              "measure:scoped_orders:avg_order_value",
+              "measure:scoped_orders:customer_count",
+              "measure:scoped_orders:order_count",
+              "measure:scoped_orders:order_item_count"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "overview",
+            "model_path": "overview.malloy"
+          },
+          "sources": [
+            {
+              "source": "overview",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "measure:overview:orders_per_customer",
+              "measure:overview:avg_order_value",
+              "measure:overview:customer_count",
+              "measure:overview:order_count",
+              "measure:overview:order_item_count"
+            ]
+          }
+        }
+      ],
+      "coverage": [
+        {
+          "target_index": 0,
+          "search_text": "average orders placed per customer",
+          "clusters": [
+            true,
+            true,
+            true
+          ]
         }
       ],
       "unresolved_targets": [],
@@ -369,10 +610,24 @@
               "target": 1,
               "candidates": [
                 1,
-                2
+                21,
+                11,
+                5,
+                23,
+                13,
+                32,
+                4,
+                22,
+                12,
+                7,
+                26,
+                16,
+                8,
+                29,
+                18
               ],
-              "best": 1,
-              "reason": "stand-in: listed candidates sharing a word with the target"
+              "reason": "stand-in: 16 candidate(s) scored 2 or more",
+              "best": 1
             }
           ],
           "caveats": []

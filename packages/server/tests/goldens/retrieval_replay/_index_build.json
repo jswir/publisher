@@ -1,6 +1,46 @@
 {
-  "about": "Each package's index build under the stand-in providers, with the warm-up call that started it (one query embedding). Timings are removed.",
+  "about": "Each package's index build under the stand-in providers, with the warm-up call that started it, which answers while the build runs. Timings are removed. The texts and prompts themselves are in _index_inputs.<package>.json.",
   "storefront": {
+    "warm_up": {
+      "request": {
+        "search_targets": [
+          {
+            "target_type": "measure",
+            "search_text": "warm up"
+          }
+        ],
+        "scopes": [
+          {
+            "environment": "examples",
+            "package": "storefront"
+          }
+        ]
+      },
+      "response": {
+        "is_error": false,
+        "payload": {
+          "sources": [],
+          "ranking": "relevance",
+          "total_available": 0,
+          "returned": 0,
+          "retrieval": "indexing",
+          "skills": [
+            {
+              "name": "malloy-phrase-detection",
+              "description": "How to turn a storefront question into get_context search targets, including the shop vocabulary that does not appear anywhere in the model. Replaces the built-in phrase-detection guide for this package."
+            },
+            {
+              "name": "storefront-conventions",
+              "description": "What storefront's measures actually count, and the four places a reasonable reading of them is wrong. Read before answering any revenue, order, margin, or region question against this package."
+            }
+          ],
+          "skills_note": "This package ships its own guidance, listed above. Read the relevant one before relying on names or conventions from this package. If it is already loaded as a skill, use that; otherwise fetch it with get_skill(skill_name, scopes), and if that tool is not available to you, proceed and say which guidance you could not read. A guide whose name matches a built-in one replaces it here.",
+          "warnings": [
+            "This package's search index is still being built, so there are no results yet. Nothing is wrong: ask the same question again in a few seconds. A request with no search_text (a listing) works now."
+          ]
+        }
+      }
+    },
     "report": {
       "catalog": {
         "sources": 7,
@@ -113,6 +153,35 @@
     }
   },
   "replay-values": {
+    "warm_up": {
+      "request": {
+        "search_targets": [
+          {
+            "target_type": "measure",
+            "search_text": "warm up"
+          }
+        ],
+        "scopes": [
+          {
+            "environment": "examples",
+            "package": "replay-values"
+          }
+        ]
+      },
+      "response": {
+        "is_error": false,
+        "payload": {
+          "sources": [],
+          "ranking": "relevance",
+          "total_available": 0,
+          "returned": 0,
+          "retrieval": "indexing",
+          "warnings": [
+            "This package's search index is still being built, so there are no results yet. Nothing is wrong: ask the same question again in a few seconds. A request with no search_text (a listing) works now."
+          ]
+        }
+      }
+    },
     "report": {
       "catalog": {
         "sources": 1,

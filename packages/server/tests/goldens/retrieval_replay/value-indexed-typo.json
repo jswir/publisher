@@ -43,7 +43,7 @@
                 {
                   "search_text": "Outerwaer",
                   "relevance": 1,
-                  "match_reason": "stand-in: a value matched by spelling, or the one pinned field"
+                  "match_reason": "stand-in: a stored value matched by spelling, or the one pinned field"
                 }
               ],
               "aliases": [
@@ -123,11 +123,11 @@
               "candidates": [
                 1
               ],
-              "best": 1,
+              "reason": "stand-in: a stored value matched by spelling, or the one pinned field",
               "values": [
                 "1a"
               ],
-              "reason": "stand-in: a value matched by spelling, or the one pinned field"
+              "best": 1
             }
           ],
           "caveats": []
