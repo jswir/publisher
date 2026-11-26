@@ -577,8 +577,12 @@ count. The check runs before each request, so the one that would pass the limit 
 requests made while a person waits retry once, after at most one second (a longer `Retry-After` fails
 the call at once); the index build keeps the full retry ladder.
 
-**A failed judge never fails the call.** A source whose pick call fails twice, or is still running at
-the step's deadline, is left out. If every pick call fails, the response is each target's top few
+**A failed judge never fails the call.** A source whose pick call fails twice, is still running at
+the step's deadline, or is never sent because `maxCallsPerRequest` leaves no room for it, is left out,
+and a warning names it and says its fields were not considered. A target no answered call picked a
+field for is then not reported as unresolved when a left-out source holds a search hit for it: that
+source's top hits for it are served, unjudged, after the judged cards. The pick calls a limit allows
+are counted after the ordering call's one request. If every pick call fails, the response is each target's top few
 search hits, with a warning that starts "The final ranking step was unavailable, so these results are
 the top few search matches without it." A late or unusable ordering reply keeps the order of step 4.
 `fcj.judge: false` answers without the judge. A listing runs no LLM step.

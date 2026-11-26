@@ -440,7 +440,12 @@ async function runBoxes(
          ...answer.warnings,
          ...(answer.unresolved_targets.length > 0
             ? [
-                 `No source in this package answered ${answer.unresolved_targets.length} target(s); see unresolved_targets. Rephrase them, ask the user, or answer without them.`,
+                 // With a source left out of the ranking (warned above), a
+                 // target is unanswered only among the sources considered.
+                 reranked.mode === "judged" &&
+                 reranked.calls.some((c) => c.outcome === "failed")
+                    ? `No source whose fields were considered answered ${answer.unresolved_targets.length} target(s); see unresolved_targets. A source left out of the ranking may hold them: call get_context again, or scope it to that source.`
+                    : `No source in this package answered ${answer.unresolved_targets.length} target(s); see unresolved_targets. Rephrase them, ask the user, or answer without them.`,
               ]
             : []),
       ],

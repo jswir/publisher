@@ -9,6 +9,8 @@ import {
 import { embedText } from "../../test_helpers/get_context_llm_harness";
 import { toUnit } from "../index/vectors";
 import type { ChatModel, JsonChatRequest } from "../llm/types";
+import { ChatModelImpl } from "../llm/chat_model";
+import { LlmMeter } from "../llm/llm_calls";
 import { KINDS_BY_TARGET, search, type Target } from "./find";
 import { groupBySource, type Grouped } from "./group";
 import {
@@ -58,6 +60,72 @@ function grouped(
          allow,
       }),
    });
+}
+
+const COUNT = "measure:flights@travel.malloy:flight_count";
+const STATE = "dimension:cities@travel.malloy:state";
+const CITIES = "cities@travel.malloy";
+const TWO = [t(0, "measure", "flights"), t(1, "dimension", "state")];
+
+/**
+ * Two kept sources, each the only holder of one target: flights (its count)
+ * and cities (its state; no source joins cities).
+ */
+function twoSources(): Grouped {
+   const hit = (target: Target, key: string) => ({
+      target,
+      candidates: [{ key, score: 1, ranks: {} }],
+      lists: { close: 0, keyword: 0, value: 0, valueMeaning: 0 },
+      valuePhrases: [],
+      meaningPhrases: [],
+   });
+   const g = groupBySource({
+      index: f.index,
+      hits: [hit(TWO[0], COUNT), hit(TWO[1], STATE)],
+      allow: () => true,
+   });
+   expect(g.sources.map((s) => s.source)).toEqual([
+      "flights@travel.malloy",
+      CITIES,
+   ]);
+   return g;
+}
+
+/** Box 5 under a metered real client with `limit` requests, recording what was sent. */
+async function metered(limit: number, fail: (source: string) => void) {
+   const sent: string[] = [];
+   const raw = {
+      send: async (req: { prompt: string }) => {
+         const isOrder = req.prompt.includes("<sources>");
+         const source = sourceOf(req.prompt) ?? "";
+         if (!isOrder) fail(source);
+         sent.push(isOrder ? "order" : `pick ${source}`);
+         return {
+            text: isOrder
+               ? '{"sources":[1,2]}'
+               : JSON.stringify(
+                    pickFirst({
+                       prompt: req.prompt,
+                    } as JsonChatRequest<unknown>),
+                 ),
+            usage: {},
+         };
+      },
+   };
+   const chat = new ChatModelImpl("openai", "m", raw as never, {
+      timeoutMs: 10_000,
+   });
+   const meter = new LlmMeter(limit);
+   const out = await rerank({
+      index: f.index,
+      grouped: twoSources(),
+      targets: TWO,
+      chat: meter.wrap(chat),
+      concurrency: 4,
+      bounds: rerankBounds(30_000),
+      remaining: () => meter.remaining(),
+   });
+   return { sent, out };
 }
 
 /** The source a pick prompt shows. */
@@ -220,7 +288,61 @@ describe("rerank (box 5)", () => {
       expect(
          calls.filter((c) => c.kind === "pick" && sourceOf(c.prompt) === name),
       ).toHaveLength(2);
+      expect(out.warnings).toHaveLength(1);
+      expect(out.warnings[0]).toStartWith(
+         `The final ranking step failed for source ${name}, so its fields were not considered.`,
+      );
+      expect(out.warnings[0]).toContain("scopes[].source");
+   });
+
+   it("serves a failed source's top hits, unjudged, for a target only it held, and says so", async () => {
+      const g = twoSources();
+      const { chat } = fakeChat((req) => {
+         if (sourceOf(req.prompt) === "cities") throw new Error("vendor 500");
+         return pickFirst(req);
+      }, reversed);
+      const out = await rerank({
+         index: f.index,
+         grouped: g,
+         targets: TWO,
+         chat,
+         concurrency: 4,
+         bounds: FAST,
+      });
+      expect(out.mode).toBe("judged");
+      expect(out.calls.find((c) => c.source === CITIES)).toMatchObject({
+         outcome: "failed",
+      });
+      // cities held target 1 alone: its hit is served, not read as a no.
+      const cities = out.sources.find((s) => s.source === CITIES);
+      expect(cities?.picks).toEqual([{ target: 1, keys: [STATE] }]);
+      expect(cities?.picks[0].reason).toBeUndefined();
+      expect(out.warnings).toEqual([
+         "The final ranking step failed for source cities, so its fields were not considered. For a target no ranked source answered, the top search matches on cities are served without ranking. Calling get_context again, or with scopes[].source set to that source, may return its fields.",
+      ]);
+   });
+
+   it("counts the ordering call once against maxCallsPerRequest: a limit of 5 sends both pick calls", async () => {
+      const { sent, out } = await metered(5, () => undefined);
+      expect(sent.sort()).toEqual(["order", "pick cities", "pick flights"]);
+      expect(out.calls.map((c) => c.outcome)).toEqual(["answered", "answered"]);
       expect(out.warnings).toEqual([]);
+   });
+
+   it("names a source the call limit left unsent, and serves its only target unjudged", async () => {
+      // 3 = the ordering call + one pick call (two slots: its JSON re-ask).
+      const { sent, out } = await metered(3, () => undefined);
+      expect(sent.sort()).toEqual(["order", "pick flights"]);
+      expect(out.calls.find((c) => c.source === CITIES)).toMatchObject({
+         outcome: "failed",
+         attempts: 0,
+      });
+      expect(out.sources.find((s) => s.source === CITIES)?.picks).toEqual([
+         { target: 1, keys: [STATE] },
+      ]);
+      expect(out.warnings).toEqual([
+         "Source cities was not ranked because this request reached its limit on model calls, so its fields were not considered. For a target no ranked source answered, the top search matches on cities are served without ranking. Calling get_context again, or with scopes[].source set to that source, may return its fields.",
+      ]);
    });
 
    it("retries a late attempt once, inside the attempt bound", async () => {

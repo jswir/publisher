@@ -18,9 +18,14 @@
  *
  * Bounded and degrading. Each pick call gets {@link PICK_ATTEMPTS} attempts
  * of {@link RerankBounds.attemptMs} under one stage deadline. A source whose
- * call fails or is late is left out of the result. If EVERY pick call fails,
- * the box serves each target's top few hits ({@link unjudged}) on box 4's
- * sources, with a warning ({@link DEGRADED_WARNING}): the request never fails here.
+ * call fails, is late, or is never sent (the request's call limit) is left
+ * out of the judged result, and a warning names it ({@link leftOutWarnings}).
+ * A target no answered call picked a field for is not read as a no when a
+ * left-out source holds a hit for it: the left-out sources' top hits for it
+ * are served unjudged, as below, after the judged cards. If EVERY pick call
+ * fails, the box serves each target's top few hits ({@link unjudged}) on box
+ * 4's sources, with a warning ({@link DEGRADED_WARNING}): the request never
+ * fails here.
  * (Box 6's field limits apply to this answer too.)
  * The ordering call gets one attempt, and {@link ORDER_GRACE_MS} after the
  * last pick call ends before it is cut.
@@ -117,7 +122,12 @@ export interface PickCall {
 
 /** Box 5's answer. */
 export interface Reranked {
-   /** The sources in served order. A source whose call failed is left out. */
+   /**
+    * The sources in served order. A source whose call failed is left out,
+    * unless it holds a hit for a target no answered call picked a field
+    * for: then it serves its unjudged top hits for that target only, after
+    * the judged sources.
+    */
    sources: RankedSource[];
    /** `judged`: the calls chose; `unjudged`: no model; `degraded`: every pick call failed. */
    mode: "judged" | "unjudged" | "degraded";
@@ -263,12 +273,26 @@ export async function rerank(args: {
       ? AbortSignal.any([args.signal, stage.signal])
       : stage.signal;
 
+   /**
+    * The sources, in box 4's order, that `budget` request slots let try once
+    * more: an attempt may take two requests (the JSON repair re-ask). So
+    * which calls are sent never depends on which call finished first.
+    */
+   const allowed = <T>(items: readonly T[], reserve = 0): T[] => {
+      const left = args.remaining?.() ?? null;
+      if (left === null) return [...items];
+      return items.slice(0, Math.max(0, Math.floor((left - reserve) / 2)));
+   };
+   // The first round's sources, counted before the ordering call starts
+   // (a metered call is counted as it is sent), with one slot kept for it.
+   const firstRound = allowed(groups, groups.length > 1 ? 1 : 0);
+
    // The ordering call: started with the picks, cut after the grace. One
    // request: no retry and no JSON repair re-ask, since a reply it cannot
    // use only leaves box 4's order.
    const orderCut = new AbortController();
    const ordering: Promise<number[] | undefined> =
-      groups.length > 1
+      groups.length > 1 && firstRound.length > 0
          ? chat
               .complete({
                  system: orderSystemPrompt(),
@@ -319,16 +343,6 @@ export async function rerank(args: {
          return { error };
       }
    };
-   /**
-    * The sources, in box 4's order, that `budget` request slots let try once
-    * more: an attempt may take two requests (the JSON repair re-ask). So
-    * which calls are sent never depends on which call finished first.
-    */
-   const allowed = <T>(items: readonly T[], reserve = 0): T[] => {
-      const left = args.remaining?.() ?? null;
-      if (left === null) return [...items];
-      return items.slice(0, Math.max(0, Math.floor((left - reserve) / 2)));
-   };
 
    const attempts = new Map<string, number>(groups.map((g) => [g.source, 0]));
    const outcomes = new Map<string, Attempt>();
@@ -336,13 +350,11 @@ export async function rerank(args: {
    try {
       // The first attempts, all together; then a second for each that
       // failed, all together, while the stage deadline allows.
-      let pending = allowed(groups, groups.length > 1 ? 1 : 0);
+      let pending = firstRound;
       for (const g of groups) {
          if (!pending.includes(g)) {
             outcomes.set(g.source, {
-               error: new Error(
-                  "not sent: retrieval.llm.maxCallsPerRequest leaves no room for it",
-               ),
+               error: new Error(NOT_SENT),
             });
          }
       }
@@ -416,13 +428,86 @@ export async function rerank(args: {
       groups.map((g) => g.source),
       reply,
    );
+   // A source left out (its call failed, or was never sent) is not read as
+   // a no. A target no answered call picked a field for, and a left-out
+   // source holds a hit for, is served from the left-out sources' top hits
+   // (as when every call fails), after the judged cards; a warning names
+   // every left-out source.
+   const leftOut = groups.filter((g) => !answered.has(g.source));
+   const fallback = new Map<string, RankedSource>();
+   if (leftOut.length > 0) {
+      const picked = new Set(
+         [...answered.values()].flatMap((r) =>
+            r.picks.filter((p) => p.keys.length > 0).map((p) => p.target),
+         ),
+      );
+      const orphaned = targets.filter(
+         (t) =>
+            !picked.has(t.index) && leftOut.some((g) => g.offers.has(t.index)),
+      );
+      for (const r of unjudged(
+         { sources: leftOut, unresolved: [] },
+         orphaned,
+      )) {
+         const picks = r.picks.filter((p) => p.keys.length > 0);
+         if (picks.length > 0) fallback.set(r.source, { ...r, picks });
+      }
+   }
    return {
-      sources: order.flatMap((s) => answered.get(s) ?? []),
+      sources: [
+         ...order.flatMap((s) => answered.get(s) ?? []),
+         ...order.flatMap((s) => fallback.get(s) ?? []),
+      ],
       mode: "judged",
       order: outcome,
       calls,
-      warnings: [],
+      warnings: leftOutWarnings(index, calls, fallback),
    };
+}
+
+/** The `error` of a pick call that was never sent for the call limit. */
+const NOT_SENT =
+   "not sent: retrieval.llm.maxCallsPerRequest leaves no room for it";
+
+/**
+ * Caller-visible: the sources whose pick call failed or was never sent, by
+ * name and reason, and what that means for the answer. Names no setting.
+ */
+export function leftOutWarnings(
+   index: FcjIndex,
+   calls: readonly PickCall[],
+   fallback: ReadonlyMap<string, RankedSource>,
+): string[] {
+   const name = (s: string) => index.catalog.sources.get(s)?.name ?? s;
+   const failed = calls.filter((c) => c.outcome === "failed");
+   const list = (cs: readonly PickCall[]) =>
+      cs.map((c) => name(c.source)).join(", ");
+   const out: string[] = [];
+   const broken = failed.filter((c) => c.error !== NOT_SENT);
+   const unsent = failed.filter((c) => c.error === NOT_SENT);
+   if (broken.length > 0) {
+      out.push(
+         `The final ranking step failed for ${broken.length === 1 ? "source" : "sources"} ${list(broken)}, so ${broken.length === 1 ? "its" : "their"} fields were not considered.`,
+      );
+   }
+   if (unsent.length > 0) {
+      out.push(
+         `${unsent.length === 1 ? "Source" : "Sources"} ${list(unsent)} ${unsent.length === 1 ? "was" : "were"} not ranked because this request reached its limit on model calls, so ${unsent.length === 1 ? "its" : "their"} fields were not considered.`,
+      );
+   }
+   if (out.length === 0) return [];
+   const served = failed.filter((c) => fallback.has(c.source));
+   return [
+      [
+         ...out,
+         ...(served.length > 0
+            ? [
+                 `For a target no ranked source answered, the top search matches on ${list(served)} are served without ranking.`,
+              ]
+            : []),
+         "Calling get_context again, or with scopes[].source set to that source, may return its fields.",
+      ].join(" "),
+   ];
 }
 
 /** `fn` over `items`, at most `concurrency` at a time, results in item order. `fn` must not throw. */

@@ -1,6 +1,6 @@
 {
   "case": "source-first-pick-call-fails-for-one-source",
-  "about": "One kept source's pick call fails twice ([replay: fail pick order_items] in user_prompt): that source is left out and the others serve, with no warning.",
+  "about": "One kept source's pick call fails twice ([replay: fail pick order_items] in user_prompt): that source is left out and the others, which hold both targets too, serve; a warning names order_items as left out of the ranking.",
   "request": {
     "search_targets": [
       {
@@ -426,7 +426,10 @@
           "description": "What storefront's measures actually count, and the four places a reasonable reading of them is wrong. Read before answering any revenue, order, margin, or region question against this package."
         }
       ],
-      "skills_note": "This package ships its own guidance, listed above. Read the relevant one before relying on names or conventions from this package. If it is already loaded as a skill, use that; otherwise fetch it with get_skill(skill_name, scopes), and if that tool is not available to you, proceed and say which guidance you could not read. A guide whose name matches a built-in one replaces it here."
+      "skills_note": "This package ships its own guidance, listed above. Read the relevant one before relying on names or conventions from this package. If it is already loaded as a skill, use that; otherwise fetch it with get_skill(skill_name, scopes), and if that tool is not available to you, proceed and say which guidance you could not read. A guide whose name matches a built-in one replaces it here.",
+      "warnings": [
+        "The final ranking step failed for source order_items, so its fields were not considered. Calling get_context again, or with scopes[].source set to that source, may return its fields."
+      ]
     }
   },
   "traffic": {

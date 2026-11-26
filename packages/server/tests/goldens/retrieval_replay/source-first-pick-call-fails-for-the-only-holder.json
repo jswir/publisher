@@ -1,0 +1,580 @@
+{
+  "case": "source-first-pick-call-fails-for-the-only-holder",
+  "about": "The pick call of freight, the only source holding freight cost, fails twice ([replay: fail pick freight]): freight cost is not reported as unresolved; freight's top hit for it is served without a judge reason, after the answered source, and a warning names freight.",
+  "request": {
+    "search_targets": [
+      {
+        "target_type": "measure",
+        "search_text": "order total"
+      },
+      {
+        "target_type": "measure",
+        "search_text": "freight cost"
+      }
+    ],
+    "scopes": [
+      {
+        "environment": "examples",
+        "package": "replay-clusters"
+      }
+    ],
+    "user_prompt": "Order total and freight cost [replay: fail pick freight]"
+  },
+  "response": {
+    "is_error": false,
+    "payload": {
+      "sources": [
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-clusters",
+              "model_path": "clusters.malloy",
+              "source": "orders"
+            },
+            "one_line_summary": "Every order, every channel: the source analysts query.",
+            "docs": "Every order, every channel: the source analysts query.",
+            "joins": [
+              {
+                "name": "customer",
+                "relationship": "one",
+                "doc": "The customer who placed the order."
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "avg_order_total",
+              "entity_type": "measure",
+              "entity_id": "measure:orders:avg_order_total",
+              "relevance": 0.8705465587044534,
+              "description": "Average order total per order.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "order total",
+                  "relevance": 0.8705,
+                  "match_reason": "stand-in: 9 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "discounted_order_total",
+              "entity_type": "measure",
+              "entity_id": "measure:orders:discounted_order_total",
+              "relevance": 0.9317863805970149,
+              "description": "Order total of orders with a discount.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "order total",
+                  "relevance": 0.9318,
+                  "match_reason": "stand-in: 9 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "max_order_total",
+              "entity_type": "measure",
+              "entity_id": "measure:orders:max_order_total",
+              "relevance": 0.7773538961038962,
+              "description": "Largest order total.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "order total",
+                  "relevance": 0.7774,
+                  "match_reason": "stand-in: 9 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "min_order_total",
+              "entity_type": "measure",
+              "entity_id": "measure:orders:min_order_total",
+              "relevance": 0.8765432098765432,
+              "description": "Smallest order total.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "order total",
+                  "relevance": 0.8765,
+                  "match_reason": "stand-in: 9 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "net_order_total",
+              "entity_type": "measure",
+              "entity_id": "measure:orders:net_order_total",
+              "relevance": 0.8550307219662058,
+              "description": "Order total after discounts.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "order total",
+                  "relevance": 0.855,
+                  "match_reason": "stand-in: 9 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "order_discount_total",
+              "entity_type": "measure",
+              "entity_id": "measure:orders:order_discount_total",
+              "relevance": 0.699908208759507,
+              "description": "Discounts given on orders.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "order total",
+                  "relevance": 0.6999,
+                  "match_reason": "stand-in: 9 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "store_order_total",
+              "entity_type": "measure",
+              "entity_id": "measure:orders:store_order_total",
+              "relevance": 0.8842436974789916,
+              "description": "Order total of store orders only.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "order total",
+                  "relevance": 0.8842,
+                  "match_reason": "stand-in: 9 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "web_order_total",
+              "entity_type": "measure",
+              "entity_id": "measure:orders:web_order_total",
+              "relevance": 0.8716064502959787,
+              "description": "Order total of web orders only.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "order total",
+                  "relevance": 0.8716,
+                  "match_reason": "stand-in: 9 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 0.9317863805970149
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-clusters",
+              "model_path": "clusters.malloy",
+              "source": "freight"
+            },
+            "one_line_summary": "One row per freight shipment from a carrier.",
+            "docs": "One row per freight shipment from a carrier.",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "freight_cost",
+              "entity_type": "measure",
+              "entity_id": "measure:freight:freight_cost",
+              "relevance": 1,
+              "description": "Freight cost paid to carriers.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "freight cost",
+                  "relevance": 1
+                }
+              ]
+            }
+          ],
+          "relevance": 1
+        }
+      ],
+      "ranking": "relevance",
+      "total_available": 2,
+      "returned": 2,
+      "retrieval": "semantic",
+      "engine": "fcj",
+      "clusters": [
+        {
+          "query_from": {
+            "source": "orders",
+            "model_path": "clusters.malloy"
+          },
+          "sources": [
+            {
+              "source": "orders",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "measure:orders:avg_order_total",
+              "measure:orders:discounted_order_total",
+              "measure:orders:max_order_total",
+              "measure:orders:min_order_total",
+              "measure:orders:net_order_total",
+              "measure:orders:order_discount_total",
+              "measure:orders:store_order_total",
+              "measure:orders:web_order_total"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "freight",
+            "model_path": "clusters.malloy"
+          },
+          "sources": [
+            {
+              "source": "freight",
+              "joins": []
+            }
+          ],
+          "covers": [
+            1
+          ],
+          "picks": {
+            "1": [
+              "measure:freight:freight_cost"
+            ]
+          }
+        }
+      ],
+      "coverage": [
+        {
+          "target_index": 0,
+          "search_text": "order total",
+          "clusters": [
+            true,
+            false
+          ]
+        },
+        {
+          "target_index": 1,
+          "search_text": "freight cost",
+          "clusters": [
+            false,
+            true
+          ]
+        }
+      ],
+      "unresolved_targets": [],
+      "warnings": [
+        "The final ranking step failed for source freight, so its fields were not considered. For a target no ranked source answered, the top search matches on freight are served without ranking. Calling get_context again, or with scopes[].source set to that source, may return its fields."
+      ]
+    }
+  },
+  "traffic": {
+    "embedding_calls": 1,
+    "embedded_texts": [
+      "freight cost",
+      "order total"
+    ],
+    "judge_calls": 6,
+    "judge": [
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "12634ece6e81dc823b3ae50700808024e45206af319f4a13cc26885754e58842",
+        "prompt": [
+          "Source: web_orders - Web orders only: the rows of orders whose channel is web, with the same fields.",
+          "Its doc: \"Web orders only: the rows of orders whose channel is web, with the same fields.\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"order total\"",
+          "  [1] discounted_order_total (measure, number; source web_orders): Order total of orders with a discount.",
+          "  [2] min_order_total (measure, number; source web_orders): Smallest order total.",
+          "  [3] net_order_total (measure, number; source web_orders): Order total after discounts.",
+          "  [4] store_order_total (measure, number; source web_orders): Order total of store orders only.",
+          "  [5] avg_order_total (measure, number; source web_orders): Average order total per order.",
+          "  [6] web_order_total (measure, number; source web_orders): Order total of web orders only.",
+          "  [7] order_count (measure, number; source web_orders): Number of orders.",
+          "  [8] max_order_total (measure, number; source web_orders): Largest order total.",
+          "  [9] order_discount_total (measure, number; source web_orders): Discounts given on orders.",
+          "Target 2 (measure): \"freight cost\"",
+          "  [1] discounted_order_total (measure, number; source web_orders): Order total of orders with a discount.",
+          "  [5] avg_order_total (measure, number; source web_orders): Average order total per order.",
+          "  [7] order_count (measure, number; source web_orders): Number of orders.",
+          "  [8] max_order_total (measure, number; source web_orders): Largest order total.",
+          "  [9] order_discount_total (measure, number; source web_orders): Discounts given on orders.",
+          "  [10] order_shipping_total (measure, number; source web_orders): Shipping charged on orders.",
+          "  [11] order_tax_total (measure, number; source web_orders): Tax collected on orders.",
+          "</targets>",
+          "",
+          "The user's question this search serves (context only; do not answer it). When a target's list holds a field this question needs that the target text does not name, such as the date field for a period it names or a field it filters or counts by, pick that field under that target as well:",
+          "\"Order total and freight cost [replay: fail pick freight]\"",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                5,
+                1,
+                8,
+                2,
+                3,
+                9,
+                4,
+                6,
+                7
+              ],
+              "reason": "stand-in: 9 candidate(s) scored 2 or more",
+              "best": 5
+            },
+            {
+              "target": 2,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "205d93fcac2f17badf9b196729715ab6fff8bcbf14928a6a0f82412ce766cacd",
+        "prompt": [
+          "Source: freight - One row per freight shipment from a carrier.",
+          "Its doc: \"One row per freight shipment from a carrier.\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"freight cost\"",
+          "  [1] freight_cost (measure, number; source freight): Freight cost paid to carriers.",
+          "</targets>",
+          "",
+          "The user's question this search serves (context only; do not answer it). When a target's list holds a field this question needs that the target text does not name, such as the date field for a period it names or a field it filters or counts by, pick that field under that target as well:",
+          "\"Order total and freight cost [replay: fail pick freight]\"",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "stand_in_threw": "replay stand-in: the pick call for freight fails, as the case asks"
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "205d93fcac2f17badf9b196729715ab6fff8bcbf14928a6a0f82412ce766cacd",
+        "prompt": [
+          "Source: freight - One row per freight shipment from a carrier.",
+          "Its doc: \"One row per freight shipment from a carrier.\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"freight cost\"",
+          "  [1] freight_cost (measure, number; source freight): Freight cost paid to carriers.",
+          "</targets>",
+          "",
+          "The user's question this search serves (context only; do not answer it). When a target's list holds a field this question needs that the target text does not name, such as the date field for a period it names or a field it filters or counts by, pick that field under that target as well:",
+          "\"Order total and freight cost [replay: fail pick freight]\"",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "stand_in_threw": "replay stand-in: the pick call for freight fails, as the case asks"
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "2db42b797e880aaa7800a7c14002e4d4061914e671ff8939aa79f6becaf904da",
+        "prompt": [
+          "Source: store_orders - Store orders only: the rows of orders whose channel is store, with the same fields.",
+          "Its doc: \"Store orders only: the rows of orders whose channel is store, with the same fields.\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"order total\"",
+          "  [1] discounted_order_total (measure, number; source store_orders): Order total of orders with a discount.",
+          "  [2] min_order_total (measure, number; source store_orders): Smallest order total.",
+          "  [3] store_order_total (measure, number; source store_orders): Order total of store orders only.",
+          "  [4] net_order_total (measure, number; source store_orders): Order total after discounts.",
+          "  [5] web_order_total (measure, number; source store_orders): Order total of web orders only.",
+          "  [6] avg_order_total (measure, number; source store_orders): Average order total per order.",
+          "  [7] order_count (measure, number; source store_orders): Number of orders.",
+          "  [8] max_order_total (measure, number; source store_orders): Largest order total.",
+          "  [9] order_discount_total (measure, number; source store_orders): Discounts given on orders.",
+          "  [10] order_total (measure, number; source store_orders): Sum of order totals, in US dollars.",
+          "  [11] order_shipping_total (measure, number; source store_orders): Shipping charged on orders.",
+          "  [12] order_tax_total (measure, number; source store_orders): Tax collected on orders.",
+          "Target 2 (measure): \"freight cost\"",
+          "  [1] discounted_order_total (measure, number; source store_orders): Order total of orders with a discount.",
+          "  [3] store_order_total (measure, number; source store_orders): Order total of store orders only.",
+          "  [4] net_order_total (measure, number; source store_orders): Order total after discounts.",
+          "  [5] web_order_total (measure, number; source store_orders): Order total of web orders only.",
+          "  [6] avg_order_total (measure, number; source store_orders): Average order total per order.",
+          "  [7] order_count (measure, number; source store_orders): Number of orders.",
+          "  [8] max_order_total (measure, number; source store_orders): Largest order total.",
+          "  [9] order_discount_total (measure, number; source store_orders): Discounts given on orders.",
+          "  [10] order_total (measure, number; source store_orders): Sum of order totals, in US dollars.",
+          "  [11] order_shipping_total (measure, number; source store_orders): Shipping charged on orders.",
+          "  [12] order_tax_total (measure, number; source store_orders): Tax collected on orders.",
+          "</targets>",
+          "",
+          "The user's question this search serves (context only; do not answer it). When a target's list holds a field this question needs that the target text does not name, such as the date field for a period it names or a field it filters or counts by, pick that field under that target as well:",
+          "\"Order total and freight cost [replay: fail pick freight]\"",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                6,
+                1,
+                8,
+                2,
+                4,
+                9,
+                11,
+                12,
+                10,
+                3,
+                5,
+                7
+              ],
+              "reason": "stand-in: 12 candidate(s) scored 2 or more",
+              "best": 6
+            },
+            {
+              "target": 2,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "order",
+        "system_sha256": "9f40894afb1ad7f2fe5efb8eaa1854a21d6f03ac890ad3069e37e040ac666185",
+        "prompt_sha256": "b1e8a0e364afde18872d5752d864148eb2ba2916b70bb467b14c806313f0549a",
+        "prompt": [
+          "Question: \"Order total and freight cost [replay: fail pick freight]\"",
+          "What the caller is looking for:",
+          "  measure: \"order total\"",
+          "  measure: \"freight cost\"",
+          "",
+          "<sources>",
+          "[1] orders - \"Every order, every channel: the source analysts query.\"",
+          "  Fields search found here:",
+          "    for \"order total\": discounted_order_total, store_order_total, min_order_total",
+          "    for \"freight cost\": order_count, avg_order_total, max_order_total",
+          "[2] freight - \"One row per freight shipment from a carrier.\"",
+          "  Fields search found here:",
+          "    for \"order total\": (nothing found)",
+          "    for \"freight cost\": freight_cost",
+          "[3] store_orders - \"Store orders only: the rows of orders whose channel is store, with the same fields.\"",
+          "  Fields search found here:",
+          "    for \"order total\": discounted_order_total, min_order_total, store_order_total",
+          "    for \"freight cost\": order_count, avg_order_total, max_order_total",
+          "[4] web_orders - \"Web orders only: the rows of orders whose channel is web, with the same fields.\"",
+          "  Fields search found here:",
+          "    for \"order total\": discounted_order_total, min_order_total, net_order_total",
+          "    for \"freight cost\": order_count, avg_order_total, max_order_total",
+          "</sources>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"sources\": [<every source number, best first>]}"
+        ],
+        "reply": {
+          "sources": [
+            1,
+            3,
+            4,
+            2
+          ]
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "df08aba36a856003cb057a5981e8ca6148eac13d07b578190a524ec3e42a3ebc",
+        "prompt": [
+          "Source: orders - Every order, every channel: the source analysts query.",
+          "Its doc: \"Every order, every channel: the source analysts query.\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"order total\"",
+          "  [1] discounted_order_total (measure, number; source orders): Order total of orders with a discount.",
+          "  [2] store_order_total (measure, number; source orders): Order total of store orders only.",
+          "  [3] min_order_total (measure, number; source orders): Smallest order total.",
+          "  [4] web_order_total (measure, number; source orders): Order total of web orders only.",
+          "  [5] avg_order_total (measure, number; source orders): Average order total per order.",
+          "  [6] net_order_total (measure, number; source orders): Order total after discounts.",
+          "  [7] order_count (measure, number; source orders): Number of orders.",
+          "  [8] max_order_total (measure, number; source orders): Largest order total.",
+          "  [9] order_discount_total (measure, number; source orders): Discounts given on orders.",
+          "Target 2 (measure): \"freight cost\"",
+          "  [1] discounted_order_total (measure, number; source orders): Order total of orders with a discount.",
+          "  [2] store_order_total (measure, number; source orders): Order total of store orders only.",
+          "  [4] web_order_total (measure, number; source orders): Order total of web orders only.",
+          "  [5] avg_order_total (measure, number; source orders): Average order total per order.",
+          "  [6] net_order_total (measure, number; source orders): Order total after discounts.",
+          "  [7] order_count (measure, number; source orders): Number of orders.",
+          "  [8] max_order_total (measure, number; source orders): Largest order total.",
+          "  [9] order_discount_total (measure, number; source orders): Discounts given on orders.",
+          "  [10] order_shipping_total (measure, number; source orders): Shipping charged on orders.",
+          "  [11] order_tax_total (measure, number; source orders): Tax collected on orders.",
+          "  [12] order_total (measure, number; source orders): Sum of order totals, in US dollars.",
+          "</targets>",
+          "",
+          "The user's question this search serves (context only; do not answer it). When a target's list holds a field this question needs that the target text does not name, such as the date field for a period it names or a field it filters or counts by, pick that field under that target as well:",
+          "\"Order total and freight cost [replay: fail pick freight]\"",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                5,
+                1,
+                8,
+                3,
+                6,
+                9,
+                2,
+                4,
+                7
+              ],
+              "reason": "stand-in: 9 candidate(s) scored 2 or more",
+              "best": 5
+            },
+            {
+              "target": 2,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      }
+    ]
+  }
+}

@@ -685,7 +685,7 @@ export const CASES: readonly ReplayCase[] = [
    },
    {
       id: "source-first-pick-call-fails-for-one-source",
-      about: "One kept source's pick call fails twice ([replay: fail pick order_items] in user_prompt): that source is left out and the others serve, with no warning.",
+      about: "One kept source's pick call fails twice ([replay: fail pick order_items] in user_prompt): that source is left out and the others, which hold both targets too, serve; a warning names order_items as left out of the ranking.",
       params: {
          search_targets: [
             { target_type: "measure", search_text: "total revenue" },
@@ -694,6 +694,19 @@ export const CASES: readonly ReplayCase[] = [
          scopes: [scope],
          user_prompt:
             "Revenue by customer state [replay: fail pick order_items]",
+      },
+   },
+   {
+      id: "source-first-pick-call-fails-for-the-only-holder",
+      about: "The pick call of freight, the only source holding freight cost, fails twice ([replay: fail pick freight]): freight cost is not reported as unresolved; freight's top hit for it is served without a judge reason, after the answered source, and a warning names freight.",
+      params: {
+         search_targets: [
+            { target_type: "measure", search_text: "order total" },
+            { target_type: "measure", search_text: "freight cost" },
+         ],
+         scopes: [clustersScope],
+         user_prompt:
+            "Order total and freight cost [replay: fail pick freight]",
       },
    },
    {

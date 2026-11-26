@@ -124,11 +124,11 @@ here:`, a `    for "text": a, b` line per target. The stand-in orders the source
 
 What a marker cannot say goes in the case's `user_prompt`, which both calls quote:
 
-| directive                      | the stand-in's reply                         | what it exercises                                 |
-| ------------------------------ | -------------------------------------------- | ------------------------------------------------- |
-| `[replay: fail pick <source>]` | that source's pick call fails (each attempt) | a source left out while the others serve          |
-| `[replay: order invalid]`      | the ordering reply names no kept source      | the ordering reply's check: box 4's order         |
-| `[replay: order late]`         | the ordering call never answers              | the cut 0.3 s after the pick calls: box 4's order |
+| directive                      | the stand-in's reply                         | what it exercises                                                         |
+| ------------------------------ | -------------------------------------------- | ------------------------------------------------------------------------- |
+| `[replay: fail pick <source>]` | that source's pick call fails (each attempt) | a source left out and named in a warning; its only target served unjudged |
+| `[replay: order invalid]`      | the ordering reply names no kept source      | the ordering reply's check: box 4's order                                 |
+| `[replay: order late]`         | the ordering call never answers              | the cut 0.3 s after the pick calls: box 4's order                         |
 
 `zzjudgefail` fails every pick call and the ordering call, so the request is served from search's
 top hits with a warning. A snapshot records each box 5 call with `call: "pick"` or `"order"`.
