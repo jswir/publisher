@@ -94,21 +94,6 @@ export interface CatalogNode {
    uses: string[];
    /** A dimension tagged `#(index)`: its values may be indexed. */
    indexed: boolean;
-   /**
-    * With `collapseCopies`: the node this one is an unchanged copy of (a field
-    * an extension inherits keeps its parent's compiled definition), on a
-    * source with the same rows as this node's source (see sameRows). A copy
-    * is never searched; it is the same field under another source's name.
-    */
-   copyOf?: string;
-   /** With `collapseCopies`: the copies of this node in extensions, by key. */
-   copies?: string[];
-   /**
-    * With `collapseCopies`: shared by the fields that are one inherited
-    * definition left on several sources whose rows differ (near-identical
-    * sources, `twinRule`). Absent on a field with no such twin.
-    */
-   twinKey?: string;
    /** One entity per model path, in `modelPaths` order. */
    entities: Entity[];
 }
@@ -204,15 +189,6 @@ export interface CatalogReport {
    gatedSources: number;
    /** Field references an expression makes that resolve to no catalog node. */
    unresolvedReferences: number;
-   /** With `collapseCopies`: nodes folded into the field they copy. */
-   copiesFolded: number;
-   /**
-    * With `collapseCopies`: inherited fields kept on their own source, because
-    * its rows differ from its parent's (a `where:`, another base, other
-    * arguments, or a gate of its own) or its parent is not in the catalog
-    * (hidden or unserved).
-    */
-   copiesKeptApart: number;
    /**
     * Sources left out because they are marked `#(agent-hidden)` on the
     * source itself, or served only through files marked `##(agent-hidden)`.
@@ -229,11 +205,6 @@ export interface CatalogReport {
     * path of the join graph is recorded.
     */
    joinPathsCapped: number;
-   /**
-    * With `joinedCopies: "routes"`: joined copies left out because the field
-    * has a node on the source the join reaches (a route reaches it instead).
-    */
-   joinedCopiesDropped: number;
    /**
     * With `unservedCopies`: joined copies added for fields of unserved
     * sources (beyond what the entity index has), copies left out by the
@@ -254,13 +225,6 @@ export interface Catalog {
     * entry per path.
     */
    joins: Map<string, JoinHop[]>;
-   /**
-    * Deepest route routesOf lists: ROUTE_MAX_DEPTH with
-    * `joinedCopies: "indexed"`, JOIN_WALK_MAX_HOPS with `"routes"`.
-    */
-   routeDepth: number;
-   /** The `joinedCopies` mode the catalog was built in. */
-   joinedCopies: "indexed" | "routes";
    /** Source key by sourceContextKey(modelPath, name), for mapping entities in. */
    sourceKeyByContext: Map<string, string>;
    report: CatalogReport;
@@ -306,23 +270,6 @@ interface CatalogInput {
    /** Each model file's text as it compiled, lexed; absent: read by line contiguity. */
    modelCode?: ModelCodeReader;
    /**
-    * PROVISIONAL, a diagnostic of the connect rule (`retrieval.fcj.collapseCopies`).
-    * Fold a field an extension inherits unchanged into the same field on the
-    * source it extends, when both sources hold the same rows (sameRows), so
-    * an extension that only adds fields competes only with the fields it
-    * adds. An extension with rows of its own (a `where:`, another base) is a
-    * different source, and every field it inherits stays its own.
-    */
-   collapseCopies?: boolean;
-   /**
-    * PROVISIONAL (`retrieval.fcj.joinedCopies`), `indexed` when absent. With
-    * `routes`, a joined copy of a field that has a node on the source the
-    * join reaches is left out, a join to a source extended in the join
-    * (`b is s extend {...}`) becomes a join hop to `s`, and routes are listed
-    * at any depth.
-    */
-   joinedCopies?: "indexed" | "routes";
-   /**
     * PROVISIONAL (`retrieval.fcj.unservedCopies`, 3 by default there), 0
     * when absent from this input. Above 0, a
     * field whose own source is not served (an unpublished source, or a raw
@@ -339,11 +286,6 @@ interface CatalogInput {
 export const JOIN_WALK_MAX_HOPS = 8;
 /** Most paths the join walk records from one source. */
 export const JOIN_WALK_MAX_PATHS = 1_000;
-/**
- * Deepest route listed with `joinedCopies: "indexed"`: the depth the entity
- * index gives joined copies.
- */
-export const ROUTE_MAX_DEPTH = 2;
 
 function byText(a: string, b: string): number {
    return a < b ? -1 : a > b ? 1 : 0;
@@ -500,21 +442,6 @@ function locationKey(loc: CompiledLocation | undefined): string | undefined {
    return `${loc.url}#${start.line}:${start.character}-${end.line}:${end.character}`;
 }
 
-/** Whether `inner` lies inside `outer`, in the same file. */
-function contains(outer: CompiledLocation, inner: CompiledLocation): boolean {
-   if (!outer.url || outer.url !== inner.url || !outer.range || !inner.range) {
-      return false;
-   }
-   const before = (
-      a: { line: number; character: number },
-      b: { line: number; character: number },
-   ) => a.line < b.line || (a.line === b.line && a.character <= b.character);
-   return (
-      before(outer.range.start, inner.range.start) &&
-      before(inner.range.end, outer.range.end)
-   );
-}
-
 function compiledSource(
    modelDef: ModelDef | undefined,
    name: string,
@@ -628,9 +555,6 @@ function ownNoteTexts(
    return own.map((n) => n.text ?? "").filter(Boolean);
 }
 
-/** An access gate a source writes itself: it changes which rows a caller sees. */
-const OWN_GATE = /^#\|?\s*[([{<]?\s*(access_filter|authorize)\b/;
-
 /**
  * Whether a source is marked `#(agent-hidden)` on its own notes. A parent's
  * mark never carries through `extend`, and the mark goes with the source into
@@ -703,53 +627,6 @@ function agentHiddenFiles(
 }
 
 /**
- * Whether a source holds exactly the rows of the source it was made from, so
- * a field it inherits unchanged is the same field with the same values.
- * True only when nothing that picks rows differs: the same kind of base
- * (table, SQL, query), the same table, SQL or query, the same `where:`
- * filters, the same arguments, and no access gate of its own. Adding fields,
- * renaming, hiding fields or adding joins keeps the rows (a Malloy join
- * never changes which rows a source's measures aggregate). Anything unread
- * or unclear answers false: two sources are kept apart when in doubt.
- */
-function sameRows(
-   child: CompiledSource | undefined,
-   parent: CompiledSource | undefined,
-   childOwnNotes: readonly string[],
-): boolean {
-   if (!child || !parent || !child.type || child.type !== parent.type) {
-      return false;
-   }
-   const base = (s: CompiledSource) => {
-      switch (s.type) {
-         case "table":
-            return s.tablePath;
-         case "sql_select":
-            return s.selectStr;
-         case "query_source":
-            return JSON.stringify(s.query);
-         default:
-            return undefined;
-      }
-   };
-   const childBase = base(child);
-   if (childBase === undefined || childBase !== base(parent)) return false;
-   if ((child.connection ?? "") !== (parent.connection ?? "")) return false;
-   const filters = (s: CompiledSource) =>
-      JSON.stringify((s.filterList ?? []).map((f) => f.code ?? null));
-   if (filters(child) !== filters(parent)) return false;
-   // No arguments is written as absent or as `{}`.
-   const args = (s: CompiledSource) =>
-      s.arguments &&
-      typeof s.arguments === "object" &&
-      Object.keys(s.arguments).length > 0
-         ? JSON.stringify(s.arguments)
-         : "";
-   if (args(child) !== args(parent)) return false;
-   return !childOwnNotes.some((t) => OWN_GATE.test(t));
-}
-
-/**
  * By join path (`a`, `a.b`): the id of the source each compiled join is made
  * from, `name@url`. A join on a named source carries it as `sourceID`; a join
  * on `s extend {...}` names `s` in `extends`; a raw table or SQL join has
@@ -759,8 +636,6 @@ function joinSourceIds(
    fields: CompiledField[] | undefined,
    prefix: readonly string[] = [],
    out = new Map<string, string>(),
-   /** Filled with each join path's relationship (`one`, `many`, `cross`). */
-   kinds?: Map<string, string>,
 ): Map<string, string> {
    if (prefix.length >= 10) return out;
    for (const f of fields ?? []) {
@@ -770,26 +645,9 @@ function joinSourceIds(
       const path = [...prefix, name];
       const id = f.sourceID ?? f.extends;
       if (id) out.set(path.join("."), id);
-      kinds?.set(path.join("."), f.join);
-      joinSourceIds(f.fields, path, out, kinds);
+      joinSourceIds(f.fields, path, out);
    }
    return out;
-}
-
-/** The widest relationship on a compiled join path, as enterJoin computes it. */
-function compiledFanout(
-   kinds: ReadonlyMap<string, string>,
-   path: readonly string[],
-): Relationship {
-   let fanout: Relationship = "one";
-   for (let i = 1; i <= path.length; i++) {
-      const kind = kinds.get(path.slice(0, i).join(".")) as
-         | Relationship
-         | undefined;
-      if (i === 1) fanout = kind ?? "one";
-      else if (kind && kind !== "one") fanout = kind;
-   }
-   return fanout;
 }
 
 /** The catalog key of a source: its name and the file that defines it. */
@@ -843,7 +701,8 @@ interface InfoField {
  * source of the last join on its path that names one (`sourceID`, or the
  * source a `join_one: x is s extend {...}` extends); a raw table or SQL join
  * belongs to the source above it. A field of a served source is left out:
- * it is found once, on its own source, with routes.
+ * it is found once, on its own source, and box 4 offers it through the
+ * join (search/group.ts).
  *
  * Each field gets at most `cap` copies over all served sources, shortest
  * path first (then source key, then path). The copies the catalog already
@@ -1289,7 +1148,6 @@ export function buildCatalog(input: CatalogInput): Catalog {
 
    // 3. Joins out of each source, from the entity index's topology. Walked to every
    // depth in step 4b, once step 4 has added what only the compiled model has.
-   const routesMode = input.joinedCopies === "routes";
    let joins = new Map<string, JoinHop[]>();
    for (const [root, reaches] of input.topology) {
       const from = sourceKeyByContext.get(root);
@@ -1331,10 +1189,6 @@ export function buildCatalog(input: CatalogInput): Catalog {
       return hop ? fieldNode(hop.to, path[path.length - 1]) : undefined;
    };
    const seenSource = new Set<string>();
-   // Where each node's definition is, and each source's compiled definition,
-   // for collapseCopies.
-   const definitionAt = new Map<string, CompiledLocation>();
-   const compiledOf = new Map<string, CompiledSource>();
    for (const model of input.models) {
       for (const raw of model.sourceInfos) {
          const info = raw as {
@@ -1367,36 +1221,7 @@ export function buildCatalog(input: CatalogInput): Catalog {
             }
          }
          const compiled = compiledSource(model.modelDef, info.name);
-         if (compiled) compiledOf.set(sourceKey, compiled);
-         const joinKinds = new Map<string, string>();
-         const joinIds = joinSourceIds(
-            compiled?.fields,
-            [],
-            undefined,
-            joinKinds,
-         );
-         if (routesMode) {
-            // A join to a source extended in the join (`b is s extend {...}`)
-            // has no target in the topology. In routes mode it is a join to
-            // `s`, so `s`'s own fields are reached through it by route.
-            for (const [pathText, raw] of joinIds) {
-               const id = splitSourceId(raw);
-               const at = id ? modelPathOfUrl(id.url, modelPaths) : undefined;
-               const to =
-                  id && at !== undefined
-                     ? sourceKeyOf(id.source, at)
-                     : undefined;
-               if (!to || to === sourceKey || !sources.has(to)) continue;
-               const hops = joins.get(sourceKey) ?? [];
-               if (hops.some((h) => h.path.join(".") === pathText)) continue;
-               const path = pathText.split(".");
-               hops.push({ to, path, fanout: compiledFanout(joinKinds, path) });
-               joins.set(sourceKey, hops);
-               if (path.length === 1) {
-                  edges.push({ kind: "joins", from: sourceKey, to, path });
-               }
-            }
-         }
+         const joinIds = joinSourceIds(compiled?.fields);
          for (const key of sources.get(sourceKey)?.fields ?? []) {
             const node = nodes.get(key)!;
             const id = splitSourceId(
@@ -1412,11 +1237,6 @@ export function buildCatalog(input: CatalogInput): Catalog {
          for (const f of compiled?.fields ?? []) {
             const name = activeName(f);
             if (!name) continue;
-            const located =
-               fieldNode(sourceKey, name) ??
-               nodes.get(nodeKeyOf("view", sourceKey, name));
-            if (located && f.location)
-               definitionAt.set(located.key, f.location);
             if (!f.e) continue;
             const node = fieldNode(sourceKey, name);
             if (!node) continue;
@@ -1443,174 +1263,6 @@ export function buildCatalog(input: CatalogInput): Catalog {
    const walked = walkJoins(joins);
    joins = walked.joins;
 
-   // 4c. With joinedCopies "routes", leave out every joined copy whose field
-   // has a node on the source the join reaches: the field is searched once,
-   // on its own source, and reached by a route. A field of a raw-table or
-   // SQL join, or one a join adds to its target, has no such node and stays.
-   let joinedCopiesDropped = 0;
-   if (routesMode) {
-      const dropped = new Map<string, string>();
-      for (const node of nodes.values()) {
-         if (!node.joinPath) continue;
-         if (node.kind !== "dimension" && node.kind !== "measure") continue;
-         const path = node.joinPath.split(".");
-         const leaf = node.name.slice(node.joinPath.length + 1);
-         for (let i = path.length; i >= 1; i--) {
-            const prefix = path.slice(0, i).join(".");
-            const to =
-               joins
-                  .get(node.sourceKey)
-                  ?.find((h) => h.path.join(".") === prefix)?.to ??
-               (i === path.length ? node.joinedSourceKey : undefined);
-            if (!to || to === node.sourceKey) continue;
-            const rest = [...path.slice(i), leaf].join(".");
-            // The field's own node, or the node another spelling of the same
-            // column was folded into (collapseAliases).
-            const own =
-               nodes.get(nodeKeyOf(node.kind, to, rest)) ??
-               sources
-                  .get(to)
-                  ?.fields.map((k) => nodes.get(k)!)
-                  .find(
-                     (n) => n.kind === node.kind && n.aliases?.includes(rest),
-                  );
-            if (own) {
-               dropped.set(node.key, own.key);
-               break;
-            }
-         }
-      }
-      // A copy of a copy resolves to the field itself.
-      const finalOf = (key: string): string => {
-         let k = key;
-         for (let i = 0; i < 16 && dropped.has(k); i++) k = dropped.get(k)!;
-         return k;
-      };
-      for (const key of dropped.keys()) {
-         const node = nodes.get(key)!;
-         nodes.delete(key);
-         const source = sources.get(node.sourceKey);
-         if (source) source.fields = source.fields.filter((k) => k !== key);
-      }
-      for (const node of nodes.values()) {
-         node.dependsOn = [
-            ...new Set(
-               node.dependsOn.map((d) => (dropped.has(d) ? finalOf(d) : d)),
-            ),
-         ].filter((d) => d !== node.key);
-         node.uses = node.uses.filter((u) => !dropped.has(u));
-      }
-      for (let i = edges.length - 1; i >= 0; i--) {
-         const e = edges[i];
-         if (
-            dropped.has(e.from) ||
-            (e.kind !== "depends" && dropped.has(e.to))
-         ) {
-            edges.splice(i, 1);
-         } else if (e.kind === "depends" && dropped.has(e.to)) {
-            e.to = finalOf(e.to);
-         }
-      }
-      joinedCopiesDropped = dropped.size;
-   }
-
-   // 5. With collapseCopies, fold each inherited copy into the same field on
-   // the source it was made from, but only along `extend` (or plain
-   // reference) steps that keep the rows (sameRows). An extension with a
-   // `where:` of its own, another base or a gate of its own holds other rows:
-   // its inherited fields stay its own and are searched and returned on it.
-   // A chain folds as far up as the rows stay the same, so `c is b extend
-   // {dimension: ...}` folds into `b` even when `b is a extend {where: ...}`.
-   let copiesFolded = 0;
-   let copiesKeptApart = 0;
-   if (input.collapseCopies) {
-      const keyById = new Map<string, string>();
-      for (const [key, compiled] of compiledOf) {
-         if (compiled.sourceID) keyById.set(compiled.sourceID, key);
-      }
-      // The source a source's rows are the same as, one step up; undefined
-      // when it was made from nothing in the catalog, or its rows differ.
-      const sameRowsParent = new Map<string, string | undefined>();
-      const rowsParentOf = (key: string): string | undefined => {
-         if (sameRowsParent.has(key)) return sameRowsParent.get(key);
-         const compiled = compiledOf.get(key);
-         const parentKey = keyById.get(parentIdOf(compiled) ?? "");
-         const same =
-            parentKey !== undefined &&
-            parentKey !== key &&
-            sameRows(
-               compiled,
-               compiledOf.get(parentKey),
-               compiled ? ownNoteTexts(input.models, compiled, codeOf) : [],
-            ) &&
-            sources.get(key)?.gated === sources.get(parentKey)?.gated;
-         const out = same ? parentKey : undefined;
-         sameRowsParent.set(key, out);
-         return out;
-      };
-      const groups = new Map<string, CatalogNode[]>();
-      for (const node of nodes.values()) {
-         if (node.kind === "source" || node.joinPath) continue;
-         const at = locationKey(definitionAt.get(node.key));
-         if (!at) continue;
-         const key = `${node.kind}\u0000${node.name}\u0000${at}`;
-         const list = groups.get(key) ?? [];
-         list.push(node);
-         groups.set(key, list);
-      }
-      for (const list of groups.values()) {
-         if (list.length < 2) continue;
-         const bySource = new Map(list.map((n) => [n.sourceKey, n]));
-         const fieldAt = definitionAt.get(list[0].key)!;
-         const definer = list.find((n) => {
-            const own = compiledOf.get(n.sourceKey)?.location;
-            return own ? contains(own, fieldAt) : false;
-         });
-         for (const n of list) {
-            let at = n.sourceKey;
-            for (let i = 0; i < 32; i++) {
-               const up = rowsParentOf(at);
-               if (up === undefined || !bySource.has(up)) break;
-               at = up;
-            }
-            let rep = bySource.get(at)!;
-            if (rep === n && definer && definer !== n) {
-               // A table source's extension records no parent: compare it
-               // with the source whose own definition holds the field.
-               const compiled = compiledOf.get(n.sourceKey);
-               if (
-                  compiled &&
-                  sameRows(
-                     compiled,
-                     compiledOf.get(definer.sourceKey),
-                     ownNoteTexts(input.models, compiled, codeOf),
-                  ) &&
-                  sources.get(n.sourceKey)?.gated ===
-                     sources.get(definer.sourceKey)?.gated
-               ) {
-                  rep = definer;
-               }
-            }
-            if (rep === n) {
-               // Inherited, with the same definition elsewhere, but its own:
-               // a near-identical source holding other rows (or a definer).
-               if (n !== definer) copiesKeptApart += 1;
-               continue;
-            }
-            n.copyOf = rep.key;
-            (rep.copies ??= []).push(n.key);
-            copiesFolded += 1;
-         }
-         // The fields left searched in this group are near-identical: one
-         // definition inherited onto sources whose rows differ.
-         const kept = list.filter((n) => !n.copyOf);
-         if (kept.length > 1) {
-            const twinKey = kept.map((n) => n.key).sort()[0];
-            for (const n of kept) n.twinKey = twinKey;
-         }
-      }
-   }
-
    const nodeCounts: Record<string, number> = {};
    for (const n of nodes.values())
       nodeCounts[n.kind] = (nodeCounts[n.kind] ?? 0) + 1;
@@ -1628,8 +1280,6 @@ export function buildCatalog(input: CatalogInput): Catalog {
       sources,
       edges,
       joins,
-      routeDepth: routesMode ? JOIN_WALK_MAX_HOPS : ROUTE_MAX_DEPTH,
-      joinedCopies: routesMode ? "routes" : "indexed",
       sourceKeyByContext,
       report: {
          sources: sources.size,
@@ -1641,8 +1291,6 @@ export function buildCatalog(input: CatalogInput): Catalog {
          indexedDimensions: [...nodes.values()].filter((n) => n.indexed).length,
          gatedSources: [...sources.values()].filter((s) => s.gated).length,
          unresolvedReferences: unresolved,
-         copiesFolded,
-         copiesKeptApart,
          hiddenSources: [...hidden].filter((n) => !served.has(n)).length,
          joinPaths: allPaths.length,
          deepestJoinPath: allPaths.reduce(
@@ -1650,7 +1298,6 @@ export function buildCatalog(input: CatalogInput): Catalog {
             0,
          ),
          joinPathsCapped: walked.capped,
-         joinedCopiesDropped,
          unservedCopiesAdded: unserved.added.length,
          unservedCopiesCapped: unserved.capped,
          unservedWalkCapped: unserved.walkCapped,

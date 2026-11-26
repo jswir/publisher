@@ -424,9 +424,8 @@ export function fcjVectorProgressOf(
    return {
       totalRows: index.report.vectors.rows,
       embeddedRows,
-      // Every searched node (one that is not a folded copy) wants a row.
-      totalEntities: [...index.catalog.nodes.values()].filter((n) => !n.copyOf)
-         .length,
+      // Every node is searched and wants a row.
+      totalEntities: index.catalog.nodes.size,
       embeddedEntities: index.vectors.size,
    };
 }

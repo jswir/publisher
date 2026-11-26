@@ -7,8 +7,8 @@ import type { Catalog } from "../model/catalog";
 import { buildCatalog, catalogInputOf } from "../model/catalog";
 
 /**
- * Near-identical sources: extensions that inherit the same fields but hold
- * other rows, and sources marked `#(agent-hidden)`.
+ * Sources marked `#(agent-hidden)`, on the source or on its file, among
+ * extensions that inherit the same fields.
  */
 const FILES: Record<string, string> = {
    "deliveries.malloy": `
@@ -79,14 +79,13 @@ beforeAll(async () => {
    const { pkgIndex } = await compileFcjFixture(FILES, {});
    catalog = buildCatalog({
       ...(await catalogInputOf(pkgIndex)),
-      collapseCopies: true,
       // The shipping setting: joined copies of fields whose source is not
       // served (here: hidden) on the served sources that join to them.
       unservedCopies: 3,
    });
 });
 
-describe("near-identical sources", () => {
+describe("hidden sources", () => {
    it("leaves out #(agent-hidden) sources, and sources served only through ##(agent-hidden) files", () => {
       const names = [...catalog.sources.values()].map((s) => s.name).sort();
       // impressions and panel are marked on the source; status_codes is
@@ -122,48 +121,16 @@ describe("near-identical sources", () => {
    it("a hidden base's mark does not carry to the sources that extend it", () => {
       // Each keeps the field it inherits from the hidden base as its own.
       for (const source of ["impressions_total", "impressions_plain"]) {
-         const n = node("measure", source, "impression_count");
-         expect(n).toBeDefined();
-         expect(n!.copyOf).toBeUndefined();
+         expect(node("measure", source, "impression_count")).toBeDefined();
       }
    });
 
    it("a hidden source's fields are reached through a served source's join", () => {
       expect(node("dimension", "hub", "panel.weight")).toBeDefined();
    });
-
-   it("keeps an extension's inherited fields on it when it adds a where:", () => {
-      const web = node("measure", "web_deliveries", "reach")!;
-      expect(web.copyOf).toBeUndefined();
-      expect(node("dimension", "web_deliveries", "audience_name")!.copyOf).toBe(
-         undefined,
-      );
-      expect(node("measure", "deliveries", "reach")!.copies).not.toContain(
-         web.key,
-      );
-   });
-
-   it("folds an extension that only adds fields, and a plain reference, into the source", () => {
-      const base = node("measure", "deliveries", "reach")!;
-      expect(node("measure", "labelled_deliveries", "reach")!.copyOf).toBe(
-         base.key,
-      );
-      expect(node("measure", "deliveries_again", "reach")!.copyOf).toBe(
-         base.key,
-      );
-   });
-
-   it("folds along a chain only as far as the rows stay the same", () => {
-      // labelled_web adds a field to web_deliveries (same rows), which adds a
-      // where: to deliveries (other rows): it folds into web_deliveries.
-      expect(node("measure", "labelled_web", "reach")!.copyOf).toBe(
-         node("measure", "web_deliveries", "reach")!.key,
-      );
-      expect(catalog.report.copiesKeptApart).toBeGreaterThan(0);
-   });
 });
 
-describe("table sources, whose extensions record no parent", () => {
+describe("a hidden table source and its extensions", () => {
    let c: Catalog;
    beforeAll(async () => {
       const { pkgIndex } = await compileFcjFixture(
@@ -185,13 +152,8 @@ source: vwhere is vbase extend { where: table_schema = 'main' }
          },
          {},
       );
-      c = buildCatalog({
-         ...(await catalogInputOf(pkgIndex)),
-         collapseCopies: true,
-      });
+      c = buildCatalog(await catalogInputOf(pkgIndex));
    });
-   const at = (key: string) => c.nodes.get(key)!;
-
    it("reads a hidden mark only from the notes above the source itself", () => {
       // `plain` has no notes of its own; the compiler hands it base's.
       expect([...c.sources.values()].map((s) => s.name)).toEqual([
@@ -201,17 +163,5 @@ source: vwhere is vbase extend { where: table_schema = 'main' }
          "vplain",
          "vwhere",
       ]);
-   });
-
-   it("folds a same-rows extension into the source that defines the field, and marks the rest as twins", () => {
-      expect(at("measure:vplain@t.malloy:m").copyOf).toBe(
-         "measure:vbase@t.malloy:m",
-      );
-      expect(at("measure:vwhere@t.malloy:m").copyOf).toBeUndefined();
-      expect(at("measure:vwhere@t.malloy:m").twinKey).toBe(
-         at("measure:vbase@t.malloy:m").twinKey,
-      );
-      expect(at("measure:vbase@t.malloy:m").twinKey).toBeDefined();
-      expect(at("measure:vplain@t.malloy:m").twinKey).toBeUndefined();
    });
 });

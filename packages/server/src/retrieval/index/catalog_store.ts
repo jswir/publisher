@@ -141,12 +141,6 @@ export function catalogReportLine(report: CatalogReport): string {
       (report.hiddenSources > 0
          ? `; ${report.hiddenSources} #(agent-hidden) sources left out (reached only through joins)`
          : "") +
-      (report.copiesFolded > 0 || report.copiesKeptApart > 0
-         ? `; ${report.copiesFolded} inherited copies folded (same rows), ${report.copiesKeptApart} kept on their own source (other rows)`
-         : "") +
-      (report.joinedCopiesDropped > 0
-         ? `; ${report.joinedCopiesDropped} joined copies left out (searched on their own source, reached by route)`
-         : "") +
       (report.unservedCopiesAdded > 0 || report.unservedCopiesCapped > 0
          ? `; ${report.unservedCopiesAdded} joined copies of unserved fields added beyond the entity index, ${report.unservedCopiesCapped} left out by the per-field cap, ${report.unservedWalkCapped} join paths stopped at the guard`
          : "")

@@ -5,7 +5,6 @@ import { beforeAll, describe, expect, it } from "bun:test";
 import {
    compileFcjFixture,
    FCJ_DEEP_FILES,
-   FCJ_PAYMENTS_FILES,
 } from "../../test_helpers/fcj_fixture";
 import {
    buildCatalog,
@@ -122,16 +121,9 @@ describe("walkJoins", () => {
 
 describe("join walk on a compiled package", () => {
    let indexed: Catalog;
-   let routes: Catalog;
    beforeAll(async () => {
       const { pkgIndex } = await compileFcjFixture(FCJ_DEEP_FILES, {});
-      const input = await catalogInputOf(pkgIndex);
-      indexed = buildCatalog({ ...input, collapseCopies: true });
-      routes = buildCatalog({
-         ...input,
-         collapseCopies: true,
-         joinedCopies: "routes",
-      });
+      indexed = buildCatalog(await catalogInputOf(pkgIndex));
    });
 
    it("records the four-join chain and reports the walk", () => {
@@ -145,7 +137,7 @@ describe("join walk on a compiled package", () => {
       expect(indexed.report.deepestJoinPath).toBe(4);
       expect(indexed.report.joinPathsCapped).toBe(0);
       expect(catalogReportLine(indexed.report)).toBe(
-         "7 sources; nodes: 7 source, 21 dimension, 6 join, 2 measure; edges: 29 contains, 5 joins, 1 extends, 0 depends, 0 uses; 0 nodes resolve in more than one file; 0 #(index) dimensions; 0 gated sources; 3 field references resolved to no node; 11 join paths, the longest 4 joins; 3 inherited copies folded (same rows), 0 kept on their own source (other rows)",
+         "7 sources; nodes: 7 source, 21 dimension, 6 join, 2 measure; edges: 29 contains, 5 joins, 1 extends, 0 depends, 0 uses; 0 nodes resolve in more than one file; 0 #(index) dimensions; 0 gated sources; 3 field references resolved to no node; 11 join paths, the longest 4 joins",
       );
    });
 
@@ -161,50 +153,5 @@ describe("join walk on a compiled package", () => {
             "dimension:shipments@deep.malloy:shipped_order.date_dim.yr",
          ),
       ).toBe(true);
-      expect(indexed.report.joinedCopiesDropped).toBe(0);
-   });
-
-   it("routes: a raw-table join's fields stay on the source that joins it, and the copies further out become its routes", () => {
-      expect(
-         routes.nodes.has(
-            "dimension:shipments@deep.malloy:shipped_order.date_dim.yr",
-         ),
-      ).toBe(false);
-      expect(
-         routes.nodes.has(
-            "dimension:shipments@deep.malloy:shipped_order.date_dim.d",
-         ),
-      ).toBe(false);
-      expect(routes.report.joinedCopiesDropped).toBe(2);
-      expect(catalogReportLine(routes.report)).toBe(
-         "7 sources; nodes: 7 source, 19 dimension, 6 join, 2 measure; edges: 27 contains, 5 joins, 1 extends, 0 depends, 0 uses; 0 nodes resolve in more than one file; 0 #(index) dimensions; 0 gated sources; 3 field references resolved to no node; 11 join paths, the longest 4 joins; 3 inherited copies folded (same rows), 0 kept on their own source (other rows); 2 joined copies left out (searched on their own source, reached by route)",
-      );
-   });
-
-   it("routes: a join to a source extended in the join is a route to that source; a field the join adds stays", async () => {
-      const { pkgIndex } = await compileFcjFixture(FCJ_PAYMENTS_FILES, {});
-      const c = buildCatalog({
-         ...(await catalogInputOf(pkgIndex)),
-         collapseCopies: true,
-         joinedCopies: "routes",
-      });
-      expect(paths(c.joins, "payments@payments.malloy")).toEqual([
-         "labelled > merchants@payments.malloy (one)",
-         "merchant_profile > merchants@payments.malloy (one)",
-      ]);
-      const labelled = [...c.nodes.values()]
-         .filter(
-            (n) => n.sourceKey === "payments@payments.malloy" && n.joinPath,
-         )
-         .map((n) => n.name);
-      expect(labelled).toEqual([
-         "networks.code",
-         "networks.label",
-         "networks.network_name",
-         "labelled.loud_name",
-      ]);
-      // labelled.merchant, labelled.account_type (folded into account_kind)
-      // and labelled.account_kind, on payments and its two extensions.
-      expect(c.report.joinedCopiesDropped).toBe(9);
    });
 });

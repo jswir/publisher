@@ -25,12 +25,6 @@ import type {
    FcjSettings,
    QuestionsPrompt,
 } from "../../service/package_retrieval_settings";
-
-/**
- * Joined copies a field of an unserved source gets on the served sources
- * that reach it (catalog.ts, `unservedCopies`), shortest path first.
- */
-const UNSERVED_COPIES = 3;
 import type { PackageLookup } from "../../service/environment_ports";
 import type { DuckDBConnection } from "../../storage/duckdb/DuckDBConnection";
 import { logger } from "../../logger";
@@ -78,6 +72,12 @@ import {
    type VectorProgress,
    type VectorRow,
 } from "./vectors";
+
+/**
+ * Joined copies a field of an unserved source gets on the served sources
+ * that reach it (catalog.ts, `unservedCopies`), shortest path first.
+ */
+const UNSERVED_COPIES = 3;
 
 /** What the build did, for the load log and the index-status endpoint. */
 interface FcjBuildReport {
@@ -229,8 +229,7 @@ export async function buildFcjIndex(args: {
       ...(await catalogInputOf(args.pkgIndex)),
       unservedCopies: UNSERVED_COPIES,
    });
-   // A folded copy is never searched, so it gets no row and no keyword text.
-   const searched = [...catalog.nodes.values()].filter((n) => !n.copyOf);
+   const searched = [...catalog.nodes.values()];
 
    // Summaries: any model path of the source may carry the stored row.
    const summaries = new Map<string, string>();
