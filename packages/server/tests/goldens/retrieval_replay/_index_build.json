@@ -837,28 +837,29 @@
     },
     "report": {
       "catalog": {
-        "sources": 3,
+        "sources": 5,
         "nodes": {
-          "source": 3,
-          "dimension": 11,
-          "measure": 3
+          "source": 5,
+          "dimension": 15,
+          "measure": 4,
+          "join": 2
         },
         "edges": {
-          "contains": 14,
-          "joins": 0,
+          "contains": 21,
+          "joins": 2,
           "extends": 0,
           "depends": 3,
           "uses": 0
         },
         "multiFileNodes": 0,
         "indexedDimensions": 2,
-        "gatedSources": 2,
-        "unresolvedReferences": 5,
+        "gatedSources": 4,
+        "unresolvedReferences": 6,
         "copiesFolded": 0,
         "copiesKeptApart": 0,
         "hiddenSources": 1,
-        "joinPaths": 0,
-        "deepestJoinPath": 0,
+        "joinPaths": 3,
+        "deepestJoinPath": 2,
         "joinPathsCapped": 0,
         "joinedCopiesDropped": 0,
         "unservedCopiesAdded": 0,
@@ -866,8 +867,8 @@
         "unservedWalkCapped": 0
       },
       "summaries": {
-        "stored": 3,
-        "sources": 3
+        "stored": 5,
+        "sources": 5
       },
       "docParts": {
         "longDocs": 1,
@@ -875,20 +876,20 @@
         "byRules": 0
       },
       "questions": {
-        "nodes": 14,
-        "written": 14,
+        "nodes": 19,
+        "written": 19,
         "reused": 0,
         "missing": 0
       },
       "vectors": {
-        "rows": 59,
-        "embedded": 59,
+        "rows": 83,
+        "embedded": 83,
         "reused": 0,
         "deleted": 0,
-        "charsEmbedded": 3764,
+        "charsEmbedded": 5336,
         "dims": 64
       },
-      "keywordDocs": 17,
+      "keywordDocs": 26,
       "values": {
         "dimensionsRead": 1,
         "dimensionsReused": 0,
@@ -913,20 +914,23 @@
     },
     "traffic": {
       "embedding_calls": 2,
-      "embedded_texts": 65,
-      "embedded_texts_sha256": "1f5c7fcd5329fccb75ad977ac94a4f52c4387df64dff8ecddc814fd41f62fd43",
+      "embedded_texts": 89,
+      "embedded_texts_sha256": "1bcb6b0c08ea465111eed013e68a3e5e9d3713838d6d7a8f01dd7c689d5290fb",
       "chat_calls_by_kind": {
         "doc_parts": 1,
-        "questions": 1,
-        "source_summary": 4
+        "questions": 2,
+        "source_summary": 6
       },
       "chat_prompts_sha256": [
         "doc_parts bd4e771cb65b8eed5e73961dc6828dd243a5d42d873d038fd05dc2bc0300bfab",
-        "questions 6006707d8bef27f87db061f0cfaf24d5fc7641ac5cb2bc44318ad40d48f4859f",
+        "questions 42b091fb22239cfe98bb2d8b961239d78d6d9056af5349c414e7746d14ccf6ba",
+        "questions dcc12794c2ab72e8eef0ee79834c0ecc33855ac7b892261f4506323246a1be41",
         "source_summary 348513b809367223fac63d347b398d4d100ac2df76d356daa00beeda6aa6b8b0",
-        "source_summary 3899cbe5c61efd1c6e6f875d7c717fba9c6e2a6d506a7ae8cf9d0f4b990008bb",
         "source_summary 3b995bf115f74662b7c73926a7251cb43c747730bb852d52372301c04ccbba5c",
-        "source_summary ce047888c0ff0422d2d1d3d638e37e573bf1a3dfad68ca58bbfa9ba26a699a50"
+        "source_summary 4c2ce6b6ec4c6477210e36039123dd589c53bbdfd02e6567a9659b84528bef41",
+        "source_summary ce047888c0ff0422d2d1d3d638e37e573bf1a3dfad68ca58bbfa9ba26a699a50",
+        "source_summary dfbd9f62f0326c506bcac41d43db8f7f4342df8fe175677332a0831e49aae95f",
+        "source_summary f558e56d5cf84fcdac693d741a5b15454dfa00cf58956f96667b99ff85679e1a"
       ]
     }
   },

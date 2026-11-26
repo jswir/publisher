@@ -582,6 +582,32 @@ export const CASES: readonly ReplayCase[] = [
       },
    },
    {
+      id: "givens-locked-source-mid-join-unlocked",
+      about: "payslip_prints reaches departments only through payroll_ledger (payment.dept_row); with the givens that unlock payroll_ledger, the department fields reached through it are offered on payslip_prints.",
+      params: {
+         search_targets: [
+            { target_type: "measure", search_text: "payslips printed" },
+            { target_type: "dimension", search_text: "department head" },
+         ],
+         scopes: [governedScope],
+         user_prompt: "Payslips printed by department head",
+         givens: { ROLE: "finance" },
+      },
+   },
+   {
+      id: "givens-locked-source-mid-join-locked",
+      about: "The same search with givens payroll_ledger's lock cannot admit: payroll_ledger is omitted, and nothing is offered on payslip_prints through it (no payment.* field, no join_path naming payment), though departments itself still answers.",
+      params: {
+         search_targets: [
+            { target_type: "measure", search_text: "payslips printed" },
+            { target_type: "dimension", search_text: "department head" },
+         ],
+         scopes: [governedScope],
+         user_prompt: "Payslips printed by department head",
+         givens: { ROLE: "sales" },
+      },
+   },
+   {
       id: "value-gated-pinned-no-givens",
       about: "A stored-value target pinned to a row-gated source's field, with no givens: its values are not read.",
       params: {

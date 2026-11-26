@@ -1013,10 +1013,10 @@ describe("inScope with sources the caller may not see", () => {
          packageName: "fixture",
       } as unknown as Parameters<typeof inScope>[0];
       // `orders` resolves in shop.malloy and, imported, in reports.malloy.
-      const allow = inScope(
-         request,
-         new Set([sourceContextKey("shop.malloy", "orders")]),
-      );
+      const allow = inScope(request, {
+         droppedSources: new Set([sourceContextKey("shop.malloy", "orders")]),
+         topology: new Map(),
+      });
       const nodes = [...catalog.nodes.values()];
       const hidden = nodes.filter((n) => !allow(n));
       expect(hidden.length).toBeGreaterThan(0);
@@ -1027,5 +1027,52 @@ describe("inScope with sources the caller may not see", () => {
       expect(nodes.filter((n) => n.source === "flights").every(allow)).toBe(
          true,
       );
+   });
+});
+
+describe("box 4 under the request's scope", () => {
+   it("offers no joined field the scope refuses: a field name pinned without a source admits only fields of that name", async () => {
+      // trips holds an airport_name of its own and reaches airports'
+      // through `port`. Pinned to airport_name, the scope admits trips'
+      // own field, not port.airport_name: box 4 must read box 1's scope,
+      // not an allow-all one.
+      const { pkg } = await compileFcjFixture(
+         {
+            "m.malloy": `
+source: airports is duckdb.sql("select 'DEN' as code, 'Denver Intl' as airport_name") extend {
+  primary_key: code
+}
+
+source: trips is duckdb.sql("select 1 as id, 'DEN' as port_code, 'Denver' as airport_name") extend {
+  join_one: port is airports on port.code = port_code
+}
+`,
+         },
+         {},
+      );
+      const handler = harness.handlerFor(pkg);
+      const ask = {
+         search_targets: [
+            { target_type: "dimension", search_text: "airport name" },
+         ],
+         scopes: [
+            {
+               environment: "env",
+               package: "fixture",
+               entity_name: "airport_name",
+            },
+         ],
+      };
+      const { payload } = await untilSemantic(handler, ask, full);
+      const kept = payload.retrieval_trace_full.fcj.group.kept as Array<{
+         source: string;
+         offers: Record<string, Array<{ id: string }>>;
+      }>;
+      const trips = kept.find((k) => k.source === "trips");
+      expect(trips?.offers["0"].map((o) => o.id)).toEqual([
+         "dimension:trips:airport_name",
+      ]);
+      // Under an allow-all scope trips would also offer this.
+      expect(JSON.stringify(kept)).not.toContain("port.airport_name");
    });
 });

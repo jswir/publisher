@@ -18,6 +18,9 @@ import {
 } from "./group";
 import { fieldOf, joinedKey } from "./fields";
 import type { Hits } from "./find";
+import { inScope } from "./authorize";
+import { sourceContextKey } from "../model/package_entities";
+import { DEFAULT_FCJ_SETTINGS } from "../../service/package_retrieval_settings";
 
 const pairs = (...xs: Array<[string, number]>) =>
    xs.map(([source, rank]) => ({ source, rank }));
@@ -320,5 +323,147 @@ describe("groupBySource, a field through a join that the scope refuses", () => {
       expect(
          offersOf((n) => n.kind === "measure" || n.name === "airport_name"),
       ).toEqual([]);
+   });
+});
+
+describe("groupBySource, a field through a join that passes a dropped source", () => {
+   let p: FcjIndexFixture;
+   beforeAll(async () => {
+      p = await buildFcjIndexFixture();
+   });
+   afterAll(async () => p.close());
+
+   const LEGS = "legs@travel.malloy";
+   const NAME = "dimension:airports@travel.malloy:airport_name";
+   const legField = "dimension:legs@travel.malloy:flight_id";
+   const hit = (index: number, key: string): Hits => ({
+      target: { index, type: "dimension", text: "x", kinds: ["dimension"] },
+      candidates: [{ key, score: 1, ranks: {} }],
+      lists: { close: 0, keyword: 0, value: 0, valueMeaning: 0 },
+      valuePhrases: [],
+      meaningPhrases: [],
+   });
+   const request = {
+      environmentName: "env",
+      packageName: "fixture",
+      searches: [],
+      valueSearches: [],
+   } as unknown as Parameters<typeof inScope>[0];
+   /** What legs offers for airport_name with `dropped` dropped for the caller. */
+   const offeredOnLegs = (dropped: string[]) => {
+      const allow = inScope(request, {
+         droppedSources: new Set(
+            dropped.map((s) => sourceContextKey("travel.malloy", s)),
+         ),
+         topology: p.pkgIndex.topology,
+      });
+      const g = groupBySource({
+         index: p.index,
+         hits: [hit(0, legField), hit(1, NAME)],
+         allow,
+      });
+      return (
+         g.sources.find((s) => s.source === LEGS)?.offers.get(1) ?? []
+      ).map((o) => fieldOf(p.index.catalog, o.hit.key)!.name);
+   };
+
+   it("offers it through flights when nothing is dropped", () => {
+      expect(offeredOnLegs([])).toEqual([
+         "flight.arrival.airport_name",
+         "flight.origin.airport_name",
+      ]);
+   });
+
+   it("offers nothing through flights when flights is locked or denied for the caller", () => {
+      // A per-caller lock (discovery_lock) and a deny-all source both reach
+      // box 1 as a dropped source; legs itself stays visible.
+      expect(offeredOnLegs(["flights"])).toEqual([]);
+   });
+
+   it("offers nothing when the source the path lands on is dropped", () => {
+      expect(offeredOnLegs(["airports"])).toEqual([]);
+   });
+
+   it("still offers it when a source past the field is dropped", () => {
+      // regions sits past airports on flight.arrival.region: not on the path.
+      expect(offeredOnLegs(["regions"])).toEqual([
+         "flight.arrival.airport_name",
+         "flight.origin.airport_name",
+      ]);
+   });
+});
+
+describe("groupBySource, a field through an #(agent-hidden) source", () => {
+   it("is offered: a hidden source is unlisted, not dropped, and its joins reach on", async () => {
+      const f = await buildFcjIndexFixture(DEFAULT_FCJ_SETTINGS, {
+         "m.malloy": `
+source: c_src is duckdb.sql("select 1 as id, 'x' as colour_name") extend {
+  primary_key: id
+}
+
+#(agent-hidden)
+source: d_src is duckdb.sql("select 1 as id, 1 as c_id") extend {
+  join_one: cc is c_src on cc.id = c_id
+}
+
+source: a_src is duckdb.sql("select 1 as id, 1 as d_id, 5 as amt") extend {
+  join_one: dd is d_src on dd.id = d_id
+  measure: total_amt is amt.sum()
+}
+`,
+      });
+      try {
+         const cat = f.index.catalog;
+         const colour = "dimension:c_src@m.malloy:colour_name";
+         const total = "measure:a_src@m.malloy:total_amt";
+         expect(cat.nodes.has(colour) && cat.nodes.has(total)).toBe(true);
+         const offered = (dropped: string[]) => {
+            const allow = inScope(
+               { searches: [], valueSearches: [] } as unknown as Parameters<
+                  typeof inScope
+               >[0],
+               {
+                  droppedSources: new Set(
+                     dropped.map((s) => sourceContextKey("m.malloy", s)),
+                  ),
+                  topology: f.pkgIndex.topology,
+               },
+            );
+            const g = groupBySource({
+               index: f.index,
+               hits: [
+                  {
+                     ...hit(0, total),
+                     target: {
+                        ...hit(0, total).target,
+                        type: "measure",
+                        kinds: ["measure"],
+                     },
+                  },
+                  hit(1, colour),
+               ],
+               allow,
+            });
+            return (
+               g.sources
+                  .find((s) => s.source === "a_src@m.malloy")
+                  ?.offers.get(1) ?? []
+            ).map((o) => fieldOf(cat, o.hit.key)!.name);
+         };
+         expect(offered([])).toEqual(["dd.cc.colour_name"]);
+         // The same path with d_src dropped (denied, or locked for the
+         // caller) instead of hidden offers nothing.
+         expect(offered(["d_src"])).toEqual([]);
+      } finally {
+         await f.close();
+      }
+   });
+
+   const hit = (index: number, key: string): Hits => ({
+      target: { index, type: "dimension", text: "x", kinds: ["dimension"] },
+      candidates: [{ key, score: 1, ranks: {} }],
+      lists: { close: 0, keyword: 0, value: 0, valueMeaning: 0 },
+      valuePhrases: [],
+      meaningPhrases: [],
    });
 });

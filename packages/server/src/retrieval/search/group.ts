@@ -173,11 +173,12 @@ export const JOIN_PATHS_PER_FIELD = 3;
  * The keys under which source `from` offers `node`, a field of another
  * source, through its joins ({@link joinedKey}): at most
  * {@link JOIN_REACH_DEPTH} joins, the {@link JOIN_PATHS_PER_FIELD} shortest
- * paths, then by path. Each is the field as `from` holds it (its name the
- * dotted path, on `from`'s model files), and the scope must admit that too,
- * as it admits a field of `from` itself (a pinned field name, a model
- * path). None for a source, a view, or a field that is itself a joined
- * copy.
+ * paths the scope admits, then by path. Each is the field as `from` holds
+ * it (its name the dotted path, on `from`'s model files, its join path), and
+ * the scope must admit that, as it admits a field of `from` itself (a pinned
+ * field name, a model path) — and, through the join path, no source on the
+ * path may be one dropped for this caller (authorize.ts, inScope). None for a
+ * source, a view, or a field that is itself a joined copy.
  */
 function joinedOffers(
    index: FcjIndex,
@@ -201,7 +202,6 @@ function joinedOffers(
             a.path.length - b.path.length ||
             (a.path.join(".") < b.path.join(".") ? -1 : 1),
       )
-      .slice(0, JOIN_PATHS_PER_FIELD)
       .filter((hop) =>
          allow({
             ...node,
@@ -213,6 +213,7 @@ function joinedOffers(
             modelPaths: source.modelPaths,
          }),
       )
+      .slice(0, JOIN_PATHS_PER_FIELD)
       .map((hop) => joinedKey(from, hop.path, node.key));
 }
 

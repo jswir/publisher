@@ -22,6 +22,7 @@ import { callerKeyOf, lockedSourcesFor } from "../index/values_index";
 import {
    searchAnswer,
    searchFailure,
+   type JoinTopology,
    type PackageIndex,
    type ResolvedRequest,
    type SearchResult,
@@ -75,23 +76,35 @@ export function targetsOf(request: ResolvedRequest): Target[] {
    return targets.sort((a, b) => a.index - b.index);
 }
 
-/** Whether a node survives the request's model, source and field scope and the caller's dropped sources. */
+/**
+ * Whether a node survives the request's model, source and field scope and the
+ * caller's dropped sources: neither its own source nor, for a field reached
+ * through joins, any source on its join path may be dropped.
+ */
 export function inScope(
    request: ResolvedRequest,
+   pkgIndex: Pick<PackageIndex, "droppedSources" | "topology">,
+) {
    /**
     * Sources this request may not see, by sourceContextKey: the deny-all
     * sources, plus those whose lock cannot admit the caller's givens
     * (get_context_tool.ts). The index is built once per package, so a
     * caller's lock is applied here, before any search.
     */
-   dropped: ReadonlySet<string> = new Set(),
-) {
+   const dropped: ReadonlySet<string> = pkgIndex.droppedSources;
    return (node: CatalogNode): boolean => {
       if (
          dropped.size > 0 &&
          node.modelPaths.some((mp) =>
             dropped.has(sourceContextKey(mp, node.source)),
          )
+      ) {
+         return false;
+      }
+      if (
+         node.joinPath &&
+         dropped.size > 0 &&
+         passesDropped(node, pkgIndex.topology, dropped)
       ) {
          return false;
       }
@@ -109,6 +122,37 @@ export function inScope(
       }
       return true;
    };
+}
+
+/**
+ * Whether a field reached through joins (a joined copy the model holds, or a
+ * field box 4 offers through a join) passes through, or lands on, a dropped
+ * source: some prefix of its join path, read from its source's join
+ * topology, reaches a deny-all source or one locked to this caller. Such a
+ * field is never searched, offered or named, so neither the pick prompt's
+ * "through the join" line nor a card's `join_path` can name the path.
+ *
+ * An `#(agent-hidden)` source on the path does not refuse it: a hidden
+ * source is not dropped, only unlisted, and its fields reach the sources
+ * that join it by design (catalog.ts, unservedCopies). A deny-all or locked
+ * source is an access decision, so nothing is reached through it.
+ */
+function passesDropped(
+   node: CatalogNode,
+   topology: JoinTopology,
+   dropped: ReadonlySet<string>,
+): boolean {
+   const path = node.joinPath!.split(".");
+   return node.modelPaths.some((mp) =>
+      (topology.get(sourceContextKey(mp, node.source)) ?? []).some(
+         (reach) =>
+            reach.path.length <= path.length &&
+            reach.path.every((segment, i) => segment === path[i]) &&
+            dropped.has(
+               sourceContextKey(reach.targetModelPath, reach.targetSource),
+            ),
+      ),
+   );
 }
 
 /**
@@ -147,7 +191,7 @@ export async function authorize(args: {
    const pkg = pkgIndex.pkg;
    const retrieval = pkg.getRetrievalSettings?.();
    const targets = targetsOf(request);
-   const allow = inScope(request, pkgIndex.droppedSources);
+   const allow = inScope(request, pkgIndex);
    const callerKey = callerKeyOf(
       index.catalog,
       request.givens,

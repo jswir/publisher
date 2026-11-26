@@ -53,7 +53,13 @@
                 ]
               }
             ],
-            "joins": []
+            "joins": [
+              {
+                "name": "dept_row",
+                "relationship": "one",
+                "doc": "The department the employee is paid from."
+              }
+            ]
           },
           "entities": [
             {
@@ -73,11 +79,66 @@
             }
           ],
           "relevance": 1
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-governed",
+              "model_path": "governed.malloy",
+              "source": "payslip_prints"
+            },
+            "one_line_summary": "Payslip prints: one row per payslip printed for a salary payment.",
+            "docs": "Payslip prints: one row per payslip printed for a salary payment.",
+            "givens": [
+              {
+                "name": "ROLE",
+                "type": "string",
+                "annotations": [
+                  "#(secure)\n"
+                ]
+              },
+              {
+                "name": "TENANTS",
+                "type": "string[]",
+                "annotations": [
+                  "#(secure)\n"
+                ]
+              }
+            ],
+            "joins": [
+              {
+                "name": "payment",
+                "relationship": "one",
+                "doc": "The salary payment the payslip was printed for."
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "payment.payroll_gross",
+              "entity_type": "measure",
+              "entity_id": "measure:payslip_prints:payment.payroll_gross",
+              "relevance": 1,
+              "description": "Gross payroll paid to staff. Reached from payslip_prints through payment, a left join: a payslip_prints row with no match keeps a null here, so grouping or counting by it follows payslip_prints's rows.",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "payment",
+              "matched_targets": [
+                {
+                  "search_text": "payroll gross",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 1 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 1
         }
       ],
       "ranking": "relevance",
-      "total_available": 1,
-      "returned": 1,
+      "total_available": 2,
+      "returned": 2,
       "retrieval": "semantic",
       "engine": "fcj",
       "clusters": [
@@ -100,6 +161,38 @@
               "measure:payroll_ledger:payroll_gross"
             ]
           }
+        },
+        {
+          "query_from": {
+            "source": "payslip_prints",
+            "model_path": "governed.malloy"
+          },
+          "sources": [
+            {
+              "source": "payslip_prints",
+              "joins": [
+                "payment"
+              ]
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "measure:payslip_prints:payment.payroll_gross"
+            ]
+          }
+        }
+      ],
+      "coverage": [
+        {
+          "target_index": 0,
+          "search_text": "payroll gross",
+          "clusters": [
+            true,
+            true
+          ]
         }
       ],
       "unresolved_targets": []
@@ -110,7 +203,7 @@
     "embedded_texts": [
       "payroll gross"
     ],
-    "judge_calls": 4,
+    "judge_calls": 5,
     "judge": [
       {
         "call": "pick",
@@ -135,6 +228,38 @@
               "target": 1,
               "candidates": [],
               "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "22c776f8d21bbcfc81b5b44723b50b4719067a84640a1e6220c40c7a38093dc6",
+        "prompt": [
+          "Source: payslip_prints - Payslip prints: one row per payslip printed for a salary payment.",
+          "Its doc: \"Payslip prints: one row per payslip printed for a salary payment.\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"payroll gross\"",
+          "  [1] payment.payroll_gross (measure, number; source payslip_prints; through the join payment): Gross payroll paid to staff.",
+          "  [2] payslip_count (measure, number; source payslip_prints): Number of payslips printed.",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                1
+              ],
+              "reason": "stand-in: 1 candidate(s) scored 2 or more",
+              "best": 1
             }
           ],
           "caveats": []
@@ -169,6 +294,41 @@
         }
       },
       {
+        "call": "order",
+        "system_sha256": "9f40894afb1ad7f2fe5efb8eaa1854a21d6f03ac890ad3069e37e040ac666185",
+        "prompt_sha256": "880c8a293d0d8a116b16a4b199d6d35d828b23e9efdbb8f9f23d900a6f093ec7",
+        "prompt": [
+          "What the caller is looking for:",
+          "  measure: \"payroll gross\"",
+          "",
+          "<sources>",
+          "[1] payroll_ledger - \"Payroll ledger: one row per salary payment. Finance only.\"",
+          "  Fields search found here:",
+          "    for \"payroll gross\": payroll_gross",
+          "[2] payslip_prints - \"Payslip prints: one row per payslip printed for a salary payment.\"",
+          "  Fields search found here:",
+          "    for \"payroll gross\": payment.payroll_gross, payslip_count",
+          "[3] shipments - \"Every shipment, open to every caller.\"",
+          "  Fields search found here:",
+          "    for \"payroll gross\": carrier_charge",
+          "[4] tenant_orders - \"Orders of every tenant; each caller reads only its own tenants' rows.\"",
+          "  Fields search found here:",
+          "    for \"payroll gross\": tenant_order_total",
+          "</sources>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"sources\": [<every source number, best first>]}"
+        ],
+        "reply": {
+          "sources": [
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      },
+      {
         "call": "pick",
         "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
         "prompt_sha256": "c85e93d4c85081280f47ec1a006597753e464700e497608175ad41b6ec79945b",
@@ -197,37 +357,6 @@
             }
           ],
           "caveats": []
-        }
-      },
-      {
-        "call": "order",
-        "system_sha256": "9f40894afb1ad7f2fe5efb8eaa1854a21d6f03ac890ad3069e37e040ac666185",
-        "prompt_sha256": "fdbf2bb95aa06f27b6ce38f4683601c29f855a0eb13beab8cddc64c4f7d61eb5",
-        "prompt": [
-          "What the caller is looking for:",
-          "  measure: \"payroll gross\"",
-          "",
-          "<sources>",
-          "[1] payroll_ledger - \"Payroll ledger: one row per salary payment. Finance only.\"",
-          "  Fields search found here:",
-          "    for \"payroll gross\": payroll_gross",
-          "[2] shipments - \"Every shipment, open to every caller.\"",
-          "  Fields search found here:",
-          "    for \"payroll gross\": carrier_charge",
-          "[3] tenant_orders - \"Orders of every tenant; each caller reads only its own tenants' rows.\"",
-          "  Fields search found here:",
-          "    for \"payroll gross\": tenant_order_total",
-          "</sources>",
-          "",
-          "Reply with one JSON object and nothing else:",
-          "{\"sources\": [<every source number, best first>]}"
-        ],
-        "reply": {
-          "sources": [
-            1,
-            2,
-            3
-          ]
         }
       }
     ]

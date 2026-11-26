@@ -15,6 +15,11 @@
 //                   narrows that read by filter_params.
 //   cost_ledger     #(agent-hidden): it holds the best match for "freight
 //                   cost", and a search must never return it.
+//   departments     open to every caller, joined from payroll_ledger.
+//   payslip_prints  open to every caller, joins payroll_ledger: a field of
+//                   departments is reached from it only THROUGH the locked
+//                   source (payment.dept_row), so a caller the lock refuses
+//                   must not be offered that path.
 ##! experimental.givens
 
 #(secure)
@@ -23,6 +28,16 @@ given: ROLE :: string
 #(secure)
 given: TENANTS :: string[]
 
+#(doc) One row per department.
+source: departments is duckdb.sql("""
+  select 'Sales' as dept_name, 'Ada Park' as head
+  union all select 'Support', 'Lin Ortiz'
+""") extend {
+  primary_key: dept_name
+  #(doc) Name of the department's head.
+  dimension: department_head is head
+}
+
 #(authorize) 'finance' = $ROLE
 #(doc) Payroll ledger: one row per salary payment. Finance only.
 source: payroll_ledger is duckdb.sql("""
@@ -30,6 +45,8 @@ source: payroll_ledger is duckdb.sql("""
   union all select 2, 'Support', 4200.0
 """) extend {
   primary_key: pay_id
+  #(doc) The department the employee is paid from.
+  join_one: dept_row is departments on dept = dept_row.dept_name
   #(doc) Department of the paid employee.
   dimension: department is dept
   #(doc) Gross payroll paid to staff.
@@ -63,4 +80,15 @@ source: cost_ledger is duckdb.sql("""
   primary_key: line_id
   #(doc) Total freight cost on carrier invoices.
   measure: freight_cost_total is freight.sum()
+}
+
+#(doc) Payslip prints: one row per payslip printed for a salary payment.
+source: payslip_prints is duckdb.sql("""
+  select 1 as print_id, 1 as pay_id union all select 2, 2
+""") extend {
+  primary_key: print_id
+  #(doc) The salary payment the payslip was printed for.
+  join_one: payment is payroll_ledger on pay_id = payment.pay_id
+  #(doc) Number of payslips printed.
+  measure: payslip_count is count()
 }

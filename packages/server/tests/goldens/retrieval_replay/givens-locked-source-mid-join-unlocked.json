@@ -1,0 +1,621 @@
+{
+  "case": "givens-locked-source-mid-join-unlocked",
+  "about": "payslip_prints reaches departments only through payroll_ledger (payment.dept_row); with the givens that unlock payroll_ledger, the department fields reached through it are offered on payslip_prints.",
+  "request": {
+    "search_targets": [
+      {
+        "target_type": "measure",
+        "search_text": "payslips printed"
+      },
+      {
+        "target_type": "dimension",
+        "search_text": "department head"
+      }
+    ],
+    "scopes": [
+      {
+        "environment": "examples",
+        "package": "replay-governed"
+      }
+    ],
+    "user_prompt": "Payslips printed by department head",
+    "givens": {
+      "ROLE": "finance"
+    }
+  },
+  "response": {
+    "is_error": false,
+    "payload": {
+      "sources": [
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-governed",
+              "model_path": "governed.malloy",
+              "source": "payslip_prints"
+            },
+            "one_line_summary": "Payslip prints: one row per payslip printed for a salary payment.",
+            "docs": "Payslip prints: one row per payslip printed for a salary payment.",
+            "givens": [
+              {
+                "name": "ROLE",
+                "type": "string",
+                "annotations": [
+                  "#(secure)\n"
+                ]
+              },
+              {
+                "name": "TENANTS",
+                "type": "string[]",
+                "annotations": [
+                  "#(secure)\n"
+                ]
+              }
+            ],
+            "joins": [
+              {
+                "name": "payment",
+                "relationship": "one",
+                "doc": "The salary payment the payslip was printed for."
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "payslip_count",
+              "entity_type": "measure",
+              "entity_id": "measure:payslip_prints:payslip_count",
+              "relevance": 1,
+              "description": "Number of payslips printed.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "payslips printed",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 1 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "payment.dept_row.department_head",
+              "entity_type": "dimension",
+              "entity_id": "dimension:payslip_prints:payment.dept_row.department_head",
+              "relevance": 1,
+              "description": "Name of the department's head. Reached from payslip_prints through payment.dept_row, a left join: a payslip_prints row with no match keeps a null here, so grouping or counting by it follows payslip_prints's rows.",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "payment.dept_row",
+              "matched_targets": [
+                {
+                  "search_text": "department head",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "payment.department",
+              "entity_type": "dimension",
+              "entity_id": "dimension:payslip_prints:payment.department",
+              "relevance": 0.9760624679979518,
+              "description": "Department of the paid employee. Reached from payslip_prints through payment, a left join: a payslip_prints row with no match keeps a null here, so grouping or counting by it follows payslip_prints's rows.",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "payment",
+              "matched_targets": [
+                {
+                  "search_text": "department head",
+                  "relevance": 0.9761,
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 1
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-governed",
+              "model_path": "governed.malloy",
+              "source": "payroll_ledger"
+            },
+            "one_line_summary": "Payroll ledger: one row per salary payment.",
+            "docs": "Payroll ledger: one row per salary payment. Finance only.",
+            "givens": [
+              {
+                "name": "ROLE",
+                "type": "string",
+                "annotations": [
+                  "#(secure)\n"
+                ]
+              },
+              {
+                "name": "TENANTS",
+                "type": "string[]",
+                "annotations": [
+                  "#(secure)\n"
+                ]
+              }
+            ],
+            "authorize": [
+              {
+                "expression": "'finance' = $ROLE",
+                "given_names": [
+                  "ROLE"
+                ]
+              }
+            ],
+            "joins": [
+              {
+                "name": "dept_row",
+                "relationship": "one",
+                "doc": "The department the employee is paid from."
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "dept_row.department_head",
+              "entity_type": "dimension",
+              "entity_id": "dimension:payroll_ledger:dept_row.department_head",
+              "relevance": 1,
+              "description": "Name of the department's head. Reached from payroll_ledger through dept_row, a left join: a payroll_ledger row with no match keeps a null here, so grouping or counting by it follows payroll_ledger's rows.",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "dept_row",
+              "matched_targets": [
+                {
+                  "search_text": "department head",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "department",
+              "entity_type": "dimension",
+              "entity_id": "dimension:payroll_ledger:department",
+              "relevance": 0.9760624679979518,
+              "description": "Department of the paid employee.",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "department head",
+                  "relevance": 0.9761,
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
+                }
+              ],
+              "aliases": [
+                "dept"
+              ]
+            }
+          ],
+          "relevance": 1
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-governed",
+              "model_path": "governed.malloy",
+              "source": "departments"
+            },
+            "one_line_summary": "One row per department.",
+            "docs": "One row per department.",
+            "givens": [
+              {
+                "name": "ROLE",
+                "type": "string",
+                "annotations": [
+                  "#(secure)\n"
+                ]
+              },
+              {
+                "name": "TENANTS",
+                "type": "string[]",
+                "annotations": [
+                  "#(secure)\n"
+                ]
+              }
+            ],
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "department_head",
+              "entity_type": "dimension",
+              "entity_id": "dimension:departments:department_head",
+              "relevance": 1,
+              "description": "Name of the department's head.",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "department head",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 1 candidate(s) scored 2 or more"
+                }
+              ],
+              "aliases": [
+                "head"
+              ]
+            }
+          ],
+          "relevance": 1
+        }
+      ],
+      "ranking": "relevance",
+      "total_available": 3,
+      "returned": 3,
+      "retrieval": "semantic",
+      "engine": "fcj",
+      "clusters": [
+        {
+          "query_from": {
+            "source": "payslip_prints",
+            "model_path": "governed.malloy"
+          },
+          "sources": [
+            {
+              "source": "payslip_prints",
+              "joins": [
+                "payment",
+                "payment.dept_row"
+              ]
+            }
+          ],
+          "covers": [
+            0,
+            1
+          ],
+          "picks": {
+            "0": [
+              "measure:payslip_prints:payslip_count"
+            ],
+            "1": [
+              "dimension:payslip_prints:payment.dept_row.department_head",
+              "dimension:payslip_prints:payment.department"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "payroll_ledger",
+            "model_path": "governed.malloy"
+          },
+          "sources": [
+            {
+              "source": "payroll_ledger",
+              "joins": [
+                "dept_row"
+              ]
+            }
+          ],
+          "covers": [
+            1
+          ],
+          "picks": {
+            "1": [
+              "dimension:payroll_ledger:dept_row.department_head",
+              "dimension:payroll_ledger:department"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "departments",
+            "model_path": "governed.malloy"
+          },
+          "sources": [
+            {
+              "source": "departments",
+              "joins": []
+            }
+          ],
+          "covers": [
+            1
+          ],
+          "picks": {
+            "1": [
+              "dimension:departments:department_head"
+            ]
+          }
+        }
+      ],
+      "coverage": [
+        {
+          "target_index": 0,
+          "search_text": "payslips printed",
+          "clusters": [
+            true,
+            false,
+            false
+          ]
+        },
+        {
+          "target_index": 1,
+          "search_text": "department head",
+          "clusters": [
+            true,
+            true,
+            true
+          ]
+        }
+      ],
+      "unresolved_targets": []
+    }
+  },
+  "traffic": {
+    "embedding_calls": 1,
+    "embedded_texts": [
+      "department head",
+      "payslips printed"
+    ],
+    "judge_calls": 6,
+    "judge": [
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "4111b67fcfdc23d12f0ffb11967cd9c3b3bb48d5773493cc816e6dc06a3f571b",
+        "prompt": [
+          "Source: tenant_orders - Orders of every tenant; each caller reads only its own tenants' rows.",
+          "Its doc: \"Orders of every tenant; each caller reads only its own tenants' rows.\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"payslips printed\"",
+          "  [1] tenant_order_total (measure, number; source tenant_orders): Sum of order totals.",
+          "Target 2 (dimension): \"department head\"",
+          "  [2] order_city (dimension, string; source tenant_orders): City the tenant's order ships to.",
+          "  [3] order_id (dimension, number; source tenant_orders): (no doc; name in words: order id)",
+          "  [4] tenant_name (dimension, string; source tenant_orders): The tenant the order belongs to.",
+          "  [5] total (dimension, number; source tenant_orders): (no doc; name in words: total)",
+          "</targets>",
+          "",
+          "The user's question this search serves (context only; do not answer it). When a target's list holds a field this question needs that the target text does not name, such as the date field for a period it names or a field it filters or counts by, pick that field under that target as well:",
+          "\"Payslips printed by department head\"",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            },
+            {
+              "target": 2,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "6686653d0be86a7ef716947452c4313219e24a7b141758bc055c41aec795d710",
+        "prompt": [
+          "Source: payroll_ledger - Payroll ledger: one row per salary payment.",
+          "Its doc: \"Payroll ledger: one row per salary payment. Finance only.\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"payslips printed\"",
+          "  [1] payroll_gross (measure, number; source payroll_ledger): Gross payroll paid to staff.",
+          "Target 2 (dimension): \"department head\"",
+          "  [2] dept_row.department_head (dimension, string; source payroll_ledger; through the join dept_row): Name of the department's head.",
+          "  [3] department (dimension, string; source payroll_ledger): Department of the paid employee.",
+          "  [4] dept_row.dept_name (dimension, string; source payroll_ledger; through the join dept_row): (no doc; name in words: dept row dept name)",
+          "  [5] gross (dimension, number; source payroll_ledger): (no doc; name in words: gross)",
+          "  [6] pay_id (dimension, number; source payroll_ledger): (no doc; name in words: pay id)",
+          "</targets>",
+          "",
+          "The user's question this search serves (context only; do not answer it). When a target's list holds a field this question needs that the target text does not name, such as the date field for a period it names or a field it filters or counts by, pick that field under that target as well:",
+          "\"Payslips printed by department head\"",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            },
+            {
+              "target": 2,
+              "candidates": [
+                2,
+                3
+              ],
+              "reason": "stand-in: 2 candidate(s) scored 2 or more",
+              "best": 2
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "order",
+        "system_sha256": "9f40894afb1ad7f2fe5efb8eaa1854a21d6f03ac890ad3069e37e040ac666185",
+        "prompt_sha256": "8f5d8f44cff038c48cfa038934b6dd9861b084e3a740463300b7be4dbb012bc4",
+        "prompt": [
+          "Question: \"Payslips printed by department head\"",
+          "What the caller is looking for:",
+          "  measure: \"payslips printed\"",
+          "  dimension: \"department head\"",
+          "",
+          "<sources>",
+          "[1] payslip_prints - \"Payslip prints: one row per payslip printed for a salary payment.\"",
+          "  Fields search found here:",
+          "    for \"payslips printed\": payslip_count, payment.payroll_gross",
+          "    for \"department head\": payment.dept_row.department_head, payment.department, payment.dept_row.dept_name",
+          "[2] departments - \"One row per department.\"",
+          "  Fields search found here:",
+          "    for \"payslips printed\": (nothing found)",
+          "    for \"department head\": department_head, dept_name",
+          "[3] payroll_ledger - \"Payroll ledger: one row per salary payment. Finance only.\"",
+          "  Fields search found here:",
+          "    for \"payslips printed\": payroll_gross",
+          "    for \"department head\": dept_row.department_head, department, dept_row.dept_name",
+          "[4] shipments - \"Every shipment, open to every caller.\"",
+          "  Fields search found here:",
+          "    for \"payslips printed\": carrier_charge",
+          "    for \"department head\": shipment_id, delivery_city, delivery_region",
+          "[5] tenant_orders - \"Orders of every tenant; each caller reads only its own tenants' rows.\"",
+          "  Fields search found here:",
+          "    for \"payslips printed\": tenant_order_total",
+          "    for \"department head\": order_city, order_id, tenant_name",
+          "</sources>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"sources\": [<every source number, best first>]}"
+        ],
+        "reply": {
+          "sources": [
+            1,
+            3,
+            2,
+            4,
+            5
+          ]
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "dfa4e98d77cdff5f6feb56fdc7feba4aa980c5fa1e97c230e93cb8ee9ab70cac",
+        "prompt": [
+          "Source: payslip_prints - Payslip prints: one row per payslip printed for a salary payment.",
+          "Its doc: \"Payslip prints: one row per payslip printed for a salary payment.\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"payslips printed\"",
+          "  [1] payslip_count (measure, number; source payslip_prints): Number of payslips printed.",
+          "  [2] payment.payroll_gross (measure, number; source payslip_prints; through the join payment): Gross payroll paid to staff.",
+          "Target 2 (dimension): \"department head\"",
+          "  [3] payment.dept_row.department_head (dimension, string; source payslip_prints; through the join payment.dept_row): Name of the department's head.",
+          "  [4] payment.department (dimension, string; source payslip_prints; through the join payment): Department of the paid employee.",
+          "  [5] payment.dept_row.dept_name (dimension, string; source payslip_prints; through the join payment.dept_row): (no doc; name in words: payment dept row dept name)",
+          "  [6] payment.gross (dimension, number; source payslip_prints; through the join payment): (no doc; name in words: payment gross)",
+          "  [7] payment.pay_id (dimension, number; source payslip_prints; through the join payment): (no doc; name in words: payment pay id)",
+          "  [8] print_id (dimension, number; source payslip_prints): (no doc; name in words: print id)",
+          "  [9] pay_id (dimension, number; source payslip_prints): (no doc; name in words: pay id)",
+          "</targets>",
+          "",
+          "The user's question this search serves (context only; do not answer it). When a target's list holds a field this question needs that the target text does not name, such as the date field for a period it names or a field it filters or counts by, pick that field under that target as well:",
+          "\"Payslips printed by department head\"",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                1
+              ],
+              "reason": "stand-in: 1 candidate(s) scored 2 or more",
+              "best": 1
+            },
+            {
+              "target": 2,
+              "candidates": [
+                3,
+                4
+              ],
+              "reason": "stand-in: 2 candidate(s) scored 2 or more",
+              "best": 3
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "e1d36f1eaf01d18666d62e841256d57633e92260f5f8ae68df262dc137e52d2f",
+        "prompt": [
+          "Source: shipments - Every shipment, open to every caller.",
+          "Its doc: \"Every shipment, open to every caller.\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"payslips printed\"",
+          "  [1] carrier_charge (measure, number; source shipments): Carrier charge for the shipments, in US dollars.",
+          "Target 2 (dimension): \"department head\"",
+          "  [2] shipment_id (dimension, number; source shipments): (no doc; name in words: shipment id)",
+          "  [3] delivery_city (dimension, string; source shipments): City the shipment was delivered to.",
+          "  [4] delivery_region (dimension, string; source shipments): Region the shipment was delivered to.",
+          "  [5] charge (dimension, number; source shipments): (no doc; name in words: charge)",
+          "</targets>",
+          "",
+          "The user's question this search serves (context only; do not answer it). When a target's list holds a field this question needs that the target text does not name, such as the date field for a period it names or a field it filters or counts by, pick that field under that target as well:",
+          "\"Payslips printed by department head\"",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            },
+            {
+              "target": 2,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "fec58d8d9be4799dfbe0d4b2ca06170031d408f280289c22eef40f704e748d51",
+        "prompt": [
+          "Source: departments - One row per department.",
+          "Its doc: \"One row per department.\"",
+          "",
+          "<targets>",
+          "Target 1 (dimension): \"department head\"",
+          "  [1] department_head (dimension, string; source departments): Name of the department's head.",
+          "  [2] dept_name (dimension, string; source departments): (no doc; name in words: dept name)",
+          "</targets>",
+          "",
+          "The user's question this search serves (context only; do not answer it). When a target's list holds a field this question needs that the target text does not name, such as the date field for a period it names or a field it filters or counts by, pick that field under that target as well:",
+          "\"Payslips printed by department head\"",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                1
+              ],
+              "reason": "stand-in: 1 candidate(s) scored 2 or more",
+              "best": 1
+            }
+          ],
+          "caveats": []
+        }
+      }
+    ]
+  }
+}

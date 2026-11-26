@@ -45,7 +45,7 @@
     "embedded_texts": [
       "payroll gross"
     ],
-    "judge_calls": 3,
+    "judge_calls": 4,
     "judge": [
       {
         "call": "pick",
@@ -106,16 +106,19 @@
       {
         "call": "order",
         "system_sha256": "9f40894afb1ad7f2fe5efb8eaa1854a21d6f03ac890ad3069e37e040ac666185",
-        "prompt_sha256": "9ea5191e0e0dcb925bc50e336e407553622a15b2527d1de82654e01fa8771e3a",
+        "prompt_sha256": "5dedbde10d458a5f5c58df61ee7e99e496bb2c59fcc9b024cd505fdcb1d8330d",
         "prompt": [
           "What the caller is looking for:",
           "  measure: \"payroll gross\"",
           "",
           "<sources>",
-          "[1] shipments - \"Every shipment, open to every caller.\"",
+          "[1] payslip_prints - \"Payslip prints: one row per payslip printed for a salary payment.\"",
+          "  Fields search found here:",
+          "    for \"payroll gross\": payslip_count",
+          "[2] shipments - \"Every shipment, open to every caller.\"",
           "  Fields search found here:",
           "    for \"payroll gross\": carrier_charge",
-          "[2] tenant_orders - \"Orders of every tenant; each caller reads only its own tenants' rows.\"",
+          "[3] tenant_orders - \"Orders of every tenant; each caller reads only its own tenants' rows.\"",
           "  Fields search found here:",
           "    for \"payroll gross\": tenant_order_total",
           "</sources>",
@@ -126,8 +129,37 @@
         "reply": {
           "sources": [
             1,
-            2
+            2,
+            3
           ]
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "7ea4e9e0e34d084d8a780b244444bf0d07616f9122f502eedb905702e75fb3be",
+        "prompt": [
+          "Source: payslip_prints - Payslip prints: one row per payslip printed for a salary payment.",
+          "Its doc: \"Payslip prints: one row per payslip printed for a salary payment.\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"payroll gross\"",
+          "  [1] payslip_count (measure, number; source payslip_prints): Number of payslips printed.",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
         }
       }
     ]

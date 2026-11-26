@@ -105,7 +105,7 @@
       ],
       "unresolved_targets": [],
       "warnings": [
-        "The values of 2 source(s) with an access gate were not searched (payroll_ledger, tenant_orders). To search one, scope the target to its dimension (scopes[].source and entity_name) and send the givens its gate needs."
+        "The values of 4 source(s) with an access gate were not searched (departments, payroll_ledger, tenant_orders, payslip_prints). To search one, scope the target to its dimension (scopes[].source and entity_name) and send the givens its gate needs."
       ]
     }
   },

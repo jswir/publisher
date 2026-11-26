@@ -67,19 +67,19 @@
               "name": "tenant_order_total",
               "entity_type": "measure",
               "entity_id": "measure:tenant_orders:tenant_order_total",
-              "relevance": 1,
+              "relevance": 0.9838709677419354,
               "description": "Sum of order totals.",
               "data_type": "number",
               "matched_targets": [
                 {
                   "search_text": "freight cost total",
-                  "relevance": 1,
+                  "relevance": 0.9839,
                   "match_reason": "stand-in: 1 candidate(s) scored 2 or more"
                 }
               ]
             }
           ],
-          "relevance": 1
+          "relevance": 0.9838709677419354
         }
       ],
       "ranking": "relevance",
@@ -117,24 +117,56 @@
     "embedded_texts": [
       "freight cost total"
     ],
-    "judge_calls": 4,
+    "judge_calls": 5,
     "judge": [
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "36165d98f74dc0050bf31c3d713e85bfba54c91ed6e839113ee2948fc34c7b2f",
+        "prompt": [
+          "Source: payslip_prints - Payslip prints: one row per payslip printed for a salary payment.",
+          "Its doc: \"Payslip prints: one row per payslip printed for a salary payment.\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"freight cost total\"",
+          "  [1] payslip_count (measure, number; source payslip_prints): Number of payslips printed.",
+          "  [2] payment.payroll_gross (measure, number; source payslip_prints; through the join payment): Gross payroll paid to staff.",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      },
       {
         "call": "order",
         "system_sha256": "9f40894afb1ad7f2fe5efb8eaa1854a21d6f03ac890ad3069e37e040ac666185",
-        "prompt_sha256": "14b95bb539ad83003fb25bcec27b6800970c4e54877ddfe74230a72781bb5c10",
+        "prompt_sha256": "880de3ac538fc0653991984391d9622f4db2cbc440d60a9e9e795ef947cb3179",
         "prompt": [
           "What the caller is looking for:",
           "  measure: \"freight cost total\"",
           "",
           "<sources>",
-          "[1] tenant_orders - \"Orders of every tenant; each caller reads only its own tenants' rows.\"",
+          "[1] payslip_prints - \"Payslip prints: one row per payslip printed for a salary payment.\"",
+          "  Fields search found here:",
+          "    for \"freight cost total\": payslip_count, payment.payroll_gross",
+          "[2] tenant_orders - \"Orders of every tenant; each caller reads only its own tenants' rows.\"",
           "  Fields search found here:",
           "    for \"freight cost total\": tenant_order_total",
-          "[2] payroll_ledger - \"Payroll ledger: one row per salary payment. Finance only.\"",
+          "[3] payroll_ledger - \"Payroll ledger: one row per salary payment. Finance only.\"",
           "  Fields search found here:",
           "    for \"freight cost total\": payroll_gross",
-          "[3] shipments - \"Every shipment, open to every caller.\"",
+          "[4] shipments - \"Every shipment, open to every caller.\"",
           "  Fields search found here:",
           "    for \"freight cost total\": carrier_charge",
           "</sources>",
@@ -144,9 +176,10 @@
         ],
         "reply": {
           "sources": [
-            1,
             2,
-            3
+            3,
+            1,
+            4
           ]
         }
       },

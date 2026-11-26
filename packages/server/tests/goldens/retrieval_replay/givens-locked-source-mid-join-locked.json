@@ -1,0 +1,412 @@
+{
+  "case": "givens-locked-source-mid-join-locked",
+  "about": "The same search with givens payroll_ledger's lock cannot admit: payroll_ledger is omitted, and nothing is offered on payslip_prints through it (no payment.* field, no join_path naming payment), though departments itself still answers.",
+  "request": {
+    "search_targets": [
+      {
+        "target_type": "measure",
+        "search_text": "payslips printed"
+      },
+      {
+        "target_type": "dimension",
+        "search_text": "department head"
+      }
+    ],
+    "scopes": [
+      {
+        "environment": "examples",
+        "package": "replay-governed"
+      }
+    ],
+    "user_prompt": "Payslips printed by department head",
+    "givens": {
+      "ROLE": "sales"
+    }
+  },
+  "response": {
+    "is_error": false,
+    "payload": {
+      "sources": [
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-governed",
+              "model_path": "governed.malloy",
+              "source": "departments"
+            },
+            "one_line_summary": "One row per department.",
+            "docs": "One row per department.",
+            "givens": [
+              {
+                "name": "ROLE",
+                "type": "string",
+                "annotations": [
+                  "#(secure)\n"
+                ]
+              },
+              {
+                "name": "TENANTS",
+                "type": "string[]",
+                "annotations": [
+                  "#(secure)\n"
+                ]
+              }
+            ],
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "department_head",
+              "entity_type": "dimension",
+              "entity_id": "dimension:departments:department_head",
+              "relevance": 1,
+              "description": "Name of the department's head.",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "department head",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 1 candidate(s) scored 2 or more"
+                }
+              ],
+              "aliases": [
+                "head"
+              ]
+            }
+          ],
+          "relevance": 1
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-governed",
+              "model_path": "governed.malloy",
+              "source": "payslip_prints"
+            },
+            "one_line_summary": "Payslip prints: one row per payslip printed for a salary payment.",
+            "docs": "Payslip prints: one row per payslip printed for a salary payment.",
+            "givens": [
+              {
+                "name": "ROLE",
+                "type": "string",
+                "annotations": [
+                  "#(secure)\n"
+                ]
+              },
+              {
+                "name": "TENANTS",
+                "type": "string[]",
+                "annotations": [
+                  "#(secure)\n"
+                ]
+              }
+            ],
+            "joins": [
+              {
+                "name": "payment",
+                "relationship": "one",
+                "doc": "The salary payment the payslip was printed for."
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "payslip_count",
+              "entity_type": "measure",
+              "entity_id": "measure:payslip_prints:payslip_count",
+              "relevance": 1,
+              "description": "Number of payslips printed.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "payslips printed",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 1 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 1
+        }
+      ],
+      "ranking": "relevance",
+      "total_available": 2,
+      "returned": 2,
+      "retrieval": "semantic",
+      "engine": "fcj",
+      "clusters": [
+        {
+          "query_from": {
+            "source": "departments",
+            "model_path": "governed.malloy"
+          },
+          "sources": [
+            {
+              "source": "departments",
+              "joins": []
+            }
+          ],
+          "covers": [
+            1
+          ],
+          "picks": {
+            "1": [
+              "dimension:departments:department_head"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "payslip_prints",
+            "model_path": "governed.malloy"
+          },
+          "sources": [
+            {
+              "source": "payslip_prints",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "measure:payslip_prints:payslip_count"
+            ]
+          }
+        }
+      ],
+      "coverage": [
+        {
+          "target_index": 0,
+          "search_text": "payslips printed",
+          "clusters": [
+            false,
+            true
+          ]
+        },
+        {
+          "target_index": 1,
+          "search_text": "department head",
+          "clusters": [
+            true,
+            false
+          ]
+        }
+      ],
+      "unresolved_targets": []
+    }
+  },
+  "traffic": {
+    "embedding_calls": 1,
+    "embedded_texts": [
+      "department head",
+      "payslips printed"
+    ],
+    "judge_calls": 5,
+    "judge": [
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "0f5a17a11c656a9919209dfb0e72ecb13f08f36e455bc7fbd602f3891243e833",
+        "prompt": [
+          "Source: payslip_prints - Payslip prints: one row per payslip printed for a salary payment.",
+          "Its doc: \"Payslip prints: one row per payslip printed for a salary payment.\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"payslips printed\"",
+          "  [1] payslip_count (measure, number; source payslip_prints): Number of payslips printed.",
+          "Target 2 (dimension): \"department head\"",
+          "  [2] print_id (dimension, number; source payslip_prints): (no doc; name in words: print id)",
+          "  [3] pay_id (dimension, number; source payslip_prints): (no doc; name in words: pay id)",
+          "</targets>",
+          "",
+          "The user's question this search serves (context only; do not answer it). When a target's list holds a field this question needs that the target text does not name, such as the date field for a period it names or a field it filters or counts by, pick that field under that target as well:",
+          "\"Payslips printed by department head\"",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                1
+              ],
+              "reason": "stand-in: 1 candidate(s) scored 2 or more",
+              "best": 1
+            },
+            {
+              "target": 2,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "4111b67fcfdc23d12f0ffb11967cd9c3b3bb48d5773493cc816e6dc06a3f571b",
+        "prompt": [
+          "Source: tenant_orders - Orders of every tenant; each caller reads only its own tenants' rows.",
+          "Its doc: \"Orders of every tenant; each caller reads only its own tenants' rows.\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"payslips printed\"",
+          "  [1] tenant_order_total (measure, number; source tenant_orders): Sum of order totals.",
+          "Target 2 (dimension): \"department head\"",
+          "  [2] order_city (dimension, string; source tenant_orders): City the tenant's order ships to.",
+          "  [3] order_id (dimension, number; source tenant_orders): (no doc; name in words: order id)",
+          "  [4] tenant_name (dimension, string; source tenant_orders): The tenant the order belongs to.",
+          "  [5] total (dimension, number; source tenant_orders): (no doc; name in words: total)",
+          "</targets>",
+          "",
+          "The user's question this search serves (context only; do not answer it). When a target's list holds a field this question needs that the target text does not name, such as the date field for a period it names or a field it filters or counts by, pick that field under that target as well:",
+          "\"Payslips printed by department head\"",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            },
+            {
+              "target": 2,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "order",
+        "system_sha256": "9f40894afb1ad7f2fe5efb8eaa1854a21d6f03ac890ad3069e37e040ac666185",
+        "prompt_sha256": "7feb64d9b4635afbcfb6410ef4c4086a89d7dee90a809f17207e90f12ad1f68d",
+        "prompt": [
+          "Question: \"Payslips printed by department head\"",
+          "What the caller is looking for:",
+          "  measure: \"payslips printed\"",
+          "  dimension: \"department head\"",
+          "",
+          "<sources>",
+          "[1] payslip_prints - \"Payslip prints: one row per payslip printed for a salary payment.\"",
+          "  Fields search found here:",
+          "    for \"payslips printed\": payslip_count",
+          "    for \"department head\": print_id, pay_id",
+          "[2] departments - \"One row per department.\"",
+          "  Fields search found here:",
+          "    for \"payslips printed\": (nothing found)",
+          "    for \"department head\": department_head, dept_name",
+          "[3] shipments - \"Every shipment, open to every caller.\"",
+          "  Fields search found here:",
+          "    for \"payslips printed\": carrier_charge",
+          "    for \"department head\": shipment_id, delivery_city, delivery_region",
+          "[4] tenant_orders - \"Orders of every tenant; each caller reads only its own tenants' rows.\"",
+          "  Fields search found here:",
+          "    for \"payslips printed\": tenant_order_total",
+          "    for \"department head\": order_city, order_id, tenant_name",
+          "</sources>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"sources\": [<every source number, best first>]}"
+        ],
+        "reply": {
+          "sources": [
+            2,
+            1,
+            3,
+            4
+          ]
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "e1d36f1eaf01d18666d62e841256d57633e92260f5f8ae68df262dc137e52d2f",
+        "prompt": [
+          "Source: shipments - Every shipment, open to every caller.",
+          "Its doc: \"Every shipment, open to every caller.\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"payslips printed\"",
+          "  [1] carrier_charge (measure, number; source shipments): Carrier charge for the shipments, in US dollars.",
+          "Target 2 (dimension): \"department head\"",
+          "  [2] shipment_id (dimension, number; source shipments): (no doc; name in words: shipment id)",
+          "  [3] delivery_city (dimension, string; source shipments): City the shipment was delivered to.",
+          "  [4] delivery_region (dimension, string; source shipments): Region the shipment was delivered to.",
+          "  [5] charge (dimension, number; source shipments): (no doc; name in words: charge)",
+          "</targets>",
+          "",
+          "The user's question this search serves (context only; do not answer it). When a target's list holds a field this question needs that the target text does not name, such as the date field for a period it names or a field it filters or counts by, pick that field under that target as well:",
+          "\"Payslips printed by department head\"",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            },
+            {
+              "target": 2,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "fec58d8d9be4799dfbe0d4b2ca06170031d408f280289c22eef40f704e748d51",
+        "prompt": [
+          "Source: departments - One row per department.",
+          "Its doc: \"One row per department.\"",
+          "",
+          "<targets>",
+          "Target 1 (dimension): \"department head\"",
+          "  [1] department_head (dimension, string; source departments): Name of the department's head.",
+          "  [2] dept_name (dimension, string; source departments): (no doc; name in words: dept name)",
+          "</targets>",
+          "",
+          "The user's question this search serves (context only; do not answer it). When a target's list holds a field this question needs that the target text does not name, such as the date field for a period it names or a field it filters or counts by, pick that field under that target as well:",
+          "\"Payslips printed by department head\"",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                1
+              ],
+              "reason": "stand-in: 1 candidate(s) scored 2 or more",
+              "best": 1
+            }
+          ],
+          "caveats": []
+        }
+      }
+    ]
+  }
+}
