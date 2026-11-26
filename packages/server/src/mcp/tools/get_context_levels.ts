@@ -10,12 +10,17 @@
  *
  * The shapes are the hosted retrieval API's (`listing`, `environments`,
  * `packages`, `package_info`), without its organizations and workspaces,
- * which a Publisher does not have. One difference: hosted can search every
- * package of an environment at once, but Publisher indexes each package on
- * its own, so a search needs a package, named in `scopes` or entered because
- * it is the only one.
+ * which a Publisher does not have. One difference: hosted can search several
+ * packages at once, but Publisher indexes each package on its own, so a
+ * search needs one package, named in `scopes` or entered because it is the
+ * only one. A search that names none, with several in reach, is answered as
+ * hosted answers it: with the packages it could have meant, a warning that
+ * starts "Search requires a package scope.", and nothing searched.
+ *
+ * Every listing is alphabetical, ignoring case (compareNamesIgnoringCase).
  */
 
+import { compareNamesIgnoringCase } from "../../compare_text";
 import { InvalidArgumentError } from "../../errors";
 import type { EnvironmentCatalog } from "../../service/environment_ports";
 import { FCJ_MAX_CHARS } from "../../retrieval/search/pages";
@@ -289,32 +294,53 @@ export async function resolveLevel(
          : undefined;
 
    /**
-    * List `env`'s packages. `report` is the environments whose failures the
+    * List the packages of `envs`, alphabetically by environment and then
+    * package, ignoring case. `report` is the environments whose failures the
     * warnings name: every environment when the call named none, so a failure
     * elsewhere is not hidden behind the one environment that has packages.
+    *
+    * With `unscopedSearch`, the call was a search that named no package:
+    * nothing is searched, and the first warning says to call again with one
+    * of these packages in `scopes`.
     */
    const listPackages = (
-      env: CatalogEnvironment,
+      envs: readonly CatalogEnvironment[],
       report: readonly CatalogEnvironment[],
-      entered?: string,
+      {
+         entered,
+         unscopedSearch = false,
+      }: { entered?: string; unscopedSearch?: boolean } = {},
    ): LevelOutcome => {
-      const refused = refuseOffset("packages");
+      // A search names no listing level, so its offset was meant for search
+      // results that were never produced; only a listing call is refused.
+      const refused = unscopedSearch ? undefined : refuseOffset("packages");
       if (refused) return refused;
-      const all = env.packages
-         .filter(isServed)
-         .map((p) => {
-            const line = p.description
-               ? oneLineSummary(p.description)
-               : undefined;
-            return {
-               environment: env.name,
-               package: p.name,
-               ...(line ? { one_line_summary: line } : {}),
-            };
-         })
-         .sort((a, b) => (a.package < b.package ? -1 : 1));
+      const all = envs
+         .flatMap((env) =>
+            env.packages.filter(isServed).map((p) => {
+               const line = p.description
+                  ? oneLineSummary(p.description)
+                  : undefined;
+               return {
+                  environment: env.name,
+                  package: p.name,
+                  ...(line ? { one_line_summary: line } : {}),
+               };
+            }),
+         )
+         .sort(
+            (a, b) =>
+               compareNamesIgnoringCase(a.environment, b.environment) ||
+               compareNamesIgnoringCase(a.package, b.package),
+         );
       const packages = withinBudget(all);
+      const only = envs.length === 1 ? envs[0].name : undefined;
       const warnings = [
+         ...(unscopedSearch
+            ? [
+                 `Search requires a package scope. Call get_context again with the same search_targets and \`scopes\` set to the package from this list that holds the data, e.g. [{"environment": "${only ?? "<environment>"}", "package": "<package>"}]. Nothing was searched: you can read ${all.length} packages.`,
+              ]
+            : []),
          ...(entered ? [entered] : []),
          ...healthWarnings(report, true),
          ...(packages.length < all.length
@@ -325,7 +351,7 @@ export async function resolveLevel(
       ];
       return {
          kind: "listing",
-         environment: env.name,
+         ...(only ? { environment: only } : {}),
          payload: {
             sources: [],
             listing: "packages",
@@ -353,6 +379,9 @@ export async function resolveLevel(
          return enter(env, `${env.name} serves one package`, [env]);
       }
       if (searching) {
+         if (pkgs.length > 1) {
+            return listPackages([env], [env], { unscopedSearch: true });
+         }
          const why = env.error
             ? `its packages could not be listed: ${env.error}`
             : env.packages.some((p) => p.loading)
@@ -362,13 +391,11 @@ export async function resolveLevel(
             kind: "error",
             environment,
             error: new InvalidArgumentError(
-               pkgs.length > 1
-                  ? `A search needs one package: Publisher indexes each package on its own. Fix: add scopes: [{"environment": "${env.name}", "package": "<one of: ${names(pkgs)}>"}].`
-                  : `A search needs one package, and environment "${env.name}" has none to search: ${why}. Fix: call get_status or list_packages for load errors, or search another environment.`,
+               `A search needs one package, and environment "${env.name}" has none to search: ${why}. Fix: call get_status or list_packages for load errors, or search another environment.`,
             ),
          };
       }
-      return listPackages(env, [env]);
+      return listPackages([env], [env]);
    }
 
    const withPackages = catalog.filter((e) => served(e).length > 0);
@@ -377,33 +404,31 @@ export async function resolveLevel(
       return enter(withPackages[0], "This server serves one package", catalog);
    }
    if (searching) {
-      const all = withPackages.flatMap((e) =>
-         served(e).map((p) => `${e.name}/${p}`),
-      );
-      return {
-         kind: "error",
-         error: new InvalidArgumentError(
-            all.length === 0
-               ? "A search needs one package, and this server serves none. Fix: call get_status for load errors, or list_packages."
-               : `A search needs one package: Publisher indexes each package on its own. Fix: add scopes: [{"environment": "<env>", "package": "<package>"}], one of ${names(all)}.`,
-         ),
-      };
+      if (total === 0) {
+         return {
+            kind: "error",
+            error: new InvalidArgumentError(
+               "A search needs one package, and this server serves none. Fix: call get_status for load errors, or list_packages.",
+            ),
+         };
+      }
+      return listPackages(withPackages, catalog, { unscopedSearch: true });
    }
    if (withPackages.length === 1) {
       const env = withPackages[0];
-      return listPackages(
-         env,
-         catalog,
-         `Only environment ${env.name} has packages that loaded, so this lists its packages. Name it in environment from now on.`,
-      );
+      return listPackages([env], catalog, {
+         entered: `Only environment ${env.name} has packages that loaded, so this lists its packages. Name it in environment from now on.`,
+      });
    }
 
    const refused = refuseOffset("environments");
    if (refused) return refused;
-   const environments = withPackages.map((e) => ({
-      environment: e.name,
-      packages: served(e).length,
-   }));
+   const environments = withPackages
+      .map((e) => ({
+         environment: e.name,
+         packages: served(e).length,
+      }))
+      .sort((a, b) => compareNamesIgnoringCase(a.environment, b.environment));
    const warnings = healthWarnings(catalog, false);
    if (environments.length === 0 && warnings.length === 0) {
       warnings.push(

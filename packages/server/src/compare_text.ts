@@ -11,3 +11,13 @@
 export function compareText(a: string, b: string): number {
    return a < b ? -1 : a > b ? 1 : 0;
 }
+
+/**
+ * Alphabetical order for names, ignoring case: `apple`, `Banana`, `cherry`.
+ * Two names that differ only in case keep a fixed order (by code unit, so
+ * `Sales` before `sales`). The lowercase fold is locale-free for the same
+ * reason compareText is.
+ */
+export function compareNamesIgnoringCase(a: string, b: string): number {
+   return compareText(a.toLowerCase(), b.toLowerCase()) || compareText(a, b);
+}

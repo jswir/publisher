@@ -56,7 +56,7 @@ export const convergedContextShape = {
       .min(1)
       .nullish()
       .describe(
-         "What to find. One target per concept; several targets of different types answer one question in one call. Omit to list instead: a source in `scopes` lists its fields, a package its sources; with no `scopes`, `environment` lists that environment's packages, and nothing at all lists the environments.",
+         "What to find. One target per concept; several targets of different types answer one question in one call. Omit to list instead: a source in `scopes` lists its fields (its own, then those reached through joins), a package its sources; with no `scopes`, `environment` lists that environment's packages, and nothing at all lists the environments. Every listing is alphabetical, ignoring case.",
       ),
    scopes: z
       .array(
@@ -81,16 +81,19 @@ export const convergedContextShape = {
                .describe("Narrow to one entity within the source."),
          }),
       )
-      .length(1)
+      .length(1, {
+         message:
+            'scopes takes exactly one entry: name one package, e.g. [{"environment": "<environment>", "package": "<package>"}]. Publisher searches one package per call; to search another, call get_context again with that package.',
+      })
       .nullish()
       .describe(
-         "Exactly one when given: the environment and package to search or list, optionally narrowed to a model, source, or entity. Omit it to find those names: the response lists environments, or `environment`'s packages. A search needs it, unless only one package is served.",
+         'Exactly one when given: the environment and package to search or list, optionally narrowed to a model, source, or entity. Omit it to find those names: the response lists environments, or `environment`\'s packages. A search needs it unless only one package is served: a search without it, when several are, searches nothing and returns the packages, with a warning that starts "Search requires a package scope."',
       ),
    environment: z
       .string()
       .nullish()
       .describe(
-         "With no `scopes`: list this environment's packages. A level with one choice is entered, so an environment with one package returns that package's sources (or searches it). Must match `scopes[0].environment` when both are given.",
+         "With no `scopes`: list this environment's packages. A level with one choice is entered, so an environment with one package returns that package's sources (or searches it); a search in an environment with several returns its packages instead, searching nothing. Must match `scopes[0].environment` when both are given.",
       ),
    filter_params: z
       .record(z.union([z.string(), z.array(z.string())]))

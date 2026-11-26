@@ -422,32 +422,9 @@
             "description": "Orders per month."
           },
           {
-            "name": "status",
-            "entity_type": "dimension",
-            "entity_id": "dimension:orders:status",
-            "description": "Order lifecycle status."
-          },
-          {
-            "name": "state",
-            "entity_type": "dimension",
-            "entity_id": "dimension:orders:state",
-            "description": "State the order ships to."
-          },
-          {
             "name": "city",
             "entity_type": "dimension",
             "entity_id": "dimension:orders:city"
-          },
-          {
-            "name": "total_revenue",
-            "entity_type": "measure",
-            "entity_id": "measure:orders:total_revenue",
-            "description": "Sum of order revenue."
-          },
-          {
-            "name": "order_count",
-            "entity_type": "measure",
-            "entity_id": "measure:orders:order_count"
           },
           {
             "name": "customer",
@@ -456,10 +433,33 @@
             "description": "The customer who placed it."
           },
           {
+            "name": "order_count",
+            "entity_type": "measure",
+            "entity_id": "measure:orders:order_count"
+          },
+          {
+            "name": "state",
+            "entity_type": "dimension",
+            "entity_id": "dimension:orders:state",
+            "description": "State the order ships to."
+          },
+          {
+            "name": "status",
+            "entity_type": "dimension",
+            "entity_id": "dimension:orders:status",
+            "description": "Order lifecycle status."
+          },
+          {
             "name": "top_orders",
             "entity_type": "query",
             "entity_id": "query:orders:top_orders",
             "description": "The largest orders."
+          },
+          {
+            "name": "total_revenue",
+            "entity_type": "measure",
+            "entity_id": "measure:orders:total_revenue",
+            "description": "Sum of order revenue."
           }
         ]
       }
@@ -571,15 +571,15 @@
         },
         "entities": [
           {
+            "name": "order_count",
+            "entity_type": "measure",
+            "entity_id": "measure:orders:order_count"
+          },
+          {
             "name": "total_revenue",
             "entity_type": "measure",
             "entity_id": "measure:orders:total_revenue",
             "description": "Sum of order revenue."
-          },
-          {
-            "name": "order_count",
-            "entity_type": "measure",
-            "entity_id": "measure:orders:order_count"
           }
         ]
       }
@@ -604,15 +604,15 @@
         },
         "entities": [
           {
+            "name": "region",
+            "entity_type": "dimension",
+            "entity_id": "dimension:customers:region"
+          },
+          {
             "name": "state",
             "entity_type": "dimension",
             "entity_id": "dimension:customers:state",
             "description": "State the customer lives in."
-          },
-          {
-            "name": "region",
-            "entity_type": "dimension",
-            "entity_id": "dimension:customers:region"
           }
         ]
       }

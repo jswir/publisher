@@ -5,6 +5,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { registerTool } from "../register_tool";
 import type { EnvironmentCatalog } from "../../service/environment_ports";
 import { InvalidArgumentError } from "../../errors";
+import { compareNamesIgnoringCase, compareText } from "../../compare_text";
 import { buildMalloyUri, classifyToolError } from "../handler_utils";
 import {
    type AccessIdentity,
@@ -31,6 +32,7 @@ import {
    unsupportedTargetWarnings,
 } from "../../retrieval/search/response";
 import type {
+   Entity,
    ListingContext,
    PackageIndex,
    ResolvedRequest,
@@ -55,7 +57,7 @@ const GET_CONTEXT_DESCRIPTION = `Retrieve the entities in a Malloy package most 
 ## Contract rules
 - Use returned names verbatim; never invent one.
 - One target per concept, not a list in one search_text. A source returns only its matched fields, not all of them.
-- No search_targets lists environments, packages, sources or fields. A search needs one package in scopes.
+- No search_targets lists environments, packages, sources or fields, alphabetically. A search needs one package in scopes; with none, it lists the packages and searches nothing.
 - Read warnings and any error/stale field before trusting a number or calling data absent.
 - A source's joins are all listed: empty means none. In an answer, never write a join; tell the user.
 - Read a source's doc before querying: it holds grain and population rules.
@@ -63,7 +65,7 @@ const GET_CONTEXT_DESCRIPTION = `Retrieve the entities in a Malloy package most 
 - Empty sources: nothing answered; see unresolved_targets.
 
 ## Parameters
-search_targets: {target_type, search_text}; target_type is source|dimension|measure|view|join|dimensional_value, omitting search_text enumerates that type. dimensional_value: search_text is one value as typed, beside its dimension target; stored strings return in entities[].values (gated sources need givens, as in execute_query). Once its field is known, scope to it (source, entity_name). scopes: {environment, package} + optional model_path, source, entity_name. offset pages results. include_code or a pinned entity_name returns code.
+search_targets: {target_type, search_text}; target_type is source|dimension|measure|view|join|dimensional_value, omitting search_text enumerates that type. dimensional_value: search_text is one value as typed, beside its dimension target; stored strings return in entities[].values (gated sources need givens, as in execute_query). scopes: {environment, package} + optional model_path, source, entity_name. offset pages results. include_code or a pinned entity_name returns code.
 
 ## Response
 sources[], best first; a source repeats once per model_path resolving it, query any. source_info: resource_id (environment/package/model_path/source) -> execute_query's environmentName/packageName/modelPath/sourceName; docs (… = truncated), one_line_summary, complete joins, givens, accessFilter/authorize, filter_params. entities[] nest under it: name, entity_type, description, data_type, classifications, relationship (fan-out), join_path, aliases, relevance, entity_id, values[] {value, relevance}, matched_targets[].match_reason.
@@ -150,6 +152,31 @@ async function lockedSourceKeys(
    return keys;
 }
 
+/** A source's own row, then its own fields, then fields reached through a join. */
+function listingGroup(e: Entity): number {
+   if (e.kind === "source") return 0;
+   return e.joinPath ? 2 : 1;
+}
+
+/**
+ * The order of every listing: sources alphabetically, ignoring case, and
+ * within each source its own row, then its own fields (record members
+ * included), then the fields reached through its joins, each group
+ * alphabetically, ignoring case. Ties fall to the case-sensitive name, then
+ * the model path, the kind and the entity id, so the order never depends on
+ * the model's declaration order. A ranked search keeps its own order.
+ */
+function listingOrder(a: Entity, b: Entity): number {
+   return (
+      compareNamesIgnoringCase(a.source ?? "", b.source ?? "") ||
+      compareText(a.modelPath, b.modelPath) ||
+      listingGroup(a) - listingGroup(b) ||
+      compareNamesIgnoringCase(a.name, b.name) ||
+      compareText(a.kind, b.kind) ||
+      compareText(a.id, b.id)
+   );
+}
+
 /** Tier 3: nothing to rank, so enumerate what the targets name. */
 function runListing(
    ctx: ListingContext,
@@ -161,9 +188,6 @@ function runListing(
    const warningsFor = makeWarningsFor(ctx);
    // A drill-down (sourceName set) lists every entity the named source
    // offers, not just the source row the caller already has.
-   // collectEntities pushes a source ahead of its own fields and Array.from
-   // keeps that order, so toSourceResults sees the source before the
-   // entities that nest under it.
    const matching = Array.from(byId.values()).filter(
       (e) =>
          // A scoped source's own row always survives: it becomes the
@@ -174,12 +198,13 @@ function runListing(
          // A source the caller cannot enter spends no slot and is not counted.
          !droppedSources.has(sourceContextKey(e.modelPath, e.source ?? "")),
    );
-   // A record's members (`delivery.city`) after everything else, so a wide
-   // record cannot spend the cap before the source's other fields, joins and
-   // views. Every member still follows its source's row.
+   // Which rows the cap keeps: a record's members (`delivery.city`) after
+   // everything else, so a wide record cannot spend the cap before the
+   // source's other fields, joins and views. The rows kept are then sent in
+   // listing order, below.
    const inScope = [
-      ...matching.filter((e) => !e.recordPath),
-      ...matching.filter((e) => e.recordPath),
+      ...matching.filter((e) => !e.recordPath).sort(listingOrder),
+      ...matching.filter((e) => e.recordPath).sort(listingOrder),
    ];
    // The limit caps entities; a drill-down's source row becomes the card and
    // does not spend a slot. Only a pure browse has a stable order, so only it
@@ -188,12 +213,14 @@ function runListing(
       ? inScope.slice(request.offset)
       : inScope;
    let entityBudget = request.limit;
-   const capped = paged.filter((e) => {
-      if (sourceName && e.kind === "source") return true;
-      if (entityBudget <= 0) return false;
-      entityBudget -= 1;
-      return true;
-   });
+   const capped = paged
+      .filter((e) => {
+         if (sourceName && e.kind === "source") return true;
+         if (entityBudget <= 0) return false;
+         entityBudget -= 1;
+         return true;
+      })
+      .sort(listingOrder);
    /**
     * Rows the cap spends from: the unit both sides of the truncation warning
     * are counted in. A scoped source's own row is excluded from both counts,
@@ -211,9 +238,10 @@ function runListing(
       request.includeCode,
       droppedSources,
    );
-   // A listing is catalog order, not a ranking: it names the ordering and
-   // omits a score rather than inventing one. Both counts are in cards (one
-   // per model path resolving a source), the unit the payload is made of.
+   // A listing is alphabetical (listingOrder), not a ranking: it names the
+   // ordering and omits a score rather than inventing one. Both counts are in
+   // cards (one per model path resolving a source), the unit the payload is
+   // made of.
    const consumed = request.offset + sources.length;
    // Distinct (model path, source) pairings, so the count stays right even
    // for an entity whose own source row was filtered out.

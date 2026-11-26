@@ -8,6 +8,9 @@ import { registerGetContextTool } from "./get_context_tool";
 import { fakeOf } from "../../test_helpers/store_fakes";
 import type { EnvironmentCatalog } from "../../service/environment_ports";
 import { testRetrieval } from "../../test_helpers/test_retrieval";
+import type { RetrievalService } from "../../retrieval/service";
+import { z } from "zod/v3";
+import { convergedContextShape } from "./get_context_request";
 
 type Pkg = { name: string; description?: string };
 type EnvSpec = {
@@ -95,7 +98,10 @@ type Handler = (p: Record<string, unknown>) => Promise<{
    content: Array<{ resource?: { text: string } }>;
 }>;
 
-function handlerFor(store: EnvironmentCatalog): Handler {
+function handlerFor(
+   store: EnvironmentCatalog,
+   retrieval: RetrievalService = testRetrieval(store),
+): Handler {
    let handler: Handler | undefined;
    registerGetContextTool(
       {
@@ -104,9 +110,38 @@ function handlerFor(store: EnvironmentCatalog): Handler {
          },
       } as never,
       store,
-      testRetrieval(store),
+      retrieval,
    );
    return handler!;
+}
+
+/**
+ * A RetrievalService that counts what a call reads: `search` is the only path
+ * to an embedding or judge call, and `packageIndex` the only way into a
+ * package's entities. A search answers an empty result without running.
+ */
+function spiedRetrieval(store: EnvironmentCatalog) {
+   const retrieval = testRetrieval(store);
+   const spy = {
+      retrieval,
+      searches: 0,
+      indexReads: 0,
+      searched: [] as Array<[string, string]>,
+   };
+   const realIndex = retrieval.packageIndex.bind(retrieval);
+   retrieval.packageIndex = (env: string, pkg: string) => {
+      spy.indexReads += 1;
+      return realIndex(env, pkg);
+   };
+   retrieval.search = async (args) => {
+      spy.searches += 1;
+      spy.searched.push([
+         args.request.environmentName,
+         args.request.packageName,
+      ]);
+      return { ok: true, payload: { sources: [] } } as never;
+   };
+   return spy;
 }
 
 async function call(
@@ -140,8 +175,8 @@ describe("get_context with no package named", () => {
          sources: [],
          listing: "environments",
          environments: [
-            { environment: "prod", packages: 2 },
             { environment: "dev", packages: 1 },
+            { environment: "prod", packages: 2 },
          ],
          total_available: 2,
          returned: 2,
@@ -254,20 +289,156 @@ describe("get_context with no package named", () => {
       );
    });
 
-   it("refuses a search across several packages, naming them", async () => {
+   it("answers a search naming no package, with several in reach, with every package and nothing searched", async () => {
+      const spy = spiedRetrieval(TWO_ENVS);
       const targets = [{ target_type: "measure", search_text: "revenue" }];
-      const one = await call(TWO_ENVS, {
-         environment: "prod",
+      const out = await handlerFor(
+         TWO_ENVS,
+         spy.retrieval,
+      )({
          search_targets: targets,
       });
-      expect(one.isError).toBe(true);
-      expect(one.payload.error).toContain(
-         'A search needs one package: Publisher indexes each package on its own. Fix: add scopes: [{"environment": "prod", "package": "<one of: sales, finance>"}].',
+      expect(out.isError ?? false).toBe(false);
+      const payload = JSON.parse(out.content[0].resource!.text);
+      // The listing a call with no targets returns, across every environment.
+      expect(payload).toMatchObject({
+         sources: [],
+         listing: "packages",
+         packages: [
+            { environment: "dev", package: "scratch" },
+            { environment: "prod", package: "finance" },
+            {
+               environment: "prod",
+               package: "sales",
+               one_line_summary: "Orders and revenue.",
+            },
+         ],
+         total_available: 3,
+         returned: 3,
+      });
+      expect(payload.warnings[0]).toBe(
+         'Search requires a package scope. Call get_context again with the same search_targets and `scopes` set to the package from this list that holds the data, e.g. [{"environment": "<environment>", "package": "<package>"}]. Nothing was searched: you can read 3 packages.',
       );
-      const all = await call(TWO_ENVS, { search_targets: targets });
-      expect(all.isError).toBe(true);
-      expect(all.payload.error).toContain(
-         "one of prod/sales, prod/finance, dev/scratch.",
+      // A failed package is still named, as on any listing.
+      expect(payload.warnings.slice(1)).toEqual([
+         "A package failed to load and is not listed: prod/broken. list_packages and get_status say why.",
+      ]);
+      // Nothing was searched: no index was read, so no embedding or judge
+      // call could have been made.
+      expect(spy.searches).toBe(0);
+      expect(spy.indexReads).toBe(0);
+   });
+
+   it("answers a search naming an environment with several packages with that environment's packages", async () => {
+      const spy = spiedRetrieval(TWO_ENVS);
+      const out = await handlerFor(
+         TWO_ENVS,
+         spy.retrieval,
+      )({
+         environment: "prod",
+         search_targets: [{ target_type: "measure", search_text: "revenue" }],
+         // An offset meant for search results is not a listing's offset.
+         offset: 20,
+      });
+      expect(out.isError ?? false).toBe(false);
+      const payload = JSON.parse(out.content[0].resource!.text);
+      expect(payload.listing).toBe("packages");
+      expect(
+         payload.packages.map(
+            (p: { environment: string; package: string }) =>
+               `${p.environment}/${p.package}`,
+         ),
+      ).toEqual(["prod/finance", "prod/sales"]);
+      expect(payload.warnings[0]).toBe(
+         'Search requires a package scope. Call get_context again with the same search_targets and `scopes` set to the package from this list that holds the data, e.g. [{"environment": "prod", "package": "<package>"}]. Nothing was searched: you can read 2 packages.',
+      );
+      expect(spy.searches).toBe(0);
+      expect(spy.indexReads).toBe(0);
+   });
+
+   it("keeps an unscoped search's package listing within the response budget", async () => {
+      const many = Array.from({ length: 400 }, (_, i) => ({
+         name: `pkg${String(i).padStart(3, "0")}`,
+         description: `Package ${i}: ${"a description long enough to count. ".repeat(3)}`,
+      }));
+      const { isError, payload } = await call(
+         storeOf({ prod: { packages: many } }),
+         {
+            search_targets: [{ target_type: "measure", search_text: "x" }],
+         },
+      );
+      expect(isError).toBe(false);
+      expect(payload.total_available).toBe(400);
+      expect(payload.returned).toBeLessThan(400);
+      expect(JSON.stringify(payload.packages).length).toBeLessThanOrEqual(
+         35_000,
+      );
+      expect(payload.warnings[0]).toEndWith(
+         "Nothing was searched: you can read 400 packages.",
+      );
+      expect(payload.warnings.at(-1)).toBe(
+         `Returned ${payload.returned} of 400 packages: the rest do not fit in one response. Name a package in scopes to list its sources, or call list_packages for every package.`,
+      );
+   });
+
+   it("searches the only package in reach when a search names none", async () => {
+      const store = storeOf({
+         prod: { packages: [{ name: "sales" }] },
+         empty: { packages: [] },
+      });
+      const spy = spiedRetrieval(store);
+      const out = await handlerFor(
+         store,
+         spy.retrieval,
+      )({
+         search_targets: [{ target_type: "measure", search_text: "revenue" }],
+      });
+      expect(out.isError ?? false).toBe(false);
+      expect(spy.searches).toBe(1);
+      expect(spy.searched).toEqual([["prod", "sales"]]);
+   });
+
+   it("searches a named package as before, never reading the rest of the server", async () => {
+      const store = storeOf(
+         { prod: { packages: [{ name: "sales" }, { name: "finance" }] } },
+         { catalogThrows: true },
+      );
+      const spy = spiedRetrieval(store);
+      const out = await handlerFor(
+         store,
+         spy.retrieval,
+      )({
+         search_targets: [{ target_type: "measure", search_text: "revenue" }],
+         scopes: [{ environment: "prod", package: "sales" }],
+      });
+      expect(out.isError ?? false).toBe(false);
+      expect(spy.searched).toEqual([["prod", "sales"]]);
+   });
+
+   it("refuses a scopes list naming more than one package, telling the agent to name one", () => {
+      const parsed = z.object(convergedContextShape).safeParse({
+         search_targets: [{ target_type: "measure", search_text: "revenue" }],
+         scopes: [
+            { environment: "prod", package: "sales" },
+            { environment: "prod", package: "finance" },
+         ],
+      });
+      expect(parsed.success).toBe(false);
+      if (parsed.success) return;
+      // The text the MCP SDK sends back as the validation error.
+      expect(parsed.error.issues.map((i) => i.message)).toEqual([
+         'scopes takes exactly one entry: name one package, e.g. [{"environment": "<environment>", "package": "<package>"}]. Publisher searches one package per call; to search another, call get_context again with that package.',
+      ]);
+   });
+
+   it("still refuses a search when no package is in reach", async () => {
+      const { isError, payload } = await call(
+         storeOf({ empty: { packages: [] } }),
+         { search_targets: [{ target_type: "measure", search_text: "x" }] },
+      );
+      expect(isError).toBe(true);
+      expect(payload.error).toContain(
+         "A search needs one package, and this server serves none.",
       );
    });
 
@@ -466,7 +637,7 @@ describe("get_context naming a package with no targets", () => {
       expect(payload.package_info).toBeUndefined();
       expect(
          payload.sources[0].entities.map((e: { name: string }) => e.name),
-      ).toEqual(["status", "order_count"]);
+      ).toEqual(["order_count", "status"]);
    });
 
    it("cuts a description too long to send beside the sources to its one-line summary", async () => {

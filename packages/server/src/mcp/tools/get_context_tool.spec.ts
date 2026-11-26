@@ -1067,9 +1067,11 @@ describe("get_context discovery tiers", () => {
          }),
       );
       // The hit itself is a field carrying only its own (empty) doc...
-      const hit = rankedEntities(payload)[0];
-      expect(hit.entity_type).toBe("dimension");
-      expect(hit.description).toBeUndefined();
+      const hit = rankedEntities(payload).find(
+         (e: { entity_type: string }) => e.entity_type === "dimension",
+      );
+      expect(hit).toBeDefined();
+      expect(hit?.description).toBeUndefined();
       // ...and its source's guidance arrives regardless, on the container the
       // field now nests inside, which is what makes placement independent of
       // how the question was phrased.
@@ -1448,13 +1450,14 @@ describe("get_context discovery tiers", () => {
             ],
          ),
       ).toEqual([
+         // Alphabetical, ignoring case, whatever the kind. The declared join
+         // is an entity of this source too: a drill-down is where an agent
+         // learns what it can traverse.
          ["view", "by_month"],
-         ["dimension", "status"],
-         ["measure", "total_revenue"],
-         // The declared join is an entity of this source too: a drill-down is
-         // where an agent learns what it can traverse.
          ["join", "customer"],
+         ["dimension", "status"],
          ["query", "top_orders"],
+         ["measure", "total_revenue"],
       ]);
       // The card is one source of one, however many entities nest in it.
       expect(payload.total_available).toBe(1);
@@ -1511,7 +1514,7 @@ describe("get_context discovery tiers", () => {
             (c: { source_info: { resource_id: { source: string } } }) =>
                c.source_info.resource_id.source,
          ),
-      ).toEqual(["orders", "customers"]);
+      ).toEqual(["customers", "orders"]);
       // An overview names sources, never their fields.
       expect(
          payload.sources.every(
@@ -1560,7 +1563,8 @@ describe("get_context discovery tiers", () => {
          }),
       );
       // The source is the card, not an entity, so the limit buys two FIELDS
-      // rather than the source row plus one field.
+      // rather than the source row plus one field: the first two
+      // alphabetically.
       expect(
          payload.sources[0].entities.map(
             (e: { entity_type: string; name: string }) => [
@@ -1570,7 +1574,7 @@ describe("get_context discovery tiers", () => {
          ),
       ).toEqual([
          ["view", "by_month"],
-         ["dimension", "status"],
+         ["join", "customer"],
       ]);
    });
 });
