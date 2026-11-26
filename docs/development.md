@@ -115,6 +115,10 @@ registered in a Bun preload. Run them from that package (`cd packages/sdk &&
 bun test`) rather than from the repo root, since Bun reads `bunfig.toml` from
 the working directory. `packages/sdk/test/README.md` covers the patterns.
 
+A change to `get_context` retrieval (`packages/server/src/retrieval/`) is checked by the retrieval
+replay, which compares the whole response of a fixed set of calls with committed snapshots.
+[retrieval-replay.md](retrieval-replay.md) covers running it and re-recording.
+
 `make typecheck` (and the underlying `bun run typecheck`) depends on the SDK's emitted `.d.ts` files,
 which in turn depend on the OpenAPI codegen. On a fresh clone, build first — either with `make build`
 (full SDK + app + server bundle), or with the targeted minimum:
