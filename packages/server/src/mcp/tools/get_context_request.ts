@@ -108,7 +108,7 @@ export const convergedContextShape = {
       .string()
       .nullish()
       .describe(
-         "The user's question that led to this call, verbatim on the first turn. Used for observability; does not affect matching.",
+         "The user's question that led to this call, verbatim on the first turn. The final ranking step reads it to choose fields the targets imply (the date for a period it names, a field it filters by) and to put the sources in order; it does not change what search finds.",
       ),
    include_code: z
       .boolean()
@@ -207,6 +207,9 @@ export function resolveRequest(params: ScopedParams): ResolvedRequest {
       // Pinning an entity by name turns code on, even over an explicit
       // `include_code: false`, matching the hosted retrieval API.
       includeCode: (params.include_code ?? false) || Boolean(scope.entity_name),
+      ...(params.user_prompt?.trim()
+         ? { userPrompt: params.user_prompt.trim() }
+         : {}),
       unsupported,
       limit: params.limit ?? (listingOnly ? MAX_LIMIT : DEFAULT_RANKED_LIMIT),
       offset: params.offset ?? 0,

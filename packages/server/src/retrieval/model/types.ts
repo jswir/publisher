@@ -354,6 +354,8 @@ export interface ResolvedRequest {
    listingOnly: boolean;
    /** Serialize each entity's Malloy expression as `code`. */
    includeCode: boolean;
+   /** The caller's `user_prompt`: the question, read by the ranking step (box 5). */
+   userPrompt?: string;
    /** Targets naming a type this server cannot search, for a warning. */
    unsupported: SearchTargetType[];
    limit: number;

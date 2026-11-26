@@ -30,11 +30,10 @@ import {
 import { ServiceUnavailableError } from "../../errors";
 import { pollFor, pollUntil } from "../../test_helpers/poll";
 import { PROVIDER_FAILURE_COOLDOWN_MS } from "../shared";
-import { inScope } from "./engine";
+import { inScope } from "./authorize";
 import { getPackageEmbeddingStatus } from "../index/package_embedding";
 import { sourceContextKey } from "../model/package_entities";
 import {
-   fcjJudgeChat,
    fcjLastSyncedAtOf,
    fcjStateOf,
    fcjVectorProgressOf,
@@ -51,10 +50,6 @@ import type { Environment } from "../../service/environment";
 import type { IndexValueFetcher } from "../index/values_index";
 import type { Package } from "../../service/package";
 import type { ChatModel } from "../llm/types";
-import {
-   DEFAULT_FCJ_SETTINGS,
-   DEFAULT_PACKAGE_RETRIEVAL,
-} from "../../service/package_retrieval_settings";
 
 let harness: SemanticHarness;
 beforeAll(async () => {
@@ -98,8 +93,8 @@ describe("the search engine", () => {
       expect(payload.engine).toBe("fcj");
       expect(
          payload.retrieval_trace.stages.map((s: { name: string }) => s.name),
-      ).toContain("find");
-      const find = payload.retrieval_trace_full.fcj.find;
+      ).toContain("search");
+      const find = payload.retrieval_trace_full.fcj.search;
       expect(find.map((t: { target_index: number }) => t.target_index)).toEqual(
          [0, 1],
       );
@@ -252,81 +247,117 @@ describe("the search engine", () => {
       expect(payload.sources.length).toBe(9);
    });
 
-   it("by default is in list mode, with the union of the meaning and keyword lists and the readings rule on", async () => {
-      const { pkg } = await compileFcjFixture();
-      const handler = harness.handlerFor(pkg);
-      const { payload } = await untilSemantic(
-         handler,
-         {
+   it("runs the six boxes: one pick call per kept source, one ordering call, rows in order, and the order the ordering call gave", async () => {
+      // Each pick call picks its first candidate for every target it lists;
+      // the ordering call puts the last source first.
+      const chat = scriptedChat((prompt) => {
+         if (prompt.includes("<sources>")) {
+            const n = [...prompt.matchAll(/^\[(\d+)\] /gm)].map((m) =>
+               Number(m[1]),
+            );
+            return JSON.stringify({ sources: [...n].reverse() });
+         }
+         const targets = [...prompt.matchAll(/^Target (\d+) /gm)].map((m) =>
+            Number(m[1]),
+         );
+         const first = /^ {2}\[(\d+)\] /m.exec(prompt)?.[1];
+         return JSON.stringify({
+            picks: targets.map((t) => ({
+               target: t,
+               candidates: first ? [Number(first)] : [],
+               reason: "the first one",
+            })),
+            caveats: [],
+         });
+      });
+      harness.registry.chat.override(chat.model);
+      try {
+         const { pkg } = await compileFcjFixture();
+         const handler = harness.handlerFor(pkg);
+         const request = {
             search_targets: [
                { target_type: "measure", search_text: "number of flights" },
                { target_type: "dimension", search_text: "start date" },
             ],
             scopes,
-         },
-         full,
-      );
-      // One group of peers, not clusters: the judge saw every source listed.
-      const connect = payload.retrieval_trace_full.fcj.connect;
-      expect(connect.clusters).toHaveLength(1);
-      expect(connect.clusters[0].peers.length).toBeGreaterThan(1);
-      expect(DEFAULT_FCJ_SETTINGS).toMatchObject({
-         connect: "list",
-         listTopK: 30,
-         listUnion: 30,
-         dropRoutesAt: 4,
-         readingsRule: true,
-      });
-   });
-
-   it("returns what the judge picked, one call for one cluster (connect: clusters)", async () => {
-      const chat = scriptedChat(() =>
-         JSON.stringify({
-            picks: [
-               { target: 1, candidates: [1], reason: "counts flights" },
-               { target: 2, candidates: [2] },
-            ],
-            caveats: ["start_date is the scheduled date"],
-         }),
-      );
-      harness.registry.chat.override(chat.model);
-      try {
-         const { pkg } = await compileFcjFixture(undefined, undefined, {
-            ...DEFAULT_PACKAGE_RETRIEVAL,
-            fcj: { ...DEFAULT_FCJ_SETTINGS, connect: "clusters" },
-         });
-         const handler = harness.handlerFor(pkg);
-         const { payload } = await untilSemantic(
-            handler,
-            {
-               search_targets: [
-                  { target_type: "measure", search_text: "number of flights" },
-                  { target_type: "dimension", search_text: "start date" },
-               ],
-               scopes,
-            },
-            full,
+            user_prompt: "How many flights started each day?",
+         };
+         await pollUntilBuilt(handler, request);
+         const before = chat.prompts.length;
+         const { payload } = await callPayload(handler, request, full);
+         const sent = chat.prompts.slice(before);
+         const kept = payload.retrieval_trace_full.fcj.group.kept;
+         expect(kept.length).toBeGreaterThan(1);
+         expect(kept.length).toBeLessThanOrEqual(7);
+         // One pick call per kept source, and one ordering call.
+         expect(sent.filter((p) => p.includes("<targets>"))).toHaveLength(
+            kept.length,
          );
-         const judgeStage = payload.retrieval_trace.stages.find(
-            (s: { name: string }) => s.name === "judge",
-         );
-         expect(judgeStage).toMatchObject({ status: "ran", llm_calls: 1 });
-         const ids = payload.sources.flatMap(
-            (s: { entities?: Array<{ entity_id: string }> }) =>
-               (s.entities ?? []).map((e) => e.entity_id),
-         );
-         expect(ids).toEqual([
-            "measure:flights:flight_count",
-            "dimension:flights:start_date",
+         expect(sent.filter((p) => p.includes("<sources>"))).toHaveLength(1);
+         // The question reaches both kinds of call.
+         expect(
+            sent.every((p) => p.includes("How many flights started each day?")),
+         ).toBe(true);
+         expect(
+            payload.retrieval_trace.stages.map((s: { name: string }) => s.name),
+         ).toEqual([
+            "authorize",
+            "queries",
+            "search",
+            "group",
+            "rerank",
+            "format",
          ]);
-         expect(payload.retrieval_trace_full.fcj.judge[0].caveats).toEqual([
-            "start_date is the scheduled date",
-         ]);
+         const rerank = payload.retrieval_trace_full.fcj.rerank;
+         expect(rerank).toMatchObject({ mode: "judged", order: "ordered" });
+         // Served in the ordering call's order: box 4's, reversed (less any
+         // source whose pick was empty).
+         const served = rerank.sources.map((s: { source: string }) => s.source);
+         expect(served).toEqual(
+            kept
+               .map((k: { source: string }) => k.source)
+               .reverse()
+               .filter((s: string) => served.includes(s)),
+         );
       } finally {
          harness.registry.chat.reset();
       }
    });
 
+   it("serves search's top matches with a warning, not an error, when every pick call fails", async () => {
+      const chat = scriptedChat((prompt) => {
+         if (prompt.includes("<targets>")) throw new Error("model down");
+         return JSON.stringify({ sources: [1] });
+      });
+      harness.registry.chat.override(chat.model);
+      try {
+         const { pkg } = await compileFcjFixture();
+         const handler = harness.handlerFor(pkg);
+         const request = {
+            search_targets: [
+               { target_type: "measure", search_text: "number of flights" },
+            ],
+            scopes,
+         };
+         await pollUntilBuilt(handler, request);
+         const { isError, payload } = await callPayload(handler, request, full);
+         expect(isError).toBe(false);
+         expect(payload.sources.length).toBeGreaterThan(0);
+         expect(payload.warnings[0]).toStartWith(
+            "The final ranking step was unavailable, so these results are the top few search matches without it.",
+         );
+         expect(payload.retrieval_trace_full.fcj.rerank.mode).toBe("degraded");
+         // Two attempts per pick call.
+         expect(
+            payload.retrieval_trace_full.fcj.rerank.calls.every(
+               (c: { attempts: number; outcome: string }) =>
+                  c.attempts === 2 && c.outcome === "failed",
+            ),
+         ).toBe(true);
+      } finally {
+         harness.registry.chat.reset();
+      }
+   });
    it("carries the stale-package note on a ranked answer", async () => {
       const { pkg } = await compileFcjFixture();
       const handler = harness.handlerFor(
@@ -395,7 +426,7 @@ describe("the search engine", () => {
       expect(payload.sources).toEqual([]);
    });
 
-   it("stops the judge at maxCallsPerRequest, and sends no call past it", async () => {
+   it("stops at maxCallsPerRequest, sends no call past it, and still answers", async () => {
       const chat = scriptedChat(() =>
          JSON.stringify({ picks: [], caveats: [] }),
       );
@@ -404,12 +435,7 @@ describe("the search engine", () => {
          concurrency: 1,
       });
       try {
-         // Three measures in three unrelated sources: connect: clusters makes
-         // three clusters, and the judge makes one call for each.
-         const { pkg } = await compileFcjFixture(undefined, undefined, {
-            ...DEFAULT_PACKAGE_RETRIEVAL,
-            fcj: { ...DEFAULT_FCJ_SETTINGS, connect: "clusters" },
-         });
+         const { pkg } = await compileFcjFixture();
          const handler = harness.handlerFor(pkg);
          const request = {
             search_targets: [
@@ -422,62 +448,9 @@ describe("the search engine", () => {
          // The build may have used the chat model; count from here.
          await pollUntilBuilt(handler, request);
          const before = chat.prompts.length;
-         const { isError, payload } = await callPayload(handler, request);
-         expect(isError).toBe(true);
-         expect(payload.retrieval_reason).toBe("llm-stage-failed");
-         expect(payload.retrieval_stage).toBe("judge");
-         expect(payload.error).toContain("maxCallsPerRequest");
+         const { isError } = await callPayload(handler, request);
+         expect(isError).toBe(false);
          expect(chat.prompts.length - before).toBeLessThanOrEqual(1);
-      } finally {
-         harness.registry.chat.reset();
-      }
-   });
-
-   it("fails the request, never skips the judge, when the judgeLlm model cannot be built", async () => {
-      const chat = scriptedChat(() =>
-         JSON.stringify({
-            picks: [{ target: 1, candidates: [1] }],
-            caveats: [],
-         }),
-      );
-      // The operator's provider needs a key and has none.
-      harness.registry.chat.override(chat.model, { provider: "anthropic" });
-      try {
-         const { pkg } = await compileFcjFixture(undefined, undefined, {
-            ...DEFAULT_PACKAGE_RETRIEVAL,
-            fcj: {
-               ...DEFAULT_FCJ_SETTINGS,
-               judgeLlm: { model: "claude-haiku-5-5" },
-            },
-         });
-         const handler = harness.handlerFor(pkg);
-         const { payload } = await untilSemantic(handler, {
-            search_targets: [
-               { target_type: "measure", search_text: "number of flights" },
-            ],
-            scopes,
-         });
-         expect(payload.retrieval_reason).toBe("llm-stage-failed");
-         expect(payload.retrieval_stage).toBe("judge");
-         // The index build may have used the chat model; the judge never did.
-         expect(chat.prompts.some((p) => p.includes("Target 1 ("))).toBe(false);
-      } finally {
-         harness.registry.chat.reset();
-      }
-   });
-
-   it("builds the judgeLlm model on the operator's provider, host and key", () => {
-      harness.registry.chat.override(scriptedChat(() => "{}").model, {
-         provider: "anthropic",
-         apiKey: "operator-key",
-         baseUrl: "https://llm.operator.example",
-      });
-      try {
-         const judgeModel = fcjJudgeChat(harness.registry, {
-            model: "claude-haiku-5-5",
-         });
-         expect(judgeModel?.provider).toBe("anthropic");
-         expect(judgeModel?.model).toBe("claude-haiku-5-5");
       } finally {
          harness.registry.chat.reset();
       }
@@ -758,14 +731,15 @@ describe("fcj paging", () => {
       const { call, half } = await ready();
       const one = await call({ limit: half });
       expect(stageNames(one)).toEqual([
-         "find",
-         "connect",
-         "judge",
-         "respond",
-         "page",
+         "authorize",
+         "queries",
+         "search",
+         "group",
+         "rerank",
+         "format",
       ]);
       const two = await call({ limit: half, offset: one.next_offset });
-      expect(stageNames(two)).toEqual(["page"]);
+      expect(stageNames(two)).toEqual(["format"]);
       expect((two.warnings ?? []).join(" ")).not.toContain("ran again");
    });
 
@@ -774,7 +748,7 @@ describe("fcj paging", () => {
       const one = await call({ limit: half });
       harness.registry.heldResults.clear();
       const two = await call({ limit: half, offset: one.next_offset });
-      expect(stageNames(two)).toContain("judge");
+      expect(stageNames(two)).toContain("rerank");
       expect(two.warnings!.join(" ")).toContain(
          "No held result matched this offset, so the search ran again",
       );
@@ -790,16 +764,16 @@ describe("fcj paging", () => {
          offset: one.next_offset,
          givens: { region: "east" },
       });
-      expect(stageNames(other)).toContain("find");
+      expect(stageNames(other)).toContain("search");
       expect(other.warnings!.join(" ")).toContain("ran again");
       const none = await call({ limit: half, offset: one.next_offset });
-      expect(stageNames(none)).toContain("find");
+      expect(stageNames(none)).toContain("search");
       const same = await call({
          limit: half,
          offset: one.next_offset,
          givens: { region: "west" },
       });
-      expect(stageNames(same)).toEqual(["page"]);
+      expect(stageNames(same)).toEqual(["format"]);
    });
 
    it("still refuses an offset on a listing that is not a pure source listing", async () => {
@@ -811,118 +785,6 @@ describe("fcj paging", () => {
          offset: 3,
       });
       expect(payload.error).toContain("Invalid offset");
-   });
-});
-
-describe("splitBundles", () => {
-   const listSplit = {
-      ...DEFAULT_PACKAGE_RETRIEVAL,
-      fcj: {
-         ...DEFAULT_FCJ_SETTINGS,
-         connect: "list" as const,
-         splitBundles: true,
-      },
-   };
-   const bundle = {
-      search_targets: [
-         {
-            target_type: "dimension",
-            search_text: "region name, airport name, customer email",
-         },
-      ],
-      scopes,
-   };
-   /** The first option number listed under target `n` of a judge prompt. */
-   const firstOptionOf = (prompt: string, n: number) => {
-      const at = prompt.indexOf(`Target ${n} (`);
-      const next = prompt.indexOf("Target ", at + 1);
-      const m = /\[(\d+)\]/.exec(
-         prompt.slice(at, next > at ? next : undefined),
-      );
-      return m ? Number(m[1]) : undefined;
-   };
-
-   it("shows the judge each item under the list target and folds the picks back into it", async () => {
-      const chat = scriptedChat((prompt) =>
-         JSON.stringify({
-            picks: [
-               { target: 1, candidates: [], reason: "the list" },
-               { target: 2, candidates: [firstOptionOf(prompt, 2)] },
-               { target: 3, candidates: [firstOptionOf(prompt, 3)] },
-               { target: 4, candidates: [] },
-            ],
-            caveats: ["No customer email field exists."],
-         }),
-      );
-      harness.registry.chat.override(chat.model);
-      try {
-         const { pkg } = await compileFcjFixture(
-            undefined,
-            undefined,
-            listSplit,
-         );
-         const { payload } = await untilSemantic(
-            harness.handlerFor(pkg),
-            bundle,
-            full,
-         );
-         const prompt = chat.prompts.at(-1)!;
-         expect(prompt).toContain(
-            'Target 2 (dimension; one item of the list in target 1): "region name"',
-         );
-         expect(prompt).toContain(
-            'Target 4 (dimension; one item of the list in target 1): "customer email"',
-         );
-         const split = payload.retrieval_trace_full.fcj.split;
-         expect(split[0].items.map((i: { text: string }) => i.text)).toEqual([
-            "region name",
-            "airport name",
-            "customer email",
-         ]);
-         // One pick, under the caller's target, holding both items' fields.
-         const picks = payload.retrieval_trace_full.fcj.judge[0].picks;
-         expect(
-            picks.map((p: { target_index: number }) => p.target_index),
-         ).toEqual([0]);
-         expect(picks[0].ids).toHaveLength(2);
-         expect(picks[0].reason).toContain(
-            'Not found by this search: "customer email"',
-         );
-         expect(payload.unresolved_targets).toEqual([]);
-         // An absence caveat names no field for "also likely" to add.
-         const named = payload.retrieval_trace_full.fcj.also_likely.filter(
-            (a: { rule: string }) => a.rule === "named",
-         );
-         expect(named).toEqual([]);
-      } finally {
-         harness.registry.chat.reset();
-      }
-   });
-
-   it("leaves a phrase with no list alone, and is off by default", async () => {
-      const { pkg } = await compileFcjFixture(undefined, undefined, listSplit);
-      const { payload } = await untilSemantic(
-         harness.handlerFor(pkg),
-         {
-            search_targets: [
-               { target_type: "dimension", search_text: "region name" },
-            ],
-            scopes,
-         },
-         full,
-      );
-      expect(payload.retrieval_trace_full.fcj.split).toBeUndefined();
-      const { pkg: off } = await compileFcjFixture(undefined, undefined, {
-         ...listSplit,
-         fcj: { ...listSplit.fcj, splitBundles: false },
-      });
-      const { payload: p2 } = await untilSemantic(
-         harness.handlerFor(off),
-         bundle,
-         full,
-      );
-      expect(p2.retrieval_trace_full.fcj.split).toBeUndefined();
-      expect(p2.retrieval_trace_full.fcj.find).toHaveLength(1);
    });
 });
 

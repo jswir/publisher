@@ -15,24 +15,19 @@ import { RetrievalRegistry } from "../registry";
 import { valueFetcherFor } from "../search/values";
 import { buildSourceSummaryInputs } from "../index/source_summaries";
 import { compileFcjFixture } from "../../test_helpers/fcj_fixture";
-import { DEFAULT_PACKAGE_RETRIEVAL } from "../../service/package_retrieval_settings";
+import {
+   DEFAULT_FCJ_SETTINGS,
+   DEFAULT_PACKAGE_RETRIEVAL,
+} from "../../service/package_retrieval_settings";
 import { buildCatalog, catalogInputOf } from "./catalog";
 import { registerGetContextTool } from "../../mcp/tools/get_context_tool";
 import { testRetrieval } from "../../test_helpers/test_retrieval";
 import {
    buildFcjIndexFixture,
-   CLUSTER_SETTINGS,
    type FcjIndexFixture,
 } from "../../test_helpers/fcj_index_fixture";
-import { find, KINDS_BY_FIND_TARGET, type FindTarget } from "../search/find";
-import { alsoLikelyFields } from "../search/also_likely";
-import { judgeOptions, renderJudgePrompt } from "../search/judge";
-import { respond } from "../search/respond";
-import { routeKey } from "../search/routes";
-import { connect } from "../search/connect";
-import { toUnit } from "../index/vectors";
-import { embedText } from "../../test_helpers/get_context_llm_harness";
-import { routeOptions, routesOf, throughFanout } from "../search/routes";
+import { KINDS_BY_TARGET, search } from "../search/find";
+import { routesOf } from "../search/routes";
 import {
    compileJoinFixture,
    storeServing,
@@ -85,7 +80,7 @@ source: orders is duckdb.sql("""${SQL}""") extend {
 
 let fixture: FcjIndexFixture;
 beforeAll(async () => {
-   fixture = await buildFcjIndexFixture(CLUSTER_SETTINGS, {
+   fixture = await buildFcjIndexFixture(DEFAULT_FCJ_SETTINGS, {
       "shop.malloy": MODEL,
    });
 });
@@ -169,22 +164,14 @@ describe("record members (#1526)", () => {
       ]);
    });
 
-   it("says many for a repeated-record member reached through a join_one, wherever the route is shown", () => {
+   it("says many for a repeated-record member, and names its route from the joining source", () => {
       const sku = fixture.index.catalog.nodes.get(
          "dimension:customers@shop.malloy:items.sku",
       )!;
       expect(sku.relationship).toBe("many");
-      // The route options the judge is shown.
-      expect(
-         routeOptions(
-            fixture.index.catalog,
-            sku,
-            new Set(["orders@shop.malloy"]),
-            3,
-         ).map((o) => [o.id, o.fanout]),
-      ).toEqual([["dimension:orders:customer.items.sku", "many"]]);
-      expect(throughFanout("one", "many")).toBe("many");
-      expect(throughFanout("one", undefined)).toBe("one");
+      expect(routesOf(fixture.index.catalog, sku)).toEqual([
+         "dimension:orders:customer.items.sku",
+      ]);
    });
 
    it("lists a renamed record's members under the new name when the raw column is hidden", () => {
@@ -323,20 +310,20 @@ describe("record members (#1526)", () => {
    });
 
    it("finds a member by its words", () => {
-      const [result] = find({
+      const [result] = search({
          index: fixture.index,
-         targets: [
+         queries: [
             {
-               index: 0,
-               type: "dimension",
-               text: "billing card",
-               kinds: KINDS_BY_FIND_TARGET.dimension,
+               target: {
+                  index: 0,
+                  type: "dimension",
+                  text: "billing card",
+                  kinds: KINDS_BY_TARGET.dimension,
+               },
             },
          ],
-         queries: new Map(),
-         perTarget: 30,
-         keyword: true,
          values: false,
+         valueMeaning: false,
          allow: () => true,
       });
       expect(result.candidates[0]?.key).toBe(
@@ -429,7 +416,7 @@ describe("record members on a wide table", () => {
          { length: MAX_RECORD_MEMBERS_PER_SOURCE + 20 },
          (_, i) => `'m${i}': ${i}`,
       ).join(", ");
-      const wide = await buildFcjIndexFixture(CLUSTER_SETTINGS, {
+      const wide = await buildFcjIndexFixture(DEFAULT_FCJ_SETTINGS, {
          "wide.malloy": `source: events is duckdb.sql("""select {${members}} as params""")`,
       });
       try {
@@ -451,7 +438,7 @@ describe("record members on a wide table", () => {
       // The cap is shared, and spent in schema order. Malloy lists a source's
       // own fields before its joins, even ship_to here, declared after the
       // join, so the joined record cannot use up the source's own members.
-      const joined = await buildFcjIndexFixture(CLUSTER_SETTINGS, {
+      const joined = await buildFcjIndexFixture(DEFAULT_FCJ_SETTINGS, {
          "joined.malloy": `##! experimental.access_modifiers
 source: events is duckdb.sql("""select 1 as k, {${members}} as params""")
 source: orders is duckdb.sql("""select 1 as k, {'city': 'Denver'} as delivery""") extend {
@@ -483,7 +470,7 @@ describe("record members of joined sources, on a budget", () => {
       // events lists params itself, so orders reaches params' members by
       // route; walking them on orders too would use up the budget before
       // the inline-SQL join's record, whose members exist nowhere else.
-      const f = await buildFcjIndexFixture(CLUSTER_SETTINGS, {
+      const f = await buildFcjIndexFixture(DEFAULT_FCJ_SETTINGS, {
          "m.malloy": `
 source: events is duckdb.sql("""select 1 as k, {${members}} as params""")
 source: orders is duckdb.sql("""select 1 as k""") extend {
@@ -722,74 +709,6 @@ source: events is duckdb.sql("select 1 as k, {${members}} as params, {'x': 1} as
    });
 });
 
-describe("also likely, over record members", () => {
-   it("does not take two records' same-named members for twins", async () => {
-      const f = await buildFcjIndexFixture(CLUSTER_SETTINGS, {
-         "m.malloy": `
-source: orders is duckdb.sql("""select {'city': 'Denver'} as delivery, {'city': 'Boulder'} as billing""")
-source: invoices is duckdb.sql("""select {'city': 'Golden'} as billing""")
-`,
-      });
-      try {
-         const settings = {
-            ...CLUSTER_SETTINGS,
-            connect: "list" as const,
-            listTopK: 15,
-         };
-         const targets: FindTarget[] = [
-            {
-               index: 0,
-               type: "dimension",
-               text: "billing city",
-               kinds: KINDS_BY_FIND_TARGET.dimension,
-            },
-         ];
-         const queries = new Map([[0, toUnit(embedText("billing city"))]]);
-         const found = find({
-            index: f.index,
-            targets,
-            queries,
-            perTarget: 30,
-            keyword: true,
-            values: false,
-            allow: () => true,
-         });
-         const connected = connect({
-            index: f.index,
-            found,
-            queries,
-            settings,
-            allow: () => true,
-         });
-         const out = alsoLikelyFields({
-            index: f.index,
-            found,
-            connected,
-            twins: 2,
-            verdicts: [
-               {
-                  cluster: connected.clusters[0].home,
-                  picks: [
-                     {
-                        target: 0,
-                        keys: ["dimension:orders@m.malloy:billing.city"],
-                     },
-                  ],
-                  caveats: [],
-               },
-            ],
-         });
-         // The other source's billing.city is a twin; orders' own
-         // delivery.city is another field, not the same name.
-         expect(out.map((a) => [a.id, a.rule])).toEqual([
-            ["dimension:invoices:billing.city", "twin"],
-         ]);
-      } finally {
-         await f.close();
-      }
-   });
-});
-
 describe("record members of a hidden joined source", () => {
    it("adds the members with the record when unservedCopies copies a hidden source's fields", async () => {
       const f = await compileFcjFixture(
@@ -819,166 +738,5 @@ source: orders is duckdb.sql("""select 7 as customer_id""") extend {
       });
       expect(node("customer.profile.since.yr")?.joinPath).toBe("customer");
       expect(node("customer.`date`.yr")?.joinPath).toBe("customer");
-   });
-});
-
-describe("the judge's route line to a repeated record's member", () => {
-   it("names the join's own kind, and says the member is many", async () => {
-      const settings = {
-         ...CLUSTER_SETTINGS,
-         connect: "list" as const,
-         listTopK: 5,
-         collapseCopies: true,
-      };
-      const f = await buildFcjIndexFixture(settings, {
-         "m.malloy": `
-#(doc) One row per customer.
-source: customers is duckdb.sql("""select 7 as id, [{'sku': 'x'}] as items""")
-#(doc) One row per order.
-source: orders is duckdb.sql("""select 7 as customer_id""") extend {
-  join_one: customer is customers on customer_id = customer.id
-  join_one: hc is duckdb.sql("""select 7 as id, [{'sku': 'y'}] as items""") on customer_id = hc.id
-}
-`,
-      });
-      try {
-         const targets: FindTarget[] = [
-            {
-               index: 0,
-               type: "dimension",
-               text: "items sku",
-               kinds: KINDS_BY_FIND_TARGET.dimension,
-            },
-         ];
-         const queries = new Map([[0, toUnit(embedText("items sku"))]]);
-         const found = find({
-            index: f.index,
-            targets,
-            queries,
-            perTarget: 30,
-            keyword: true,
-            values: false,
-            allow: () => true,
-         });
-         const [cluster] = connect({
-            index: f.index,
-            found,
-            queries,
-            settings,
-            allow: () => true,
-         }).clusters;
-         const options = judgeOptions(cluster, targets, {
-            index: f.index,
-            cap: 3,
-         });
-         const line = renderJudgePrompt(f.index, cluster, targets, options, 3)
-            .split("\n")
-            .find((l) => l.includes("orders.customer.items.sku (route"));
-         expect(line).toContain(
-            "(route from orders through customer, join_one; items.sku is many, one value per array element)",
-         );
-         // A joined copy (an inline-SQL join has no source of its own) is a
-         // route already, and says the same.
-         const copy = renderJudgePrompt(f.index, cluster, targets, options, 3)
-            .split("\n")
-            .find((l) => l.includes("a route from orders through hc"));
-         expect(copy).toContain(
-            "a route from orders through hc, join_one; items.sku is many, one value per array element:",
-         );
-      } finally {
-         await f.close();
-      }
-   });
-});
-
-describe("a picked join reached through another join", () => {
-   it("keeps the path's relationship: a join is not widened by its own", async () => {
-      const settings = {
-         ...CLUSTER_SETTINGS,
-         connect: "list" as const,
-         listTopK: 5,
-         collapseCopies: true,
-      };
-      const f = await buildFcjIndexFixture(settings, {
-         "m.malloy": `
-source: addresses is duckdb.sql("""select 7 as customer_id, 'Denver' as city""")
-source: customers is duckdb.sql("""select 7 as id""") extend {
-  join_many: addrs is addresses on id = addrs.customer_id
-}
-source: orders is duckdb.sql("""select 7 as customer_id""") extend {
-  join_one: customer is customers on customer_id = customer.id
-}
-`,
-      });
-      try {
-         const targets: FindTarget[] = [
-            {
-               index: 0,
-               type: "join",
-               text: "addresses",
-               kinds: KINDS_BY_FIND_TARGET.join,
-            },
-         ];
-         const queries = new Map([[0, toUnit(embedText("addresses"))]]);
-         const found = find({
-            index: f.index,
-            targets,
-            queries,
-            perTarget: 30,
-            keyword: true,
-            values: false,
-            allow: () => true,
-         });
-         const connected = connect({
-            index: f.index,
-            found,
-            queries,
-            settings,
-            allow: () => true,
-         });
-         const key = routeKey({
-            from: "orders@m.malloy",
-            path: ["customer"],
-            node: "join:customers@m.malloy:addrs",
-         });
-         const out = await respond({
-            index: f.index,
-            request: {
-               pureSourceListing: false,
-               environmentName: "env",
-               packageName: "fixture",
-               kinds: new Set(),
-               searches: [],
-               valueSearches: [],
-               listingOnly: false,
-               includeCode: false,
-               unsupported: [],
-               limit: 20,
-               offset: 0,
-            },
-            pkgIndex: f.pkgIndex,
-            connected,
-            verdicts: [
-               {
-                  cluster: connected.clusters[0].home,
-                  picks: [{ target: 0, keys: [key] }],
-                  caveats: [],
-               },
-            ],
-            targets,
-            environmentStore: {} as never,
-            valueFetcher: valueFetcherFor(new RetrievalRegistry()),
-         });
-         const row = (
-            out.sources as Array<{
-               entities?: Array<Record<string, unknown>>;
-            }>
-         )
-            .flatMap((c) => c.entities ?? [])
-            .find((e) => e.name === "customer.addrs");
-         expect(row?.relationship).toBe("one");
-      } finally {
-         await f.close();
-      }
    });
 });

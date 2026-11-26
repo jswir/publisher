@@ -8,7 +8,7 @@
  * is queryable under each of these names, and each is a different population:
  * a Malloy join is a left join, so the copy reached from `order_items` counts
  * products that were ordered, while `products.category` counts every product.
- * The response lists the routes rather than picking one.
+ * The full trace lists each hit's routes.
  *
  * How deep a route goes is the catalog's `routeDepth`: two joins with
  * `joinedCopies: "indexed"` (the depth the entity index gives joined
@@ -102,21 +102,6 @@ function routeList(
 }
 
 /**
- * The routes to a field from the given sources only, shortest first: what
- * routes mode shows in the judge's list and in the response, where `from`
- * is the other sources on the list or in the response.
- */
-export function routesFrom(
-   catalog: Catalog,
-   node: CatalogNode,
-   from: ReadonlySet<string>,
-): Route[] {
-   return routeList(catalog, node).filter(
-      (r) => r.from !== node.sourceKey && from.has(r.from),
-   );
-}
-
-/**
  * The ids of every route, for a trace: the joins that reach the field, and,
  * with `collapseCopies`, the field's copies in extensions and their routes,
  * which are the same field under other names.
@@ -129,110 +114,4 @@ export function routesOf(catalog: Catalog, node: CatalogNode): string[] {
       out.push(copy.id, ...routeList(catalog, copy).map((r) => r.id));
    }
    return out;
-}
-
-/**
- * With `connect: "list"` and `listRoutes` above 0: a route the judge may pick
- * as an answer of its own. Picking it means the rows of the joining source
- * (`order_items.products.product_count` counts the products order lines
- * reach, not every product), so it is a different answer from the field.
- */
-export interface RouteOption extends Route {
-   /** Catalog key of the field the route reaches. */
-   node: string;
-   /**
-    * Widest relationship on the route: the joins', or `many` for a member
-    * of a repeated record (throughFanout).
-    */
-   fanout: Relationship;
-   /** Widest relationship on the join path alone, without the field's own. */
-   joinFanout: Relationship;
-}
-
-/**
- * The relationship of a field reached through a join: the join's, unless the
- * field itself fans out. A member of a repeated record (`items.sku`) holds a
- * value per element, so it is `many` even behind a join_one. For a dimension
- * or measure only: a join's relationship is a hop of its own.
- */
-export function throughFanout(
-   join: Relationship | undefined,
-   field: Relationship | undefined,
-): Relationship | undefined {
-   return field === "many" ? "many" : (join ?? field);
-}
-
-/**
- * The `cap` shortest routes to a dimension or measure from the given sources
- * (the other sources in the judge's list), at any depth the join walk
- * recorded. Ties go to the source key, then the path. None for a joined copy
- * (it is a route already) or for another kind.
- */
-export function routeOptions(
-   catalog: Catalog,
-   node: CatalogNode,
-   from: ReadonlySet<string>,
-   cap: number,
-): RouteOption[] {
-   if (cap <= 0) return [];
-   if (node.kind !== "dimension" && node.kind !== "measure") return [];
-   if (node.joinPath) return [];
-   const out: RouteOption[] = [];
-   for (const r of reverseJoins(catalog).get(node.sourceKey) ?? []) {
-      if (out.length >= cap) break;
-      if (r.from === node.sourceKey || !from.has(r.from)) continue;
-      const source = catalog.sources.get(r.from);
-      if (!source) continue;
-      out.push({
-         from: r.from,
-         path: r.path,
-         fanout: throughFanout(r.fanout, node.relationship) ?? r.fanout,
-         joinFanout: r.fanout,
-         node: node.key,
-         id: entityId(
-            node.kind,
-            source.name,
-            `${r.path.join(".")}.${node.name}`,
-         ),
-      });
-   }
-   return out;
-}
-
-const ROUTE_KEY = "route\u0000";
-
-/** The option key of a route. It never equals a catalog key. */
-export function routeKey(
-   r: Pick<RouteOption, "from" | "path" | "node">,
-): string {
-   return `${ROUTE_KEY}${r.from}\u0000${r.path.join(".")}\u0000${r.node}`;
-}
-
-/** A route option key read back; undefined for a catalog key. */
-export function parseRouteKey(
-   key: string,
-): { from: string; path: string[]; node: string } | undefined {
-   if (!key.startsWith(ROUTE_KEY)) return undefined;
-   const [from, path, node] = key.slice(ROUTE_KEY.length).split("\u0000");
-   if (!from || !path || !node) return undefined;
-   return { from, path: path.split("."), node };
-}
-
-/** The wire id of an option key: the field's own id, or its id through the route. */
-export function optionId(catalog: Catalog, key: string): string | undefined {
-   const route = parseRouteKey(key);
-   if (!route) return catalog.nodes.get(key)?.id;
-   const node = catalog.nodes.get(route.node);
-   const source = catalog.sources.get(route.from);
-   if (!node || !source) return undefined;
-   return entityId(
-      node.kind,
-      source.name,
-      `${route.path.join(".")}.${node.name}`,
-   );
-}
-
-/** The catalog key of the field an option key names: a route's field, or the key itself. */
-export function fieldKeyOf(key: string): string {
-   return parseRouteKey(key)?.node ?? key;
 }

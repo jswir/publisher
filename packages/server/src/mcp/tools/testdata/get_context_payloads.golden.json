@@ -84,62 +84,6 @@
                 "relevance": 1
               }
             ]
-          },
-          {
-            "name": "arrival_code",
-            "entity_type": "dimension",
-            "entity_id": "dimension:flights:arrival_code",
-            "relevance": 0.42361111111111105,
-            "data_type": "string",
-            "matched_targets": [
-              {
-                "search_text": "start date",
-                "relevance": 0.4236
-              }
-            ]
-          },
-          {
-            "name": "arrives_at",
-            "entity_type": "dimension",
-            "entity_id": "dimension:flights:arrives_at",
-            "relevance": 0.41780821917808214,
-            "description": "Airport the flight lands at.",
-            "data_type": "string",
-            "matched_targets": [
-              {
-                "search_text": "start date",
-                "relevance": 0.4178
-              }
-            ],
-            "aliases": [
-              "destination"
-            ]
-          },
-          {
-            "name": "id",
-            "entity_type": "dimension",
-            "entity_id": "dimension:flights:id",
-            "relevance": 0.41216216216216217,
-            "data_type": "number",
-            "matched_targets": [
-              {
-                "search_text": "start date",
-                "relevance": 0.4122
-              }
-            ]
-          },
-          {
-            "name": "origin_code",
-            "entity_type": "dimension",
-            "entity_id": "dimension:flights:origin_code",
-            "relevance": 0.4066666666666667,
-            "data_type": "string",
-            "matched_targets": [
-              {
-                "search_text": "start date",
-                "relevance": 0.4067
-              }
-            ]
           }
         ],
         "relevance": 1
@@ -170,14 +114,98 @@
                 "relevance": 0.4919
               }
             ]
+          },
+          {
+            "name": "start_date",
+            "entity_type": "dimension",
+            "entity_id": "dimension:races:start_date",
+            "relevance": 0.9838709677419354,
+            "data_type": "date",
+            "matched_targets": [
+              {
+                "search_text": "start date",
+                "relevance": 0.9839
+              }
+            ]
           }
         ],
-        "relevance": 0.4919354838709677
+        "relevance": 0.9838709677419354
+      },
+      {
+        "source_info": {
+          "resource_id": {
+            "environment": "pin",
+            "package": "fixture",
+            "model_path": "shop.malloy",
+            "source": "orders"
+          },
+          "one_line_summary": "One row per order placed in the web shop.",
+          "docs": "One row per order placed in the web shop.",
+          "joins": []
+        },
+        "entities": [
+          {
+            "name": "start_date",
+            "entity_type": "dimension",
+            "entity_id": "dimension:orders:start_date",
+            "relevance": 0.9682539682539681,
+            "data_type": "date",
+            "matched_targets": [
+              {
+                "search_text": "start date",
+                "relevance": 0.9683
+              }
+            ]
+          },
+          {
+            "name": "customer_email",
+            "entity_type": "dimension",
+            "entity_id": "dimension:orders:customer_email",
+            "relevance": 0.46923076923076923,
+            "data_type": "string",
+            "matched_targets": [
+              {
+                "search_text": "start date",
+                "relevance": 0.4692
+              }
+            ]
+          }
+        ],
+        "relevance": 0.9682539682539681
+      },
+      {
+        "source_info": {
+          "resource_id": {
+            "environment": "pin",
+            "package": "fixture",
+            "model_path": "shop.malloy",
+            "source": "orders_public"
+          },
+          "one_line_summary": "Orders without personal data.",
+          "docs": "Orders without personal data.",
+          "joins": []
+        },
+        "entities": [
+          {
+            "name": "start_date",
+            "entity_type": "dimension",
+            "entity_id": "dimension:orders_public:start_date",
+            "relevance": 0.953125,
+            "data_type": "date",
+            "matched_targets": [
+              {
+                "search_text": "start date",
+                "relevance": 0.9531
+              }
+            ]
+          }
+        ],
+        "relevance": 0.953125
       }
     ],
     "ranking": "relevance",
-    "total_available": 2,
-    "returned": 2,
+    "total_available": 4,
+    "returned": 4,
     "retrieval": "semantic",
     "engine": "fcj",
     "clusters": [
@@ -201,11 +229,7 @@
             "measure:flights:flight_count"
           ],
           "1": [
-            "dimension:flights:start_date",
-            "dimension:flights:arrival_code",
-            "dimension:flights:arrives_at",
-            "dimension:flights:id",
-            "dimension:flights:origin_code"
+            "dimension:flights:start_date"
           ]
         }
       },
@@ -221,11 +245,56 @@
           }
         ],
         "covers": [
-          0
+          0,
+          1
         ],
         "picks": {
           "0": [
             "measure:races:race_count"
+          ],
+          "1": [
+            "dimension:races:start_date"
+          ]
+        }
+      },
+      {
+        "query_from": {
+          "source": "orders",
+          "model_path": "shop.malloy"
+        },
+        "sources": [
+          {
+            "source": "orders",
+            "joins": []
+          }
+        ],
+        "covers": [
+          1
+        ],
+        "picks": {
+          "1": [
+            "dimension:orders:start_date",
+            "dimension:orders:customer_email"
+          ]
+        }
+      },
+      {
+        "query_from": {
+          "source": "orders_public",
+          "model_path": "shop.malloy"
+        },
+        "sources": [
+          {
+            "source": "orders_public",
+            "joins": []
+          }
+        ],
+        "covers": [
+          1
+        ],
+        "picks": {
+          "1": [
+            "dimension:orders_public:start_date"
           ]
         }
       }
@@ -236,7 +305,9 @@
         "search_text": "number of flights",
         "clusters": [
           true,
-          true
+          true,
+          false,
+          false
         ]
       },
       {
@@ -244,7 +315,9 @@
         "search_text": "start date",
         "clusters": [
           true,
-          false
+          true,
+          true,
+          true
         ]
       }
     ],

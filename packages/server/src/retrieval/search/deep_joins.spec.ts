@@ -1,19 +1,12 @@
 // Copyright (c) Credible Data Inc.
 // SPDX-License-Identifier: MIT
 
-import { afterAll, beforeAll, describe, expect, it } from "bun:test";
+import { beforeAll, describe, expect, it } from "bun:test";
 import {
    compileFcjFixture,
    FCJ_DEEP_FILES,
    FCJ_PAYMENTS_FILES,
 } from "../../test_helpers/fcj_fixture";
-import {
-   buildFcjIndexFixture,
-   type FcjIndexFixture,
-   CLUSTER_SETTINGS,
-} from "../../test_helpers/fcj_index_fixture";
-import { embedText } from "../../test_helpers/get_context_llm_harness";
-import type { ResolvedRequest } from "../model/types";
 import {
    buildCatalog,
    catalogInputOf,
@@ -23,15 +16,7 @@ import {
    type JoinHop,
 } from "../model/catalog";
 import { catalogReportLine } from "../index/catalog_store";
-import { connect } from "./connect";
-import { findTrace } from "./engine";
-import { find, KINDS_BY_FIND_TARGET, type FindTarget } from "./find";
-import { judgeOptions, renderJudgePrompt, type JudgeVerdict } from "./judge";
-import { respond } from "./respond";
 import { routesOf } from "./routes";
-import { toUnit } from "../index/vectors";
-import { RetrievalRegistry } from "../registry";
-import { valueFetcherFor } from "./values";
 
 const hop = (to: string, alias: string, fanout: JoinHop["fanout"] = "one") => ({
    to,
@@ -262,180 +247,6 @@ describe("join walk on a compiled package", () => {
          "dimension:payments:merchant_profile.account_kind",
          "dimension:plain_payments:labelled.account_kind",
          "dimension:plain_payments:merchant_profile.account_kind",
-      ]);
-   });
-});
-
-describe("routes in the judge's list, the response and the trace", () => {
-   const SETTINGS = {
-      ...CLUSTER_SETTINGS,
-      connect: "list" as const,
-      listTopK: 3,
-      collapseCopies: true,
-      joinedCopies: "routes" as const,
-   };
-   let d: FcjIndexFixture;
-   beforeAll(async () => {
-      d = await buildFcjIndexFixture(SETTINGS, FCJ_DEEP_FILES);
-   });
-   afterAll(async () => d.close());
-
-   const t = (
-      index: number,
-      type: FindTarget["type"],
-      text: string,
-   ): FindTarget => ({ index, type, text, kinds: KINDS_BY_FIND_TARGET[type] });
-   const TARGETS = [
-      t(0, "measure", "number of parcels"),
-      t(1, "dimension", "region name"),
-   ];
-   const REGION_ROUTE =
-      "dimension:parcels:shipment.shipped_order.customer.region.region_name";
-
-   function stages() {
-      const queries = new Map(
-         TARGETS.map((x) => [x.index, toUnit(embedText(x.text))]),
-      );
-      const found = find({
-         index: d.index,
-         targets: TARGETS,
-         queries,
-         perTarget: 30,
-         keyword: true,
-         values: true,
-         allow: () => true,
-      });
-      const connected = connect({
-         index: d.index,
-         found,
-         queries,
-         settings: SETTINGS,
-         allow: () => true,
-      });
-      return { found, connected };
-   }
-
-   it("the trace gives the field its route ids at every depth, which is how a caller names the field it wants", () => {
-      const { found } = stages();
-      const region = findTrace(d.index, found)
-         .find((r) => r.target_index === 1)!
-         .candidates.find((c) => c.id === "dimension:regions:region_name")!;
-      expect(region.routes).toEqual([
-         "dimension:customers:region.region_name",
-         "dimension:orders:customer.region.region_name",
-         "dimension:shipments:shipped_order.customer.region.region_name",
-         REGION_ROUTE,
-      ]);
-   });
-
-   it("the judge reads each field with the routes the other listed sources have to it", () => {
-      const { connected } = stages();
-      const cluster = connected.clusters[0];
-      const prompt = renderJudgePrompt(
-         d.index,
-         cluster,
-         TARGETS,
-         judgeOptions(cluster, TARGETS),
-      );
-      expect(prompt).toContain(
-         "A query from parcels can also use: orders (through parcels.shipment.shipped_order), regions (through parcels.shipment.shipped_order.customer.region).",
-      );
-      expect(prompt).toContain(
-         "[2] order_count (measure, number; source orders; reachable from parcels through shipment.shipped_order): Number of orders.",
-      );
-      expect(prompt).toContain(
-         "[3] region_name (dimension, string; source regions; reachable from orders through customer.region or from parcels through shipment.shipped_order.customer.region): Region name.",
-      );
-      // A listed source no other listed source reaches has no route.
-      expect(prompt).toContain(
-         "[5] staff_name (dimension, string; source staff_base): Name of the member of staff.",
-      );
-   });
-
-   it("the response gives each field its routes from the answer's other sources, with an id the agent can query", async () => {
-      const { connected } = stages();
-      const verdicts: JudgeVerdict[] = [
-         {
-            cluster: connected.clusters[0].home,
-            picks: [
-               {
-                  target: 0,
-                  keys: ["measure:parcels@deep.malloy:parcel_count"],
-               },
-               {
-                  target: 1,
-                  keys: ["dimension:regions@deep.malloy:region_name"],
-               },
-            ],
-            caveats: [],
-         },
-      ];
-      const request: ResolvedRequest = {
-         pureSourceListing: false,
-         environmentName: "env",
-         packageName: "fixture",
-         kinds: new Set(),
-         searches: [],
-         valueSearches: [],
-         listingOnly: false,
-         includeCode: false,
-         unsupported: [],
-         limit: 20,
-         offset: 0,
-      };
-      const out = await respond({
-         index: d.index,
-         request,
-         pkgIndex: d.pkgIndex,
-         connected,
-         verdicts,
-         targets: TARGETS,
-         environmentStore: {} as never,
-         valueFetcher: valueFetcherFor(new RetrievalRegistry()),
-      });
-      const cards = out.sources as Array<{
-         source_info: { resource_id: { source: string } };
-         entities?: Array<{ entity_id: string; routes?: unknown[] }>;
-      }>;
-      expect(
-         cards.map((c) => [
-            c.source_info.resource_id.source,
-            (c.entities ?? []).map((e) => [e.entity_id, e.routes ?? []]),
-         ]),
-      ).toEqual([
-         ["parcels", [["measure:parcels:parcel_count", []]]],
-         [
-            "regions",
-            [
-               [
-                  "dimension:regions:region_name",
-                  [
-                     {
-                        entity_id: REGION_ROUTE,
-                        from_source: "parcels",
-                        join_path: "shipment.shipped_order.customer.region",
-                     },
-                  ],
-               ],
-            ],
-         ],
-      ]);
-      expect(out.clusters).toEqual([
-         {
-            query_from: { source: "parcels", model_path: "deep.malloy" },
-            sources: [
-               { source: "parcels", joins: [] },
-               {
-                  source: "regions",
-                  joins: ["shipment.shipped_order.customer.region"],
-               },
-            ],
-            covers: [0, 1],
-            picks: {
-               0: ["measure:parcels:parcel_count"],
-               1: ["dimension:regions:region_name"],
-            },
-         },
       ]);
    });
 });

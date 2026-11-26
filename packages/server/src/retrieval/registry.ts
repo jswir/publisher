@@ -20,12 +20,10 @@ import { QuerySlots } from "../query_concurrency";
 import type { Package } from "../service/package";
 import { SerialQueue } from "./index/embedding_sync_queue";
 import type { FcjState } from "./index/fcj_state";
-import type { FcjIndex } from "./index/index_build";
 import { SchemaIndexCaches } from "./index/schema_index";
 import type { SummaryHashesCache } from "./index/source_summaries";
 import type { IndexValueFetcher } from "./index/values_index";
 import { ChatModelSlot } from "./llm/chat_model_slot";
-import type { ChatModel } from "./llm/types";
 import type { PackageIndexCache } from "./model/package_entities";
 import { HeldResults } from "./search/held_results";
 import type { QueryModelResolver, ValueQueryDeps } from "./search/values";
@@ -49,8 +47,6 @@ export class RetrievalRegistry implements ValueQueryDeps {
    readonly engineStates = new WeakMap<Package, FcjState>();
    /** Test seam: stands in for the warehouse when the value index reads data. */
    valueFetcherOverride: IndexValueFetcher | undefined;
-   /** The judge's chat model, cached on its settings so its cooldown survives (engine_state.ts). */
-   judgeChat: { fingerprint: string; model: ChatModel } | null = null;
    /** The process-wide chat model and the LLM settings in force. */
    readonly chat = new ChatModelSlot();
    /** Each package's entity index, built once per Package (package_entities.ts). */
@@ -61,11 +57,6 @@ export class RetrievalRegistry implements ValueQueryDeps {
    readonly embeddingSyncQueue = new SerialQueue();
    /** Current source-summary input hashes per frozen entity list (source_summaries.ts). */
    readonly summaryHashes: SummaryHashesCache = new WeakMap();
-   /** Per index, whether the package uses a phrase as written (engine.ts). */
-   readonly phraseCheckers = new WeakMap<
-      FcjIndex,
-      (phrase: string) => boolean
-   >();
    /** search_database_schema's in-memory vector and lexical indexes (schema_index.ts). */
    readonly schemaIndex = new SchemaIndexCaches();
    /** Test seam: a get_context deadline shorter than the default. */

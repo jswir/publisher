@@ -19,8 +19,7 @@
  * cool-down, and only while requests arrive.
  */
 
-import { createChatModel } from "../llm/registry";
-import type { ChatModel, LlmSettings } from "../llm/types";
+import type { ChatModel } from "../llm/types";
 import { deleteEngineRows } from "./catalog_store";
 import {
    embeddingConfigured,
@@ -32,10 +31,7 @@ import type {
    PackageLookup,
 } from "../../service/environment_ports";
 import type { Package } from "../../service/package";
-import {
-   type FcjJudgeLlm,
-   fcjSettingsOf,
-} from "../../service/package_retrieval_settings";
+import { fcjSettingsOf } from "../../service/package_retrieval_settings";
 import { logger } from "../../logger";
 import { PROVIDER_FAILURE_COOLDOWN_MS } from "../shared";
 import type { RetrievalRegistry } from "../registry";
@@ -59,7 +55,7 @@ export function fcjStateOf(
    return registry.engineStates.get(pkg);
 }
 
-/** The chat model the index-time steps and the judge use, or null when the LLM is off. */
+/** The chat model the index-time steps use, or null when the LLM is off. */
 function fcjChat(registry: RetrievalRegistry): ChatModel | null {
    try {
       return registry.chat.model();
@@ -69,37 +65,6 @@ function fcjChat(registry: RetrievalRegistry): ChatModel | null {
       });
       return null;
    }
-}
-
-/**
- * The judge's chat model under `retrieval.fcj.judgeLlm`: the operator's
- * `retrieval.llm` (provider, host, key, timeouts and limits) with the model
- * name the package gave. Null `judgeLlm` means {@link fcjChat}. Throws when
- * that client cannot be built: a judge that was asked for must not be
- * skipped quietly, so the request fails instead.
- */
-export function fcjJudgeChat(
-   registry: RetrievalRegistry,
-   judgeLlm: FcjJudgeLlm | null,
-): ChatModel | null {
-   if (!judgeLlm) return fcjChat(registry);
-   const base = registry.chat.settings();
-   if (!base) return null;
-   const settings: LlmSettings = { ...base, model: judgeLlm.model };
-   const fingerprint = JSON.stringify(settings);
-   // Cached on the settings, as the chat model slot is, so the model's
-   // cooldown state survives between requests.
-   if (!registry.judgeChat || registry.judgeChat.fingerprint !== fingerprint) {
-      try {
-         registry.judgeChat = { fingerprint, model: createChatModel(settings) };
-      } catch (error) {
-         const message = error instanceof Error ? error.message : String(error);
-         throw new Error(
-            `retrieval.fcj.judgeLlm (${base.provider}/${judgeLlm.model}) could not be built: ${message}`,
-         );
-      }
-   }
-   return registry.judgeChat.model;
 }
 
 /**

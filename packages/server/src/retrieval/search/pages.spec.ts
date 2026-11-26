@@ -5,17 +5,16 @@ import { afterAll, beforeAll, describe, expect, it } from "bun:test";
 import {
    buildFcjIndexFixture,
    type FcjIndexFixture,
-   CLUSTER_SETTINGS,
 } from "../../test_helpers/fcj_index_fixture";
 import { embedText } from "../../test_helpers/get_context_llm_harness";
 import type { ResolvedRequest } from "../model/types";
 import type { SourceCard } from "./response";
-import { connect } from "./connect";
-import { unjudged } from "./engine";
-import { find, KINDS_BY_FIND_TARGET, type FindTarget } from "./find";
+import { unjudged } from "./rerank";
+import { KINDS_BY_TARGET, search, type Target } from "./find";
+import { groupBySource } from "./group";
 import { HeldResults, type HeldResult } from "./held_results";
 import { pageAt, resultKey, shrinkCard } from "./pages";
-import { respond } from "./respond";
+import { format } from "./format";
 import { toUnit } from "../index/vectors";
 import { RetrievalRegistry } from "../registry";
 import { valueFetcherFor } from "./values";
@@ -41,7 +40,7 @@ const request: ResolvedRequest = {
 };
 
 /** Fifteen targets over every island of the fixture. */
-const FIFTEEN: Array<[FindTarget["type"], string]> = [
+const FIFTEEN: Array<[Target["type"], string]> = [
    ["measure", "number of flights"],
    ["dimension", "start date"],
    ["dimension", "region name"],
@@ -65,36 +64,27 @@ async function completeAnswer() {
       index,
       type,
       text,
-      kinds: KINDS_BY_FIND_TARGET[type],
+      kinds: KINDS_BY_TARGET[type],
    }));
-   const queries = new Map(
-      targets.map((x) => [x.index, toUnit(embedText(x.text))]),
-   );
-   const allow = () => true;
-   const found = find({
+   const hits = search({
       index: f.index,
-      targets,
-      queries,
-      perTarget: 30,
-      keyword: true,
+      queries: targets.map((x) => ({
+         target: x,
+         vector: toUnit(embedText(x.text)),
+      })),
       values: true,
-      allow,
+      valueMeaning: false,
+      allow: () => true,
    });
-   const connected = connect({
-      index: f.index,
-      found,
-      queries,
-      settings: CLUSTER_SETTINGS,
-      allow,
-   });
-   const verdicts = unjudged(connected, targets);
-   const answer = await respond({
+   const grouped = groupBySource({ index: f.index, hits });
+   const verdicts = unjudged(grouped, targets);
+   const answer = await format({
       index: f.index,
       request,
       pkgIndex: f.pkgIndex,
-      connected,
-      verdicts,
       targets,
+      grouped,
+      ranked: verdicts,
       environmentStore: {} as never,
       valueFetcher: valueFetcherFor(new RetrievalRegistry()),
    });
@@ -158,8 +148,17 @@ describe("pageAt over a complete fifteen-target answer", () => {
    });
 });
 
-/** A card with `n` entities, each with a description of `docLength` characters. */
-function bigCard(name: string, n: number, docLength: number): SourceCard {
+/**
+ * A card with `n` entities, each with a description of `docLength`
+ * characters. Each answers a target of its own, unless `oneTarget`: then all
+ * answer one target, and only the first is that target's first field.
+ */
+function bigCard(
+   name: string,
+   n: number,
+   docLength: number,
+   oneTarget = false,
+): SourceCard {
    return {
       source_info: {
          resource_id: {
@@ -176,6 +175,9 @@ function bigCard(name: string, n: number, docLength: number): SourceCard {
          entity_type: "dimension",
          entity_id: `dimension:${name}:field_${i}`,
          description: `${"word ".repeat(docLength / 5)}`.trim(),
+         matched_targets: [
+            { search_text: oneTarget ? "t" : `t${i}`, relevance: 1 },
+         ],
       })),
    } as SourceCard;
 }
@@ -215,6 +217,28 @@ describe("pageAt, a card bigger than a page", () => {
       expect(page.cards.length).toBe(1);
       expect(page.oversized).toBe(true);
       expect(ids(page.cards)).toEqual(ids([huge]));
+   });
+
+   it("drops fields from the end of the card before shortening, never a target's first field", () => {
+      const huge = bigCard("huge", 40, 2_000, true);
+      const page = pageAt([huge], 0, {
+         maxChars: 20_000,
+         reserveChars: 1_000,
+         limit: 20,
+      });
+      expect(page.dropped).toBeGreaterThan(0);
+      expect(page.trimmed).toBe(0);
+      const kept = ids(page.cards);
+      expect(kept).toEqual(ids([huge]).slice(0, kept.length));
+      expect(JSON.stringify(page.cards[0]).length).toBeLessThanOrEqual(19_000);
+      // With every field first for its own target, none is dropped.
+      const own = pageAt([bigCard("own", 40, 2_000)], 0, {
+         maxChars: 20_000,
+         reserveChars: 1_000,
+         limit: 20,
+      });
+      expect(own.dropped).toBe(0);
+      expect(own.trimmed).toBeGreaterThan(0);
    });
 
    it("leaves a card that fits as it is", () => {

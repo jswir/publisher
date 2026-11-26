@@ -8,14 +8,15 @@ import {
 } from "../../test_helpers/fcj_index_fixture";
 import { embedText } from "../../test_helpers/get_context_llm_harness";
 import {
-   find,
    fuseByRank,
-   KINDS_BY_FIND_TARGET,
-   mentionsPeriod,
-   type FindTarget,
+   HITS_PER_TARGET,
+   KINDS_BY_TARGET,
+   search,
+   type Target,
 } from "./find";
 import { routesOf } from "./routes";
 import { toUnit } from "../index/vectors";
+import type { CatalogNode } from "../model/catalog";
 
 let f: FcjIndexFixture;
 beforeAll(async () => {
@@ -23,22 +24,25 @@ beforeAll(async () => {
 });
 afterAll(async () => f.close());
 
-const target = (
-   index: number,
-   type: FindTarget["type"],
-   text: string,
-): FindTarget => ({ index, type, text, kinds: KINDS_BY_FIND_TARGET[type] });
+const target = (index: number, type: Target["type"], text: string): Target => ({
+   index,
+   type,
+   text,
+   kinds: KINDS_BY_TARGET[type],
+});
 
-const run = (targets: FindTarget[], allow = () => true) =>
-   find({
+const queriesOf = (targets: Target[]) =>
+   targets.map((t) => ({ target: t, vector: toUnit(embedText(t.text)) }));
+
+const run = (
+   targets: Target[],
+   allow: (n: CatalogNode) => boolean = () => true,
+) =>
+   search({
       index: f.index,
-      targets,
-      queries: new Map(
-         targets.map((t) => [t.index, toUnit(embedText(t.text))]),
-      ),
-      perTarget: 30,
-      keyword: true,
+      queries: queriesOf(targets),
       values: true,
+      valueMeaning: false,
       allow,
    });
 
@@ -83,14 +87,11 @@ describe("find", () => {
    });
 
    it("adds a meaning list for value phrases when given their vectors", () => {
-      const meaningRun = (t: FindTarget) =>
-         find({
+      const meaningRun = (t: Target) =>
+         search({
             index: f.index,
-            targets: [t],
-            queries: new Map([[t.index, toUnit(embedText(t.text))]]),
+            queries: queriesOf([t]),
             valueMeaning: true,
-            perTarget: 30,
-            keyword: true,
             values: true,
             allow: () => true,
          })[0];
@@ -139,29 +140,25 @@ describe("find", () => {
    });
 
    it("cuts at N and stays inside the scope", () => {
-      const [r] = find({
-         index: f.index,
-         targets: [target(1, "dimension", "start date")],
-         queries: new Map([[1, toUnit(embedText("start date"))]]),
-         perTarget: 2,
-         keyword: true,
-         values: true,
-         allow: (n) => n.source === "races",
-      });
-      expect(top(r, 5)).toEqual([
+      const [r] = run(
+         [target(1, "dimension", "start date")],
+         (n) => n.source === "races",
+      );
+      expect(top(r, 2)).toEqual([
          "dimension:races@reports.malloy:start_date",
          "dimension:races@reports.malloy:city",
       ]);
+      expect(r.candidates.every((c) => c.key.includes(":races@"))).toBe(true);
+      const [all] = run([target(1, "dimension", "date")]);
+      expect(all.candidates.length).toBeLessThanOrEqual(HITS_PER_TARGET);
    });
 
    it("ranks by keyword alone with no embedding provider", () => {
-      const [r] = find({
+      const [r] = search({
          index: f.index,
-         targets: [target(0, "measure", "number of flights")],
-         queries: new Map(),
-         perTarget: 30,
-         keyword: true,
+         queries: [{ target: target(0, "measure", "number of flights") }],
          values: true,
+         valueMeaning: false,
          allow: () => true,
       });
       expect(r.lists.close).toBe(0);
@@ -180,11 +177,5 @@ describe("helpers", () => {
          "dimension:legs:flight.arrival.airport_name",
          "dimension:legs:flight.origin.airport_name",
       ]);
-   });
-
-   it("spots a period in a phrase", () => {
-      expect(mentionsPeriod("flights per month")).toBe(true);
-      expect(mentionsPeriod("sales in 2024")).toBe(true);
-      expect(mentionsPeriod("flights to Denver")).toBe(false);
    });
 });

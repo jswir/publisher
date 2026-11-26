@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 /**
- * Pages of the fcj engine's answer. Find, connect, judge and respond produce
+ * Pages of a ranked answer (box 6). The boxes produce
  * the complete result: every card the picks land on, with every pick. Nothing
  * there is cut to fit a response. The response layer splits that result into
  * pages of whole cards, and holds it for a short time so the next page is a
@@ -10,10 +10,11 @@
  *
  * A page starts at `offset` (counted in cards, the unit `limit`,
  * `total_available` and a listing's `next_offset` already count) and holds
- * as many whole cards as fit the character budget, at most `limit` of them.
- * A card too big for a page by itself goes on a page alone. Only then, and
- * only on that card, are long descriptions shortened (marked `…`); no
- * entity is ever removed.
+ * as many whole cards as fit the character budget, at most `limit` of them,
+ * so the last source is the first to move to the next page. A card too big
+ * for a page by itself goes on a page alone. Only then, and only on that
+ * card, are fields dropped from the end of its list (never a target's first
+ * field), and then long descriptions shortened (marked `…`).
  *
  * Why a held result and not a deterministic re-run: the judge is a model
  * call, so running it again for page 2 can pick differently from the run
@@ -41,6 +42,8 @@ interface FcjPage {
    cards: SourceCard[];
    /** Where the next page starts; absent on the last page. */
    nextOffset?: number;
+   /** Fields dropped from a card that did not fit a page alone. */
+   dropped: number;
    /** Descriptions shortened on a card that did not fit a page alone. */
    trimmed: number;
    /** The one card on this page is still over the budget after trimming. */
@@ -66,10 +69,13 @@ export function pageAt(
       used += size;
       out.push(cards[i]);
    }
+   let dropped = 0;
    let trimmed = 0;
    let oversized = false;
    if (out.length === 1 && used > room) {
-      const shrunk = shrinkCard(out[0], room - 2);
+      const cut = dropFields(out[0], room - 2);
+      dropped = cut.dropped;
+      const shrunk = shrinkCard(cut.card, room - 2);
       out[0] = shrunk.card;
       trimmed = shrunk.trimmed;
       oversized = JSON.stringify(shrunk.card).length > room - 2;
@@ -78,9 +84,42 @@ export function pageAt(
    return {
       cards: out,
       ...(out.length > 0 && next < cards.length ? { nextOffset: next } : {}),
+      dropped,
       trimmed,
       oversized,
    };
+}
+
+/**
+ * A copy of `card` whose JSON fits `room` characters, by dropping fields
+ * from the end of its list, never a target's first field (the first field
+ * that matched each search text). Stops when it fits or only first fields
+ * are left.
+ */
+export function dropFields(
+   card: SourceCard,
+   room: number,
+): { card: SourceCard; dropped: number } {
+   const copy = structuredClone(card);
+   const entities = copy.entities ?? [];
+   const first = new Set<number>();
+   const seen = new Set<string>();
+   entities.forEach((e, i) => {
+      for (const m of e.matched_targets ?? []) {
+         if (!seen.has(m.search_text)) {
+            seen.add(m.search_text);
+            first.add(i);
+         }
+      }
+   });
+   let dropped = 0;
+   for (let i = entities.length - 1; i >= 0; i--) {
+      if (JSON.stringify(copy).length <= room) break;
+      if (first.has(i)) continue;
+      entities.splice(i, 1);
+      dropped += 1;
+   }
+   return { card: copy, dropped };
 }
 
 /**
@@ -166,6 +205,8 @@ export function resultKey(request: ResolvedRequest): string {
       includeCode: request.includeCode,
       givens: request.givens ?? null,
       filterParams: request.filterParams ?? null,
+      // The question is read by the ranking step, so it can change the result.
+      userPrompt: request.userPrompt ?? null,
    };
    return createHash("sha256").update(canonicalJson(normal)).digest("hex");
 }

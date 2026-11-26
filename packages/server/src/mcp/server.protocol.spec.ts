@@ -160,13 +160,13 @@ describe("MCP server over the MCP protocol (in-memory)", () => {
          // executeQuery; the sentence that said so was once dropped while
          // the fields were being renamed, and nothing caught it.
          "execute_query",
-         // The LLM steps. An empty answer can be the judge picking nothing, a
-         // failed step is named in the error, a pick carries the judge's
-         // reason, and a long answer pages; an agent told none of this reads
-         // an empty or short answer as "the data is not there".
-         "llm-stage-failed",
-         "retrieval_stage",
+         // The LLM steps. An empty answer can be the judge picking nothing,
+         // a pick carries the judge's reason, the ranking reads the user's
+         // question, and a long answer pages; an agent told none of this
+         // reads an empty or short answer as "the data is not there". (A
+         // failed judge no longer fails the call: a warning says so.)
          "match_reason",
+         "user_prompt",
          "35,000",
          "unresolved_targets",
          "clusters",

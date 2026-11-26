@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: MIT
 
 /**
- * Stage 1, find: for each search target, the N nodes of the right type in
- * the whole catalog most likely to be what it asks for. No structure yet and
- * no model call.
+ * Box 3, search: for each Query, the N nodes of the right type in the
+ * request's scope most likely to be what its target asks for, its Hits. No
+ * structure yet and no model call.
  *
  * Up to four ranked lists per target, fused by reciprocal rank (k = 60):
  *
@@ -33,7 +33,6 @@ import type { CatalogNode } from "../model/catalog";
 import type { FcjIndex } from "../index/index_build";
 import type { ValueAllow, ValueMatch } from "../index/values_index";
 import { bestFacet } from "../index/vectors";
-import { terms } from "../index/keyword";
 
 /** The reciprocal-rank constant; 60 is the value the method was published with. */
 const RRF_K = 60;
@@ -41,7 +40,7 @@ const RRF_K = 60;
 /** How deep each list is read before fusing. */
 const LIST_DEPTH = 200;
 
-type FindTargetType =
+type TargetType =
    | "source"
    | "dimension"
    | "measure"
@@ -49,23 +48,18 @@ type FindTargetType =
    | "join"
    | "dimensional_value";
 
-/** One search target as the engine works on it. */
-export interface FindTarget {
+/** One search target of the Call, as the engine works on it. */
+export interface Target {
    /** Position in the caller's `search_targets`. */
    index: number;
-   type: FindTargetType;
+   type: TargetType;
    text: string;
    /** Node kinds the target may return. */
    kinds: readonly string[];
-   /**
-    * With `splitBundles`: this target is one item of the list in the target
-    * whose index this is (split.ts). Engine-made; never on a caller's target.
-    */
-   partOf?: number;
 }
 
 /** The node kinds each target type selects. */
-export const KINDS_BY_FIND_TARGET: Record<FindTargetType, readonly string[]> = {
+export const KINDS_BY_TARGET: Record<TargetType, readonly string[]> = {
    source: ["source"],
    dimension: ["dimension"],
    measure: ["measure"],
@@ -74,7 +68,15 @@ export const KINDS_BY_FIND_TARGET: Record<FindTargetType, readonly string[]> = {
    dimensional_value: ["dimension"],
 };
 
-export interface Candidate {
+/** What box 3 searches for one target (built by box 2, queries.ts). */
+export interface Query {
+   target: Target;
+   /** The target's text as a unit vector; absent without an embedding provider. */
+   vector?: Float32Array;
+}
+
+/** One node a target's search found, with its rank on each list that found it. */
+export interface Hit {
    key: string;
    /** Fused score: the sum of 1 / (k + rank) over the lists the node is on. */
    score: number;
@@ -96,9 +98,10 @@ export interface Candidate {
    valueMeaningScore?: number;
 }
 
-export interface FindResult {
-   target: FindTarget;
-   candidates: Candidate[];
+/** One target's hits, best first. */
+export interface Hits {
+   target: Target;
+   candidates: Hit[];
    /** Length of each list before fusing, for the trace. */
    lists: {
       close: number;
@@ -110,12 +113,6 @@ export interface FindResult {
    valuePhrases: string[];
    /** The phrases it was asked about by meaning (those with a vector). */
    meaningPhrases: string[];
-   /**
-    * With `listUnion` above 0: candidates past `perTarget` that rank within
-    * `listUnion` on the meaning (close) or keyword list alone, each with its
-    * 1-based fused rank. Read by connect's list union only.
-    */
-   beyond?: Array<Candidate & { fusedRank: number }>;
 }
 
 /**
@@ -123,7 +120,7 @@ export interface FindResult {
  * meaning: a `dimensional_value` target's text as written, and nothing for
  * any other target.
  */
-function valuePhrasesOf(target: FindTarget): string[] {
+function valuePhrasesOf(target: Target): string[] {
    return target.type === "dimensional_value" && target.text.trim() !== ""
       ? [target.text]
       : [];
@@ -155,13 +152,11 @@ export function fuseByRank(
 }
 
 /**
- * Score every node `allow` admits against one target, by the three lists.
- * Exported for the connect stage, which runs the same scoring inside one
- * cluster with no N cut.
+ * Score every node `allow` admits against one target, by the four lists.
  */
 export function rankTarget(
    index: FcjIndex,
-   target: FindTarget,
+   target: Target,
    query: Float32Array | undefined,
    allow: (node: CatalogNode) => boolean,
    options: {
@@ -176,7 +171,7 @@ export function rankTarget(
        */
       callerKey?: (dimension: string) => string | undefined;
    },
-): Omit<FindResult, "target"> & { all: Candidate[] } {
+): Omit<Hits, "target"> & { all: Hit[] } {
    const admitted = new Map<string, CatalogNode>();
    for (const node of index.catalog.nodes.values()) {
       if (target.kinds.includes(node.kind) && !node.copyOf && allow(node))
@@ -224,7 +219,7 @@ export function rankTarget(
    const keywordBy = new Map(keywordTop.map((c) => [c.key, c]));
    const valueBy = new Map(valueTop.map((c) => [c.dimension, c]));
    const meaningBy = new Map(meaningTop.map((c) => [c.dimension, c]));
-   const all = fused.map<Candidate>((f) => {
+   const all = fused.map<Hit>((f) => {
       const c = closeBy.get(f.key);
       const kw = keywordBy.get(f.key);
       const v = valueBy.get(f.key);
@@ -277,113 +272,80 @@ function round4(x: number): number {
    return Math.round(x * 10_000) / 10_000;
 }
 
-/** Stage 1 over every target: the top `perTarget` candidates of each. */
-export function find(args: {
+/** Hits kept per target: the cut of box 3, and what box 4 groups by source. */
+export const HITS_PER_TARGET = 30;
+
+/**
+ * Box 3, search: each Query's hits over the nodes box 1's scope admits, best
+ * first, at most {@link HITS_PER_TARGET}. The one outside system it reads is
+ * the index. A `dimensional_value` target pinned to one dimension
+ * (`scopes[].entity_name`) is that dimension, whether or not the value index
+ * holds its values (see {@link withPinnedDimensions}).
+ */
+export function search(args: {
    index: FcjIndex;
-   targets: readonly FindTarget[];
-   /** Unit query vector by target index; absent with no embedding provider. */
-   queries: ReadonlyMap<number, Float32Array>;
-   /** Match value phrases by meaning (`valueEmbeddings`). */
-   valueMeaning?: boolean;
-   perTarget: number;
-   keyword: boolean;
-   values: boolean;
-   /** The request's scope. */
+   queries: readonly Query[];
+   /** Box 1's scope: whether a node may be searched. */
    allow: (node: CatalogNode) => boolean;
-   /** `listUnion`: also keep, past perTarget, candidates this high on the close or keyword list alone. */
-   unionTopK?: number;
+   /** Rank by stored values (`retrieval.fcj.values`). */
+   values: boolean;
+   /** Match value phrases by meaning (`valueEmbeddings`). */
+   valueMeaning: boolean;
    /**
     * The partition key the caller's givens name for a dimension's source
     * (callerKeyOf). A value stored under a key matches only that key.
     */
    callerKey?: (dimension: string) => string | undefined;
-}): FindResult[] {
-   const k = args.unionTopK ?? 0;
-   return args.targets.map((target) => {
-      const ranked = rankTarget(
-         args.index,
-         target,
-         args.queries.get(target.index),
-         args.allow,
-         {
-            keyword: args.keyword,
-            values: args.values,
-            depth: LIST_DEPTH,
-            ...(args.valueMeaning ? { valueMeaning: true } : {}),
-            ...(args.callerKey ? { callerKey: args.callerKey } : {}),
-         },
-      );
-      const beyond =
-         k > 0
-            ? ranked.all
-                 .map((c, i) => ({ ...c, fusedRank: i + 1 }))
-                 .slice(args.perTarget)
-                 .filter((c) => inListTop(c, k))
-            : [];
+   /** The pinned dimension of the request's scope, when there is one. */
+   pinned?: boolean;
+}): Hits[] {
+   const hits = args.queries.map(({ target, vector }) => {
+      const ranked = rankTarget(args.index, target, vector, args.allow, {
+         keyword: true,
+         values: args.values,
+         depth: LIST_DEPTH,
+         ...(args.valueMeaning ? { valueMeaning: true } : {}),
+         ...(args.callerKey ? { callerKey: args.callerKey } : {}),
+      });
       return {
          target,
-         candidates: ranked.all.slice(0, args.perTarget),
+         candidates: ranked.all.slice(0, HITS_PER_TARGET),
          lists: ranked.lists,
          valuePhrases: ranked.valuePhrases,
          meaningPhrases: ranked.meaningPhrases,
-         ...(beyond.length > 0 ? { beyond } : {}),
       };
    });
+   return args.pinned
+      ? withPinnedDimensions(args.index, hits, args.allow)
+      : hits;
 }
 
-/** Which of find's own lists rank a candidate within `k`: "close", "keyword", both, or none. */
-export function unionLists(
-   c: Pick<Candidate, "ranks">,
-   k: number,
-): "close" | "keyword" | "close+keyword" | undefined {
-   const close = (c.ranks.close ?? Infinity) <= k;
-   const keyword = (c.ranks.keyword ?? Infinity) <= k;
-   return close && keyword
-      ? "close+keyword"
-      : close
-        ? "close"
-        : keyword
-          ? "keyword"
-          : undefined;
-}
-
-function inListTop(c: Pick<Candidate, "ranks">, k: number): boolean {
-   return unionLists(c, k) !== undefined;
-}
-
-/** Whether a phrase mentions a period, for the connect stage's date extras. */
-export function mentionsPeriod(text: string): boolean {
-   const t = terms(text);
-   return (
-      t.some((w) =>
-         [
-            "year",
-            "yearly",
-            "annual",
-            "quarter",
-            "quarterly",
-            "month",
-            "monthly",
-            "week",
-            "weekly",
-            "day",
-            "daily",
-            "date",
-            "time",
-            "trend",
-            "over",
-            "since",
-            "between",
-            "last",
-            "ytd",
-            "mtd",
-            "recent",
-            "period",
-            "season",
-            "hour",
-            "hourly",
-            "when",
-         ].includes(w),
-      ) || /\b(19|20)\d{2}\b/.test(text)
-   );
+/**
+ * The column-known value search: a `dimensional_value` target on a request
+ * whose scope pins one dimension is that dimension, whether or not the value
+ * index holds its values. A gated source's values are never in the index, so
+ * this is the only way its dimension becomes a hit; box 6 then reads its
+ * values through the query path with the caller's givens.
+ */
+export function withPinnedDimensions(
+   index: FcjIndex,
+   hits: Hits[],
+   allow: (node: CatalogNode) => boolean,
+): Hits[] {
+   return hits.map((r) => {
+      if (r.target.type !== "dimensional_value" || r.candidates.length > 0) {
+         return r;
+      }
+      const pinned = [...index.catalog.nodes.values()].filter(
+         (n) => n.kind === "dimension" && !n.joinPath && allow(n),
+      );
+      return {
+         ...r,
+         candidates: pinned.map((n) => ({
+            key: n.key,
+            score: 1 / 61,
+            ranks: {},
+         })),
+      };
+   });
 }
