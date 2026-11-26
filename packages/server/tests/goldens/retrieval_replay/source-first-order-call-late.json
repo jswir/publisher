@@ -1,0 +1,954 @@
+{
+  "case": "source-first-order-call-late",
+  "about": "The ordering call does not answer ([replay: order late]): it is cut 0.3 s after the pick calls end, and the cards keep box 4's order.",
+  "request": {
+    "search_targets": [
+      {
+        "target_type": "measure",
+        "search_text": "total revenue"
+      },
+      {
+        "target_type": "dimension",
+        "search_text": "customer state"
+      }
+    ],
+    "scopes": [
+      {
+        "environment": "examples",
+        "package": "storefront"
+      }
+    ],
+    "user_prompt": "Revenue by customer state [replay: order late]"
+  },
+  "response": {
+    "is_error": false,
+    "payload": {
+      "sources": [
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "overview.malloy",
+              "source": "overview"
+            },
+            "one_line_summary": "The overview report's tiles, each over the order lines its controls select.",
+            "docs": "The overview report's tiles, each over the order lines its controls select",
+            "givens": [
+              {
+                "name": "CATEGORY",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "BRAND",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "REGION",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "SINCE",
+                "type": "date",
+                "default": "@2023-01-01"
+              },
+              {
+                "name": "MIN_SALE",
+                "type": "filter<number>",
+                "default": "f''"
+              }
+            ],
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "total_margin",
+              "entity_type": "measure",
+              "entity_id": "measure:overview:total_margin",
+              "relevance": 0.9322985074626864,
+              "description": "Total gross margin (revenue minus cost of goods sold), summed per line",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "total revenue",
+                  "relevance": 0.9323,
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "total_sales",
+              "entity_type": "measure",
+              "entity_id": "measure:overview:total_sales",
+              "relevance": 0.9917419354838708,
+              "description": "Total revenue",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "total revenue",
+                  "relevance": 0.9917,
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customers.state",
+              "entity_type": "dimension",
+              "entity_id": "dimension:overview:customers.state",
+              "relevance": 0.9581714285714286,
+              "description": "Reached from overview through customers, a left join: a overview row with no match keeps a null here, so grouping or counting by it follows overview's rows.",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "customers",
+              "matched_targets": [
+                {
+                  "search_text": "customer state",
+                  "relevance": 0.9582,
+                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customer_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:overview:customer_id",
+              "relevance": 0.8563139906103285,
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "customer state",
+                  "relevance": 0.8563,
+                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customers.city",
+              "entity_type": "dimension",
+              "entity_id": "dimension:overview:customers.city",
+              "relevance": 0.8871297340854148,
+              "description": "Reached from overview through customers, a left join: a overview row with no match keeps a null here, so grouping or counting by it follows overview's rows.",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "customers",
+              "matched_targets": [
+                {
+                  "search_text": "customer state",
+                  "relevance": 0.8871,
+                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customers.customer_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:overview:customers.customer_id",
+              "relevance": 0.899927031509121,
+              "description": "Reached from overview through customers, a left join: a overview row with no match keeps a null here, so grouping or counting by it follows overview's rows.",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "customers",
+              "matched_targets": [
+                {
+                  "search_text": "customer state",
+                  "relevance": 0.8999,
+                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customers.full_name",
+              "entity_type": "dimension",
+              "entity_id": "dimension:overview:customers.full_name",
+              "relevance": 0.8746917352134743,
+              "description": "Reached from overview through customers, a left join: a overview row with no match keeps a null here, so grouping or counting by it follows overview's rows.",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "customers",
+              "matched_targets": [
+                {
+                  "search_text": "customer state",
+                  "relevance": 0.8747,
+                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customers.signup_date",
+              "entity_type": "dimension",
+              "entity_id": "dimension:overview:customers.signup_date",
+              "relevance": 0.8860587525150904,
+              "description": "Reached from overview through customers, a left join: a overview row with no match keeps a null here, so grouping or counting by it follows overview's rows.",
+              "data_type": "date",
+              "relationship": "one",
+              "join_path": "customers",
+              "matched_targets": [
+                {
+                  "search_text": "customer state",
+                  "relevance": 0.8861,
+                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "region",
+              "entity_type": "dimension",
+              "entity_id": "dimension:overview:region",
+              "relevance": 0.9917419354838708,
+              "description": "Sales region for the customer's home state",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "customer state",
+                  "relevance": 0.9917,
+                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "regions.state",
+              "entity_type": "dimension",
+              "entity_id": "dimension:overview:regions.state",
+              "relevance": 0.9924923076923077,
+              "description": "Reached from overview through regions, a left join: a overview row with no match keeps a null here, so grouping or counting by it follows overview's rows.",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "regions",
+              "matched_targets": [
+                {
+                  "search_text": "customer state",
+                  "relevance": 0.9925,
+                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 0.9924923076923077
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "storefront.malloy",
+              "source": "order_items"
+            },
+            "one_line_summary": "Order line items — the fact table, one row per product sold on an order.",
+            "docs": "Order line items — the fact table, one row per product sold on an order",
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "total_margin",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:total_margin",
+              "relevance": 0.9258498023715415,
+              "description": "Total gross margin (revenue minus cost of goods sold), summed per line",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "total revenue",
+                  "relevance": 0.9258,
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "total_sales",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:total_sales",
+              "relevance": 0.9852121212121212,
+              "description": "Total revenue",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "total revenue",
+                  "relevance": 0.9852,
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 0.9852121212121212
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "data_app.malloy",
+              "source": "scoped_orders"
+            },
+            "one_line_summary": "Order lines narrowed by the data app's control row.",
+            "docs": "Order lines narrowed by the data app's control row. Every tile queries this.",
+            "givens": [
+              {
+                "name": "CATEGORY",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "BRAND",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "REGION",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "SINCE",
+                "type": "date",
+                "default": "@2023-01-01"
+              },
+              {
+                "name": "MIN_SALE",
+                "type": "filter<number>",
+                "default": "f''"
+              }
+            ],
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "total_margin",
+              "entity_type": "measure",
+              "entity_id": "measure:scoped_orders:total_margin",
+              "relevance": 0.9185882352941175,
+              "description": "Total gross margin (revenue minus cost of goods sold), summed per line",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "total revenue",
+                  "relevance": 0.9186,
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "total_sales",
+              "entity_type": "measure",
+              "entity_id": "measure:scoped_orders:total_sales",
+              "relevance": 0.9762383394383393,
+              "description": "Total revenue",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "total revenue",
+                  "relevance": 0.9762,
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 0.9762383394383393
+        }
+      ],
+      "ranking": "relevance",
+      "total_available": 3,
+      "returned": 3,
+      "retrieval": "semantic",
+      "engine": "fcj",
+      "clusters": [
+        {
+          "query_from": {
+            "source": "overview",
+            "model_path": "overview.malloy"
+          },
+          "sources": [
+            {
+              "source": "overview",
+              "joins": [
+                "customers",
+                "regions"
+              ]
+            }
+          ],
+          "covers": [
+            0,
+            1
+          ],
+          "picks": {
+            "0": [
+              "measure:overview:total_margin",
+              "measure:overview:total_sales"
+            ],
+            "1": [
+              "dimension:overview:customers.state",
+              "dimension:overview:customer_id",
+              "dimension:overview:customers.city",
+              "dimension:overview:customers.customer_id",
+              "dimension:overview:customers.full_name",
+              "dimension:overview:customers.signup_date",
+              "dimension:overview:region",
+              "dimension:overview:regions.state"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "order_items",
+            "model_path": "storefront.malloy"
+          },
+          "sources": [
+            {
+              "source": "order_items",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "measure:order_items:total_margin",
+              "measure:order_items:total_sales"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "scoped_orders",
+            "model_path": "data_app.malloy"
+          },
+          "sources": [
+            {
+              "source": "scoped_orders",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "measure:scoped_orders:total_margin",
+              "measure:scoped_orders:total_sales"
+            ]
+          }
+        }
+      ],
+      "coverage": [
+        {
+          "target_index": 0,
+          "search_text": "total revenue",
+          "clusters": [
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "target_index": 1,
+          "search_text": "customer state",
+          "clusters": [
+            true,
+            false,
+            false
+          ]
+        }
+      ],
+      "unresolved_targets": [],
+      "skills": [
+        {
+          "name": "malloy-phrase-detection",
+          "description": "How to turn a storefront question into get_context search targets, including the shop vocabulary that does not appear anywhere in the model. Replaces the built-in phrase-detection guide for this package."
+        },
+        {
+          "name": "storefront-conventions",
+          "description": "What storefront's measures actually count, and the four places a reasonable reading of them is wrong. Read before answering any revenue, order, margin, or region question against this package."
+        }
+      ],
+      "skills_note": "This package ships its own guidance, listed above. Read the relevant one before relying on names or conventions from this package. If it is already loaded as a skill, use that; otherwise fetch it with get_skill(skill_name, scopes), and if that tool is not available to you, proceed and say which guidance you could not read. A guide whose name matches a built-in one replaces it here."
+    }
+  },
+  "traffic": {
+    "embedding_calls": 1,
+    "embedded_texts": [
+      "customer state",
+      "total revenue"
+    ],
+    "judge_calls": 8,
+    "judge": [
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "09653eba0817719aa13978ccee13bbdf61e831ffffe2fdfca6428bb48143665f",
+        "prompt": [
+          "Source: scoped_orders - Order lines narrowed by the data app's control row.",
+          "Its doc: \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"total revenue\"",
+          "  [1] margin_rate (measure, number; source scoped_orders): Gross margin as a share of revenue",
+          "  [2] total_sales (measure, number; source scoped_orders): Total revenue",
+          "  [3] total_margin (measure, number; source scoped_orders): Total gross margin (revenue minus cost of goods sold), summed per line",
+          "  [4] percent_of_sales (measure, number; source scoped_orders): Share of total sales",
+          "  [5] avg_order_value (measure, number; source scoped_orders): Average order value",
+          "  [6] customers.customer_count (measure, number; source scoped_orders; through the join customers): Distinct customers",
+          "  [7] products.product_count (measure, number; source scoped_orders; through the join products): Distinct products",
+          "  [8] customer_count (measure, number; source scoped_orders): Distinct customers",
+          "  [9] order_count (measure, number; source scoped_orders): Distinct orders",
+          "  [10] order_item_count (measure, number; source scoped_orders): Line items sold",
+          "Target 2 (dimension): \"customer state\"",
+          "  [11] regions.state (dimension, string; source scoped_orders; through the join regions): (no doc; name in words: regions state)",
+          "  [12] regions.region (dimension, string; source scoped_orders; through the join regions): (no doc; name in words: regions region)",
+          "  [13] region (dimension, string; source scoped_orders): Sales region for the customer's home state",
+          "  [14] customers.state (dimension, string; source scoped_orders; through the join customers): (no doc; name in words: customers state)",
+          "  [15] customers.customer_id (dimension, number; source scoped_orders; through the join customers): (no doc; name in words: customers customer id)",
+          "  [16] customers.city (dimension, string; source scoped_orders; through the join customers): (no doc; name in words: customers city)",
+          "  [17] customers.signup_date (dimension, date; source scoped_orders; through the join customers): (no doc; name in words: customers signup date)",
+          "  [18] customers.full_name (dimension, string; source scoped_orders; through the join customers): (no doc; name in words: customers full name)",
+          "  [19] customer_id (dimension, number; source scoped_orders): (no doc; name in words: customer id)",
+          "  [20] brand (dimension, string; source scoped_orders): Brand of the item sold",
+          "  [21] products.brand (dimension, string; source scoped_orders; through the join products): (no doc; name in words: products brand)",
+          "</targets>",
+          "",
+          "The user's question this search serves (context only; do not answer it). When a target's list holds a field this question needs that the target text does not name, such as the date field for a period it names or a field it filters or counts by, pick that field under that target as well:",
+          "\"Revenue by customer state [replay: order late]\"",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                3,
+                2
+              ],
+              "reason": "stand-in: 2 candidate(s) scored 2 or more",
+              "best": 3
+            },
+            {
+              "target": 2,
+              "candidates": [
+                14,
+                19,
+                16,
+                15,
+                18,
+                17,
+                13,
+                11
+              ],
+              "reason": "stand-in: 8 candidate(s) scored 2 or more",
+              "best": 14
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "226b532148fb82d68546c99bd77862ecc3945cfff18990c860b0b594a07b1853",
+        "prompt": [
+          "Source: products - Catalog of products, one row per product, with cost and retail price.",
+          "Its doc: \"Catalog of products, one row per product, with cost and retail price\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"total revenue\"",
+          "  [1] product_count (measure, number; source products): Distinct products",
+          "Target 2 (dimension): \"customer state\"",
+          "  [2] brand (dimension, string; source products): (no doc; name in words: brand)",
+          "</targets>",
+          "",
+          "The user's question this search serves (context only; do not answer it). When a target's list holds a field this question needs that the target text does not name, such as the date field for a period it names or a field it filters or counts by, pick that field under that target as well:",
+          "\"Revenue by customer state [replay: order late]\"",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            },
+            {
+              "target": 2,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "82f1a07c12788070ce8903c0b2017b1c1b7d21c1b5b50fd140f2c3db60f679df",
+        "prompt": [
+          "Source: order_items - Order line items — the fact table, one row per product sold on an order.",
+          "Its doc: \"Order line items — the fact table, one row per product sold on an order\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"total revenue\"",
+          "  [1] total_sales (measure, number; source order_items): Total revenue",
+          "  [2] margin_rate (measure, number; source order_items): Gross margin as a share of revenue",
+          "  [3] total_margin (measure, number; source order_items): Total gross margin (revenue minus cost of goods sold), summed per line",
+          "  [4] percent_of_sales (measure, number; source order_items): Share of total sales",
+          "  [5] avg_order_value (measure, number; source order_items): Average order value",
+          "  [6] customers.customer_count (measure, number; source order_items; through the join customers): Distinct customers",
+          "  [7] customer_count (measure, number; source order_items): Distinct customers",
+          "  [8] order_count (measure, number; source order_items): Distinct orders",
+          "  [9] order_item_count (measure, number; source order_items): Line items sold",
+          "  [10] orders_per_customer (measure, number; source order_items): Average orders placed per customer",
+          "  [11] return_rate (measure, number; source order_items): Share of line items that were returned",
+          "  [12] products.product_count (measure, number; source order_items; through the join products): Distinct products",
+          "Target 2 (dimension): \"customer state\"",
+          "  [13] regions.state (dimension, string; source order_items; through the join regions): (no doc; name in words: regions state)",
+          "  [14] region (dimension, string; source order_items): Sales region for the customer's home state",
+          "  [15] regions.region (dimension, string; source order_items; through the join regions): (no doc; name in words: regions region)",
+          "  [16] customers.state (dimension, string; source order_items; through the join customers): (no doc; name in words: customers state)",
+          "  [17] customers.customer_id (dimension, number; source order_items; through the join customers): (no doc; name in words: customers customer id)",
+          "  [18] customers.city (dimension, string; source order_items; through the join customers): (no doc; name in words: customers city)",
+          "  [19] customers.signup_date (dimension, date; source order_items; through the join customers): (no doc; name in words: customers signup date)",
+          "  [20] customers.full_name (dimension, string; source order_items; through the join customers): (no doc; name in words: customers full name)",
+          "  [21] customer_id (dimension, number; source order_items): (no doc; name in words: customer id)",
+          "  [22] brand (dimension, string; source order_items): Brand of the item sold",
+          "  [23] products.brand (dimension, string; source order_items; through the join products): (no doc; name in words: products brand)",
+          "  [24] category (dimension, string; source order_items): Product category of the item sold",
+          "  [25] created_at (dimension, date; source order_items): (no doc; name in words: created at)",
+          "  [26] gross_margin (dimension, number; source order_items): Gross margin on this line (sale price minus product cost)",
+          "  [27] id (dimension, number; source order_items): (no doc; name in words: id)",
+          "</targets>",
+          "",
+          "The user's question this search serves (context only; do not answer it). When a target's list holds a field this question needs that the target text does not name, such as the date field for a period it names or a field it filters or counts by, pick that field under that target as well:",
+          "\"Revenue by customer state [replay: order late]\"",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                3,
+                1
+              ],
+              "reason": "stand-in: 2 candidate(s) scored 2 or more",
+              "best": 3
+            },
+            {
+              "target": 2,
+              "candidates": [
+                16,
+                21,
+                18,
+                17,
+                20,
+                19,
+                14,
+                13
+              ],
+              "reason": "stand-in: 8 candidate(s) scored 2 or more",
+              "best": 16
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "8f5f584479dd49d51594d4192c1560899140ef55ac05c6ac11d87e85e438f834",
+        "prompt": [
+          "Source: overview - The overview report's tiles, each over the order lines its controls select.",
+          "Its doc: \"The overview report's tiles, each over the order lines its controls select\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"total revenue\"",
+          "  [1] margin_rate (measure, number; source overview): Gross margin as a share of revenue",
+          "  [2] total_sales (measure, number; source overview): Total revenue",
+          "  [3] total_margin (measure, number; source overview): Total gross margin (revenue minus cost of goods sold), summed per line",
+          "  [4] percent_of_sales (measure, number; source overview): Share of total sales",
+          "  [5] avg_order_value (measure, number; source overview): Average order value",
+          "  [6] customers.customer_count (measure, number; source overview; through the join customers): Distinct customers",
+          "  [7] customer_count (measure, number; source overview): Distinct customers",
+          "  [8] order_count (measure, number; source overview): Distinct orders",
+          "  [9] order_item_count (measure, number; source overview): Line items sold",
+          "  [10] orders_per_customer (measure, number; source overview): Average orders placed per customer",
+          "  [11] return_rate (measure, number; source overview): Share of line items that were returned",
+          "  [12] products.product_count (measure, number; source overview; through the join products): Distinct products",
+          "Target 2 (dimension): \"customer state\"",
+          "  [13] regions.state (dimension, string; source overview; through the join regions): (no doc; name in words: regions state)",
+          "  [14] region (dimension, string; source overview): Sales region for the customer's home state",
+          "  [15] regions.region (dimension, string; source overview; through the join regions): (no doc; name in words: regions region)",
+          "  [16] customers.state (dimension, string; source overview; through the join customers): (no doc; name in words: customers state)",
+          "  [17] customers.customer_id (dimension, number; source overview; through the join customers): (no doc; name in words: customers customer id)",
+          "  [18] customers.city (dimension, string; source overview; through the join customers): (no doc; name in words: customers city)",
+          "  [19] customers.signup_date (dimension, date; source overview; through the join customers): (no doc; name in words: customers signup date)",
+          "  [20] customers.full_name (dimension, string; source overview; through the join customers): (no doc; name in words: customers full name)",
+          "  [21] customer_id (dimension, number; source overview): (no doc; name in words: customer id)",
+          "  [22] brand (dimension, string; source overview): Brand of the item sold",
+          "  [23] products.brand (dimension, string; source overview; through the join products): (no doc; name in words: products brand)",
+          "  [24] id (dimension, number; source overview): (no doc; name in words: id)",
+          "  [25] status (dimension, string; source overview): (no doc; name in words: status)",
+          "  [26] created_at (dimension, date; source overview): (no doc; name in words: created at)",
+          "  [27] product_id (dimension, number; source overview): (no doc; name in words: product id)",
+          "  [28] sale_price (dimension, number; source overview): (no doc; name in words: sale price)",
+          "  [29] order_id (dimension, number; source overview): (no doc; name in words: order id)",
+          "  [30] category (dimension, string; source overview): Product category of the item sold",
+          "  [31] gross_margin (dimension, number; source overview): Gross margin on this line (sale price minus product cost)",
+          "</targets>",
+          "",
+          "The user's question this search serves (context only; do not answer it). When a target's list holds a field this question needs that the target text does not name, such as the date field for a period it names or a field it filters or counts by, pick that field under that target as well:",
+          "\"Revenue by customer state [replay: order late]\"",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                3,
+                2
+              ],
+              "reason": "stand-in: 2 candidate(s) scored 2 or more",
+              "best": 3
+            },
+            {
+              "target": 2,
+              "candidates": [
+                16,
+                21,
+                18,
+                17,
+                20,
+                19,
+                14,
+                13
+              ],
+              "reason": "stand-in: 8 candidate(s) scored 2 or more",
+              "best": 16
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "97860fb856af8263ddbc89153698785fa7e72b05825eb39a154fb9d24faee7a8",
+        "prompt": [
+          "Source: brand_suggest - Distinct brands, for the Brand filter control's option list.",
+          "Its doc: \"Distinct brands, for the Brand filter control's option list\"",
+          "",
+          "<targets>",
+          "Target 1 (dimension): \"customer state\"",
+          "  [1] brand (dimension, string; source brand_suggest): Brand of the item sold",
+          "</targets>",
+          "",
+          "The user's question this search serves (context only; do not answer it). When a target's list holds a field this question needs that the target text does not name, such as the date field for a period it names or a field it filters or counts by, pick that field under that target as well:",
+          "\"Revenue by customer state [replay: order late]\"",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "9f49d307e1228a053658d6006b12a44294f574c6c7ddbb7b1c5d618627d8ddee",
+        "prompt": [
+          "Source: regions - Sales region for each US state, one row per state, keyed by `state`.",
+          "Its doc: \"Sales region for each US state, one row per state, keyed by `state`\"",
+          "",
+          "<targets>",
+          "Target 1 (dimension): \"customer state\"",
+          "  [1] state (dimension, string; source regions): (no doc; name in words: state)",
+          "  [2] region (dimension, string; source regions): (no doc; name in words: region)",
+          "</targets>",
+          "",
+          "The user's question this search serves (context only; do not answer it). When a target's list holds a field this question needs that the target text does not name, such as the date field for a period it names or a field it filters or counts by, pick that field under that target as well:",
+          "\"Revenue by customer state [replay: order late]\"",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                1
+              ],
+              "reason": "stand-in: 1 candidate(s) scored 2 or more",
+              "best": 1
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "9ff01d9d2d3c944095043a602e76476b6b8db1407745a697a58b3222e28e7f69",
+        "prompt": [
+          "Source: customers - People who have placed orders — one row per customer, keyed by `customer_id`.",
+          "Its doc: \"People who have placed orders — one row per customer, keyed by `customer_id`\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"total revenue\"",
+          "  [1] customer_count (measure, number; source customers): Distinct customers",
+          "Target 2 (dimension): \"customer state\"",
+          "  [2] state (dimension, string; source customers): (no doc; name in words: state)",
+          "  [3] customer_id (dimension, number; source customers): (no doc; name in words: customer id)",
+          "  [4] city (dimension, string; source customers): (no doc; name in words: city)",
+          "  [5] signup_date (dimension, date; source customers): (no doc; name in words: signup date)",
+          "  [6] full_name (dimension, string; source customers): (no doc; name in words: full name)",
+          "</targets>",
+          "",
+          "The user's question this search serves (context only; do not answer it). When a target's list holds a field this question needs that the target text does not name, such as the date field for a period it names or a field it filters or counts by, pick that field under that target as well:",
+          "\"Revenue by customer state [replay: order late]\"",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            },
+            {
+              "target": 2,
+              "candidates": [
+                3,
+                2
+              ],
+              "reason": "stand-in: 2 candidate(s) scored 2 or more",
+              "best": 3
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "order",
+        "system_sha256": "9f40894afb1ad7f2fe5efb8eaa1854a21d6f03ac890ad3069e37e040ac666185",
+        "prompt_sha256": "d310d317b8faf221105d69b56856e5c660a4ff8432e709310c80a014c6f44e3d",
+        "prompt": [
+          "Question: \"Revenue by customer state [replay: order late]\"",
+          "What the caller is looking for:",
+          "  measure: \"total revenue\"",
+          "  dimension: \"customer state\"",
+          "",
+          "<sources>",
+          "[1] overview - \"The overview report's tiles, each over the order lines its controls select\"",
+          "  Fields search found here:",
+          "    for \"total revenue\": margin_rate, total_sales, total_margin",
+          "    for \"customer state\": regions.state, region, regions.region",
+          "[2] regions - \"Sales region for each US state, one row per state, keyed by `state`\"",
+          "  Fields search found here:",
+          "    for \"total revenue\": (nothing found)",
+          "    for \"customer state\": state, region",
+          "[3] order_items - \"Order line items — the fact table, one row per product sold on an order\"",
+          "  Fields search found here:",
+          "    for \"total revenue\": total_sales, margin_rate, total_margin",
+          "    for \"customer state\": regions.state, region, regions.region",
+          "[4] scoped_orders - \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
+          "  Fields search found here:",
+          "    for \"total revenue\": margin_rate, total_sales, total_margin",
+          "    for \"customer state\": regions.state, regions.region, region",
+          "[5] customers - \"People who have placed orders — one row per customer, keyed by `customer_id`\"",
+          "  Fields search found here:",
+          "    for \"total revenue\": customer_count",
+          "    for \"customer state\": state, customer_id, city",
+          "[6] products - \"Catalog of products, one row per product, with cost and retail price\"",
+          "  Fields search found here:",
+          "    for \"total revenue\": product_count",
+          "    for \"customer state\": brand",
+          "[7] brand_suggest - \"Distinct brands, for the Brand filter control's option list\"",
+          "  Fields search found here:",
+          "    for \"total revenue\": (nothing found)",
+          "    for \"customer state\": brand",
+          "</sources>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"sources\": [<every source number, best first>]}"
+        ],
+        "reply": {
+          "stand_in_threw": "cut before it answered, as the case asks"
+        }
+      }
+    ]
+  }
+}

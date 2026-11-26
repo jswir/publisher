@@ -110,39 +110,80 @@
     "embedded_texts": [
       "payroll gross"
     ],
-    "judge_calls": 1,
+    "judge_calls": 4,
     "judge": [
       {
-        "system_sha256": "9f5997fde3c4a50ca93d49e0090e8c6b85eab6867ed48888adaf95f6f77a40c2",
-        "prompt_sha256": "64603f384a778d8c9f2d059c8c1a1df13944e7f08aa44809b6dd77bbc426cd2c",
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "004cb55ee10418c7a49769bcc3c7cdd25c0422a4dc62868fb61cb873b286bbaf",
         "prompt": [
-          "Sources with candidates:",
-          "- payroll_ledger - Payroll ledger: one row per salary payment.",
-          "  Its doc begins: \"Payroll ledger: one row per salary payment. Finance only.\"",
-          "  A query from payroll_ledger can use none of the other listed sources.",
-          "- shipments - Every shipment, open to every caller.",
-          "  A query from shipments can use none of the other listed sources.",
-          "- tenant_orders - Orders of every tenant; each caller reads only its own tenants' rows.",
-          "  A query from tenant_orders can use none of the other listed sources.",
+          "Source: shipments - Every shipment, open to every caller.",
+          "Its doc: \"Every shipment, open to every caller.\"",
           "",
           "<targets>",
           "Target 1 (measure): \"payroll gross\"",
-          "  From payroll_ledger:",
-          "    [1] payroll_gross (measure, number; source payroll_ledger): Gross payroll paid to staff.",
-          "  From shipments:",
-          "    [2] carrier_charge (measure, number; source shipments): Carrier charge for the shipments, in US dollars.",
-          "  From tenant_orders:",
-          "    [3] tenant_order_total (measure, number; source tenant_orders): Sum of order totals.",
+          "  [1] carrier_charge (measure, number; source shipments): Carrier charge for the shipments, in US dollars.",
           "</targets>",
           "",
-          "Also in this group:",
-          "  [4] gross (dimension, number; source payroll_ledger): (no doc; name in words: gross) | added because: payroll_gross is computed from it",
-          "  [5] charge (dimension, number; source shipments): (no doc; name in words: charge) | added because: carrier_charge is computed from it",
-          "  [6] total (dimension, number; source tenant_orders): (no doc; name in words: total) | added because: tenant_order_total is computed from it",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "484f4c3660441525e0ef8edb106245017bdbf30c434b4a146e8bb18d919f2455",
+        "prompt": [
+          "Source: tenant_orders - Orders of every tenant; each caller reads only its own tenants' rows.",
+          "Its doc: \"Orders of every tenant; each caller reads only its own tenants' rows.\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"payroll gross\"",
+          "  [1] tenant_order_total (measure, number; source tenant_orders): Sum of order totals.",
+          "</targets>",
           "",
           "Reply with one JSON object and nothing else:",
-          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
-          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "c85e93d4c85081280f47ec1a006597753e464700e497608175ad41b6ec79945b",
+        "prompt": [
+          "Source: payroll_ledger - Payroll ledger: one row per salary payment.",
+          "Its doc: \"Payroll ledger: one row per salary payment. Finance only.\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"payroll gross\"",
+          "  [1] payroll_gross (measure, number; source payroll_ledger): Gross payroll paid to staff.",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
         ],
         "reply": {
           "picks": [
@@ -156,6 +197,37 @@
             }
           ],
           "caveats": []
+        }
+      },
+      {
+        "call": "order",
+        "system_sha256": "9f40894afb1ad7f2fe5efb8eaa1854a21d6f03ac890ad3069e37e040ac666185",
+        "prompt_sha256": "fdbf2bb95aa06f27b6ce38f4683601c29f855a0eb13beab8cddc64c4f7d61eb5",
+        "prompt": [
+          "What the caller is looking for:",
+          "  measure: \"payroll gross\"",
+          "",
+          "<sources>",
+          "[1] payroll_ledger - \"Payroll ledger: one row per salary payment. Finance only.\"",
+          "  Fields search found here:",
+          "    for \"payroll gross\": payroll_gross",
+          "[2] shipments - \"Every shipment, open to every caller.\"",
+          "  Fields search found here:",
+          "    for \"payroll gross\": carrier_charge",
+          "[3] tenant_orders - \"Orders of every tenant; each caller reads only its own tenants' rows.\"",
+          "  Fields search found here:",
+          "    for \"payroll gross\": tenant_order_total",
+          "</sources>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"sources\": [<every source number, best first>]}"
+        ],
+        "reply": {
+          "sources": [
+            1,
+            2,
+            3
+          ]
         }
       }
     ]

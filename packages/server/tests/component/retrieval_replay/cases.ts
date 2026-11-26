@@ -671,4 +671,104 @@ export const CASES: readonly ReplayCase[] = [
          },
       ],
    },
+   {
+      id: "source-first-user-prompt-both-calls",
+      about: "A measure and a dimension on different sources, with user_prompt: every pick call and the ordering call quote the question, and the ordering call's order (the stand-in's name score, not box 4's) is the cards' order. order_items offers the customer's state through its join (customers.state), not a field of its own.",
+      params: {
+         search_targets: [
+            { target_type: "measure", search_text: "total revenue" },
+            { target_type: "dimension", search_text: "customer state" },
+         ],
+         scopes: [scope],
+         user_prompt: "Which customer states bring in the most revenue?",
+      },
+   },
+   {
+      id: "source-first-pick-call-fails-for-one-source",
+      about: "One kept source's pick call fails twice ([replay: fail pick order_items] in user_prompt): that source is left out and the others serve, with no warning.",
+      params: {
+         search_targets: [
+            { target_type: "measure", search_text: "total revenue" },
+            { target_type: "dimension", search_text: "customer state" },
+         ],
+         scopes: [scope],
+         user_prompt:
+            "Revenue by customer state [replay: fail pick order_items]",
+      },
+   },
+   {
+      id: "source-first-order-call-invalid",
+      about: "The ordering call names no kept source ([replay: order invalid]): the cards keep box 4's order.",
+      params: {
+         search_targets: [
+            { target_type: "measure", search_text: "total revenue" },
+            { target_type: "dimension", search_text: "customer state" },
+         ],
+         scopes: [scope],
+         user_prompt: "Revenue by customer state [replay: order invalid]",
+      },
+   },
+   {
+      id: "source-first-order-call-late",
+      about: "The ordering call does not answer ([replay: order late]): it is cut 0.3 s after the pick calls end, and the cards keep box 4's order.",
+      params: {
+         search_targets: [
+            { target_type: "measure", search_text: "total revenue" },
+            { target_type: "dimension", search_text: "customer state" },
+         ],
+         scopes: [scope],
+         user_prompt: "Revenue by customer state [replay: order late]",
+      },
+   },
+   {
+      id: "source-first-scoped-to-one-source",
+      about: "A call scoped to one source: one pick call, no ordering call.",
+      params: {
+         search_targets: [
+            { target_type: "dimension", search_text: "customer state" },
+            { target_type: "measure", search_text: "number of customers" },
+         ],
+         scopes: [{ ...scope, source: "customers" }],
+         user_prompt: "How many customers are in each state?",
+      },
+   },
+   {
+      id: "source-first-period-in-question",
+      about: "Only a measure target, and a question that names a period (month by month in 2025): each kept source also offers its date fields for an implicit target, and a card shows at most one, marked also_likely.",
+      params: {
+         search_targets: [
+            { target_type: "measure", search_text: "orders per customer" },
+         ],
+         scopes: [scope],
+         user_prompt:
+            "How many orders does the average customer place, month by month in 2025?",
+      },
+   },
+   {
+      id: "source-first-joined-customer-id",
+      about: "A dimension whose answer on order_items is the joined copy customers.customer_id: search finds customer_id on customers, and order_items offers it through its join.",
+      params: {
+         search_targets: [
+            { target_type: "dimension", search_text: "customer id" },
+            { target_type: "measure", search_text: "number of customers" },
+         ],
+         scopes: [scope],
+      },
+   },
+   {
+      id: "source-first-field-limit-after-first-source",
+      about: "Eleven sources share amount and region: the first card keeps every field its call picked, every later card at most two per pick, and a target at most eight in all.",
+      params: {
+         search_targets: [
+            { target_type: "measure", search_text: "amount total" },
+            { target_type: "dimension", search_text: "region" },
+         ],
+         scopes: [manyScope],
+      },
+   },
+   {
+      id: "retired-fcj-keys-load",
+      about: "replay-clusters sets retired retrieval.fcj keys (connect, collapseCopies, twinRule): the package still loads and lists its sources; _index_build.json records one load warning naming each key.",
+      params: { scopes: [clustersScope] },
+   },
 ];

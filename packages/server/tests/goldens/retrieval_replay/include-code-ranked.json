@@ -61,7 +61,7 @@
                 {
                   "search_text": "gross margin",
                   "relevance": 0.9934,
-                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -77,7 +77,7 @@
                 {
                   "search_text": "gross margin",
                   "relevance": 0.9844,
-                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
                 }
               ]
             }
@@ -152,7 +152,7 @@
                 {
                   "search_text": "gross margin",
                   "relevance": 1,
-                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -168,7 +168,7 @@
                 {
                   "search_text": "gross margin",
                   "relevance": 0.9934,
-                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
                 }
               ]
             }
@@ -243,7 +243,7 @@
                 {
                   "search_text": "gross margin",
                   "relevance": 0.9844,
-                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -259,7 +259,7 @@
                 {
                   "search_text": "gross margin",
                   "relevance": 1,
-                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
                 }
               ]
             }
@@ -273,6 +273,27 @@
       "retrieval": "semantic",
       "engine": "fcj",
       "clusters": [
+        {
+          "query_from": {
+            "source": "order_items",
+            "model_path": "storefront.malloy"
+          },
+          "sources": [
+            {
+              "source": "order_items",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "measure:order_items:margin_rate",
+              "measure:order_items:total_margin"
+            ]
+          }
+        },
         {
           "query_from": {
             "source": "overview",
@@ -314,27 +335,6 @@
               "measure:scoped_orders:total_margin"
             ]
           }
-        },
-        {
-          "query_from": {
-            "source": "order_items",
-            "model_path": "storefront.malloy"
-          },
-          "sources": [
-            {
-              "source": "order_items",
-              "joins": []
-            }
-          ],
-          "covers": [
-            0
-          ],
-          "picks": {
-            "0": [
-              "measure:order_items:margin_rate",
-              "measure:order_items:total_margin"
-            ]
-          }
         }
       ],
       "coverage": [
@@ -367,101 +367,225 @@
     "embedded_texts": [
       "gross margin"
     ],
-    "judge_calls": 1,
+    "judge_calls": 6,
     "judge": [
       {
-        "system_sha256": "9f5997fde3c4a50ca93d49e0090e8c6b85eab6867ed48888adaf95f6f77a40c2",
-        "prompt_sha256": "c2fa937c1974842534e5947e0f5085fd1b12ee7a45f3f4335a9297c24e8922c3",
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "061c4caf46e65e50e76588f0d5561a88c2e8ab6bdb2d636bf1568d885940bb07",
         "prompt": [
-          "Sources with candidates:",
-          "- overview - The overview report's tiles, each over the order lines its controls select.",
-          "  Its doc begins: \"The overview report's tiles, each over the order lines its controls select\"",
-          "  A query from overview can also use: customers (through overview.customers), products (through overview.products).",
-          "- scoped_orders - Order lines narrowed by the data app's control row.",
-          "  Its doc begins: \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
-          "  A query from scoped_orders can also use: customers (through scoped_orders.customers), products (through scoped_orders.products).",
-          "- order_items - Order line items — the fact table, one row per product sold on an order.",
-          "  Its doc begins: \"Order line items — the fact table, one row per product sold on an order\"",
-          "  A query from order_items can also use: customers (through order_items.customers), products (through order_items.products).",
-          "- customers - People who have placed orders — one row per customer, keyed by `customer_id`.",
-          "  Its doc begins: \"People who have placed orders — one row per customer, keyed by `customer_id`\"",
-          "  A query from customers can use none of the other listed sources.",
-          "- products - Catalog of products, one row per product, with cost and retail price.",
-          "  Its doc begins: \"Catalog of products, one row per product, with cost and retail price\"",
-          "  A query from products can use none of the other listed sources.",
+          "Source: scoped_orders - Order lines narrowed by the data app's control row.",
+          "Its doc: \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
           "",
           "<targets>",
           "Target 1 (measure): \"gross margin\"",
-          "  From overview (its doc: \"The overview report's tiles, each over the order lines its controls select\"):",
-          "    [1] margin_rate (measure, number; source overview): Gross margin as a share of revenue",
-          "    [2] total_margin (measure, number; source overview): Total gross margin (revenue minus cost of goods sold), summed per line",
-          "    [3] avg_order_value (measure, number; source overview): Average order value",
-          "    [4] customer_count (measure, number; source overview): Distinct customers",
-          "    [5] order_count (measure, number; source overview): Distinct orders",
-          "    [6] order_item_count (measure, number; source overview): Line items sold",
-          "    [7] orders_per_customer (measure, number; source overview): Average orders placed per customer",
-          "    [8] percent_of_sales (measure, number; source overview): Share of total sales",
-          "  From scoped_orders (its doc: \"Order lines narrowed by the data app's control row. Every tile queries this.\"):",
-          "    [9] total_margin (measure, number; source scoped_orders): Total gross margin (revenue minus cost of goods sold), summed per line",
-          "    [10] margin_rate (measure, number; source scoped_orders): Gross margin as a share of revenue",
-          "    [11] customer_count (measure, number; source scoped_orders): Distinct customers",
-          "    [12] order_item_count (measure, number; source scoped_orders): Line items sold",
-          "    [13] total_sales (measure, number; source scoped_orders): Total revenue",
-          "    [14] order_count (measure, number; source scoped_orders): Distinct orders",
-          "    [15] percent_of_sales (measure, number; source scoped_orders): Share of total sales",
-          "    [16] avg_order_value (measure, number; source scoped_orders): Average order value",
-          "    [17] return_rate (measure, number; source scoped_orders): Share of line items that were returned",
-          "    [18] orders_per_customer (measure, number; source scoped_orders): Average orders placed per customer",
-          "  From order_items (its doc: \"Order line items — the fact table, one row per product sold on an order\"):",
-          "    [19] margin_rate (measure, number; source order_items): Gross margin as a share of revenue",
-          "    [20] total_margin (measure, number; source order_items): Total gross margin (revenue minus cost of goods sold), summed per line",
-          "    [21] customer_count (measure, number; source order_items): Distinct customers",
-          "    [22] total_sales (measure, number; source order_items): Total revenue",
-          "    [23] order_count (measure, number; source order_items): Distinct orders",
-          "    [24] order_item_count (measure, number; source order_items): Line items sold",
-          "    [25] percent_of_sales (measure, number; source order_items): Share of total sales",
-          "    [26] avg_order_value (measure, number; source order_items): Average order value",
-          "    [27] orders_per_customer (measure, number; source order_items): Average orders placed per customer",
-          "    [28] return_rate (measure, number; source order_items): Share of line items that were returned",
-          "  From customers (its doc: \"People who have placed orders — one row per customer, keyed by `customer_id`\"):",
-          "    [29] customer_count (measure, number; source customers): Distinct customers",
-          "        [30] order_items.customers.customer_count (route from order_items through customers, join_one): only the customers rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
-          "        [31] overview.customers.customer_count (route from overview through customers, join_one): only the customers rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
-          "        [32] scoped_orders.customers.customer_count (route from scoped_orders through customers, join_one): only the customers rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
-          "  From products:",
-          "    [33] product_count (measure, number; source products): Distinct products",
-          "        [34] order_items.products.product_count (route from order_items through products, join_one): only the products rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
-          "        [35] overview.products.product_count (route from overview through products, join_one): only the products rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
-          "        [36] scoped_orders.products.product_count (route from scoped_orders through products, join_one): only the products rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "  [1] total_margin (measure, number; source scoped_orders): Total gross margin (revenue minus cost of goods sold), summed per line",
+          "  [2] margin_rate (measure, number; source scoped_orders): Gross margin as a share of revenue",
+          "  [3] customers.customer_count (measure, number; source scoped_orders; through the join customers): Distinct customers",
+          "  [4] customer_count (measure, number; source scoped_orders): Distinct customers",
+          "  [5] order_item_count (measure, number; source scoped_orders): Line items sold",
+          "  [6] total_sales (measure, number; source scoped_orders): Total revenue",
+          "  [7] products.product_count (measure, number; source scoped_orders; through the join products): Distinct products",
+          "  [8] order_count (measure, number; source scoped_orders): Distinct orders",
+          "  [9] percent_of_sales (measure, number; source scoped_orders): Share of total sales",
+          "  [10] avg_order_value (measure, number; source scoped_orders): Average order value",
+          "  [11] return_rate (measure, number; source scoped_orders): Share of line items that were returned",
+          "  [12] orders_per_customer (measure, number; source scoped_orders): Average orders placed per customer",
           "</targets>",
           "",
-          "Also in this group:",
-          "  [37] total_sales (measure, number; source overview): Total revenue | added because: margin_rate is computed from it",
-          "  [38] gross_margin (dimension, number; source scoped_orders): Gross margin on this line (sale price minus product cost) | added because: total_margin is computed from it",
-          "  [39] top_products (view; source overview): Top products by revenue | added because: uses total_margin, order_item_count",
-          "  [40] category_performance (view; source overview): Category performance: revenue, margin, and share of the total | added because: uses total_margin, margin_rate, percent_of_sales",
-          "  [41] brand_performance (view; source overview): Brand performance: revenue, margin, and share of the total | added because: uses total_margin, margin_rate, percent_of_sales",
-          "  [42] key_figures (view; source overview): Revenue, gross margin, orders, customers and average order value | added because: uses total_margin, order_count, customer_count, avg_order_value",
-          "  [43] kpis (view; source overview): Revenue, gross margin, orders, customers and average order value | added because: uses total_margin, order_count, customer_count, avg_order_value",
-          "",
           "Reply with one JSON object and nothing else:",
-          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
-          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
         ],
         "reply": {
           "picks": [
             {
               "target": 1,
               "candidates": [
-                19,
-                1,
-                10,
-                20,
                 2,
-                9
+                1
               ],
-              "reason": "stand-in: 6 candidate(s) scored 2 or more",
-              "best": 19
+              "reason": "stand-in: 2 candidate(s) scored 2 or more",
+              "best": 2
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "order",
+        "system_sha256": "9f40894afb1ad7f2fe5efb8eaa1854a21d6f03ac890ad3069e37e040ac666185",
+        "prompt_sha256": "0925258e586d67cede6d2fbe9f0096c56a1d53d4f94526251c61efa5c080ca71",
+        "prompt": [
+          "What the caller is looking for:",
+          "  measure: \"gross margin\"",
+          "",
+          "<sources>",
+          "[1] overview - \"The overview report's tiles, each over the order lines its controls select\"",
+          "  Fields search found here:",
+          "    for \"gross margin\": margin_rate, total_margin, customers.customer_count",
+          "[2] scoped_orders - \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
+          "  Fields search found here:",
+          "    for \"gross margin\": total_margin, margin_rate, customers.customer_count",
+          "[3] order_items - \"Order line items — the fact table, one row per product sold on an order\"",
+          "  Fields search found here:",
+          "    for \"gross margin\": margin_rate, total_margin, customers.customer_count",
+          "[4] customers - \"People who have placed orders — one row per customer, keyed by `customer_id`\"",
+          "  Fields search found here:",
+          "    for \"gross margin\": customer_count",
+          "[5] products - \"Catalog of products, one row per product, with cost and retail price\"",
+          "  Fields search found here:",
+          "    for \"gross margin\": product_count",
+          "</sources>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"sources\": [<every source number, best first>]}"
+        ],
+        "reply": {
+          "sources": [
+            3,
+            1,
+            2,
+            4,
+            5
+          ]
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "10672bb7e72efb6828c480388f018a2a1fdb61ccda8335932751a4546fd5993f",
+        "prompt": [
+          "Source: order_items - Order line items — the fact table, one row per product sold on an order.",
+          "Its doc: \"Order line items — the fact table, one row per product sold on an order\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"gross margin\"",
+          "  [1] margin_rate (measure, number; source order_items): Gross margin as a share of revenue",
+          "  [2] total_margin (measure, number; source order_items): Total gross margin (revenue minus cost of goods sold), summed per line",
+          "  [3] customers.customer_count (measure, number; source order_items; through the join customers): Distinct customers",
+          "  [4] products.product_count (measure, number; source order_items; through the join products): Distinct products",
+          "  [5] customer_count (measure, number; source order_items): Distinct customers",
+          "  [6] total_sales (measure, number; source order_items): Total revenue",
+          "  [7] order_count (measure, number; source order_items): Distinct orders",
+          "  [8] order_item_count (measure, number; source order_items): Line items sold",
+          "  [9] percent_of_sales (measure, number; source order_items): Share of total sales",
+          "  [10] avg_order_value (measure, number; source order_items): Average order value",
+          "  [11] orders_per_customer (measure, number; source order_items): Average orders placed per customer",
+          "  [12] return_rate (measure, number; source order_items): Share of line items that were returned",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                1,
+                2
+              ],
+              "reason": "stand-in: 2 candidate(s) scored 2 or more",
+              "best": 1
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "6d624e4adbedfcba72958eebdfa20a0df79743eae4372b8dea8da411ac8fe991",
+        "prompt": [
+          "Source: customers - People who have placed orders — one row per customer, keyed by `customer_id`.",
+          "Its doc: \"People who have placed orders — one row per customer, keyed by `customer_id`\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"gross margin\"",
+          "  [1] customer_count (measure, number; source customers): Distinct customers",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "85cc06492b48e1ca3d59fdb325774375607f420f83a5287f03847c7e00d1ffa5",
+        "prompt": [
+          "Source: overview - The overview report's tiles, each over the order lines its controls select.",
+          "Its doc: \"The overview report's tiles, each over the order lines its controls select\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"gross margin\"",
+          "  [1] margin_rate (measure, number; source overview): Gross margin as a share of revenue",
+          "  [2] total_margin (measure, number; source overview): Total gross margin (revenue minus cost of goods sold), summed per line",
+          "  [3] customers.customer_count (measure, number; source overview; through the join customers): Distinct customers",
+          "  [4] products.product_count (measure, number; source overview; through the join products): Distinct products",
+          "  [5] avg_order_value (measure, number; source overview): Average order value",
+          "  [6] customer_count (measure, number; source overview): Distinct customers",
+          "  [7] order_count (measure, number; source overview): Distinct orders",
+          "  [8] order_item_count (measure, number; source overview): Line items sold",
+          "  [9] orders_per_customer (measure, number; source overview): Average orders placed per customer",
+          "  [10] percent_of_sales (measure, number; source overview): Share of total sales",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                1,
+                2
+              ],
+              "reason": "stand-in: 2 candidate(s) scored 2 or more",
+              "best": 1
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "d80ab15f9e32d22c428abfc163cbf2872579cae51ed70d4896f8cf7b2c8a7841",
+        "prompt": [
+          "Source: products - Catalog of products, one row per product, with cost and retail price.",
+          "Its doc: \"Catalog of products, one row per product, with cost and retail price\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"gross margin\"",
+          "  [1] product_count (measure, number; source products): Distinct products",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
             }
           ],
           "caveats": []

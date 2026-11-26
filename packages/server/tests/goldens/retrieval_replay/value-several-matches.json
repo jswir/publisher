@@ -117,22 +117,21 @@
     "judge_calls": 1,
     "judge": [
       {
-        "system_sha256": "4368758cabf61a9b4358877f4114ee9f7baf4d7ee4824634d8389e69be097d60",
-        "prompt_sha256": "f90be72e98031d3304d6d8e1863311330f88de8158ee115e2f5198affb33180e",
+        "call": "pick",
+        "system_sha256": "3cb88bc9f8d38fab68b65a796b2b8717da07cf81e1985e91e143cb503ee728cf",
+        "prompt_sha256": "120c29ce67056271a308771dd4c77139aa90c6a5540d8e495e8ec54f37ff0260",
         "prompt": [
-          "Sources with candidates:",
-          "- shipments - Every shipment, open to every caller.",
-          "  A query from shipments can use none of the other listed sources.",
+          "Source: shipments - Every shipment, open to every caller.",
+          "Its doc: \"Every shipment, open to every caller.\"",
           "",
           "<targets>",
           "Target 1 (dimensional_value): \"Springfield\"",
-          "  From shipments:",
-          "    [1] delivery_city (dimension, string; source shipments): City the shipment was delivered to. | stored values matching the target: 1a \"West Springfield\" (words, 0.94), 1b \"North Springfield\" (words, 0.93), 1c \"Springfield Mills\" (words, 0.93), 1d \"Springfield Gardens\" (words, 0.92), 1e \"Springfeld Heights\" (words, 0.69)",
+          "  [1] delivery_city (dimension, string; source shipments): City the shipment was delivered to. | stored values matching the target: 1a \"West Springfield\" (words, 0.94), 1b \"North Springfield\" (words, 0.93), 1c \"Springfield Mills\" (words, 0.93), 1d \"Springfield Gardens\" (words, 0.92), 1e \"Springfeld Heights\" (words, 0.69)",
           "</targets>",
           "",
           "Reply with one JSON object and nothing else:",
-          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
-          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
         ],
         "reply": {
           "picks": [

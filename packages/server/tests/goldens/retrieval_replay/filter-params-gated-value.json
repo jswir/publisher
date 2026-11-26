@@ -142,22 +142,21 @@
     "judge_calls": 1,
     "judge": [
       {
-        "system_sha256": "4368758cabf61a9b4358877f4114ee9f7baf4d7ee4824634d8389e69be097d60",
-        "prompt_sha256": "3e6ff859c7f99762c4ada19065f48576909778f8dca5458f6ffe1cf6f29b85c5",
+        "call": "pick",
+        "system_sha256": "3cb88bc9f8d38fab68b65a796b2b8717da07cf81e1985e91e143cb503ee728cf",
+        "prompt_sha256": "6de2cdbee119977fbd2ab0f3e6e34688d202174e274b95ac96c5af159d6a2b2a",
         "prompt": [
-          "Sources with candidates:",
-          "- tenant_orders - Orders of every tenant; each caller reads only its own tenants' rows.",
-          "  A query from tenant_orders can use none of the other listed sources.",
+          "Source: tenant_orders - Orders of every tenant; each caller reads only its own tenants' rows.",
+          "Its doc: \"Orders of every tenant; each caller reads only its own tenants' rows.\"",
           "",
           "<targets>",
           "Target 1 (dimensional_value): \"Springfield\"",
-          "  From tenant_orders:",
-          "    [1] order_city (dimension, string; source tenant_orders): City the tenant's order ships to. | no stored values",
+          "  [1] order_city (dimension, string; source tenant_orders): City the tenant's order ships to. | no stored values",
           "</targets>",
           "",
           "Reply with one JSON object and nothing else:",
-          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
-          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
         ],
         "reply": {
           "picks": [

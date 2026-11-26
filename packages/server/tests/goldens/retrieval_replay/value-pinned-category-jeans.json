@@ -122,23 +122,21 @@
     "judge_calls": 1,
     "judge": [
       {
-        "system_sha256": "4368758cabf61a9b4358877f4114ee9f7baf4d7ee4824634d8389e69be097d60",
-        "prompt_sha256": "98eb0a0c765dbfe263e4c4b4b8d2cfb46a276de97aaa8ba00ed9a201f471b28f",
+        "call": "pick",
+        "system_sha256": "3cb88bc9f8d38fab68b65a796b2b8717da07cf81e1985e91e143cb503ee728cf",
+        "prompt_sha256": "570853cbca5cfb05b0ce42cc4555770459e1f5c78aaa31833fdb6c90070b4672",
         "prompt": [
-          "Sources with candidates:",
-          "- order_items - Order line items — the fact table, one row per product sold on an order.",
-          "  Its doc begins: \"Order line items — the fact table, one row per product sold on an order\"",
-          "  A query from order_items can use none of the other listed sources.",
+          "Source: order_items - Order line items — the fact table, one row per product sold on an order.",
+          "Its doc: \"Order line items — the fact table, one row per product sold on an order\"",
           "",
           "<targets>",
           "Target 1 (dimensional_value): \"jeans\"",
-          "  From order_items:",
-          "    [1] category (dimension, string; source order_items): Product category of the item sold | no stored values",
+          "  [1] category (dimension, string; source order_items): Product category of the item sold | no stored values",
           "</targets>",
           "",
           "Reply with one JSON object and nothing else:",
-          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
-          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
         ],
         "reply": {
           "picks": [

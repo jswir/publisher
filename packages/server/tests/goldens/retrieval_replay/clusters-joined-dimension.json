@@ -41,20 +41,19 @@
               }
             ]
           },
-          "relevance": 1,
           "entities": [
             {
               "name": "avg_order_total",
               "entity_type": "measure",
               "entity_id": "measure:orders:avg_order_total",
-              "relevance": 0.9694545454545455,
+              "relevance": 0.8705465587044534,
               "description": "Average order total per order.",
               "data_type": "number",
               "matched_targets": [
                 {
                   "search_text": "order total",
-                  "relevance": 0.9695,
-                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
+                  "relevance": 0.8705,
+                  "match_reason": "stand-in: 9 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -62,14 +61,14 @@
               "name": "discounted_order_total",
               "entity_type": "measure",
               "entity_id": "measure:orders:discounted_order_total",
-              "relevance": 1,
+              "relevance": 0.9317863805970149,
               "description": "Order total of orders with a discount.",
               "data_type": "number",
               "matched_targets": [
                 {
                   "search_text": "order total",
-                  "relevance": 1,
-                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
+                  "relevance": 0.9318,
+                  "match_reason": "stand-in: 9 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -77,14 +76,14 @@
               "name": "max_order_total",
               "entity_type": "measure",
               "entity_id": "measure:orders:max_order_total",
-              "relevance": 0.9398426051560381,
+              "relevance": 0.7773538961038962,
               "description": "Largest order total.",
               "data_type": "number",
               "matched_targets": [
                 {
                   "search_text": "order total",
-                  "relevance": 0.9398,
-                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
+                  "relevance": 0.7774,
+                  "match_reason": "stand-in: 9 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -92,14 +91,14 @@
               "name": "min_order_total",
               "entity_type": "measure",
               "entity_id": "measure:orders:min_order_total",
-              "relevance": 0.9786503547834597,
+              "relevance": 0.8765432098765432,
               "description": "Smallest order total.",
               "data_type": "number",
               "matched_targets": [
                 {
                   "search_text": "order total",
-                  "relevance": 0.9787,
-                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
+                  "relevance": 0.8765,
+                  "match_reason": "stand-in: 9 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -107,14 +106,14 @@
               "name": "net_order_total",
               "entity_type": "measure",
               "entity_id": "measure:orders:net_order_total",
-              "relevance": 0.9635294117647059,
+              "relevance": 0.8550307219662058,
               "description": "Order total after discounts.",
               "data_type": "number",
               "matched_targets": [
                 {
                   "search_text": "order total",
-                  "relevance": 0.9635,
-                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
+                  "relevance": 0.855,
+                  "match_reason": "stand-in: 9 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -122,29 +121,14 @@
               "name": "order_discount_total",
               "entity_type": "measure",
               "entity_id": "measure:orders:order_discount_total",
-              "relevance": 0.9123989769820972,
+              "relevance": 0.699908208759507,
               "description": "Discounts given on orders.",
               "data_type": "number",
               "matched_targets": [
                 {
                   "search_text": "order total",
-                  "relevance": 0.9124,
-                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
-                }
-              ]
-            },
-            {
-              "name": "order_shipping_total",
-              "entity_type": "measure",
-              "entity_id": "measure:orders:order_shipping_total",
-              "relevance": 0.8928,
-              "description": "Shipping charged on orders.",
-              "data_type": "number",
-              "matched_targets": [
-                {
-                  "search_text": "order total",
-                  "relevance": 0.8928,
-                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
+                  "relevance": 0.6999,
+                  "match_reason": "stand-in: 9 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -152,14 +136,14 @@
               "name": "store_order_total",
               "entity_type": "measure",
               "entity_id": "measure:orders:store_order_total",
-              "relevance": 0.9765,
+              "relevance": 0.8842436974789916,
               "description": "Order total of store orders only.",
               "data_type": "number",
               "matched_targets": [
                 {
                   "search_text": "order total",
-                  "relevance": 0.9765,
-                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
+                  "relevance": 0.8842,
+                  "match_reason": "stand-in: 9 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -167,29 +151,14 @@
               "name": "web_order_total",
               "entity_type": "measure",
               "entity_id": "measure:orders:web_order_total",
-              "relevance": 0.9614769230769231,
+              "relevance": 0.8716064502959787,
               "description": "Order total of web orders only.",
               "data_type": "number",
               "matched_targets": [
                 {
                   "search_text": "order total",
-                  "relevance": 0.9615,
-                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
-                }
-              ]
-            },
-            {
-              "name": "order_count",
-              "entity_type": "measure",
-              "entity_id": "measure:orders:order_count",
-              "relevance": 0.9462622950819672,
-              "description": "Number of orders.",
-              "data_type": "number",
-              "matched_targets": [
-                {
-                  "search_text": "order total",
-                  "relevance": 0.9463,
-                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
+                  "relevance": 0.8716,
+                  "match_reason": "stand-in: 9 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -197,7 +166,7 @@
               "name": "customer.customer_segment",
               "entity_type": "dimension",
               "entity_id": "dimension:orders:customer.customer_segment",
-              "relevance": 0.922072131147541,
+              "relevance": 1,
               "description": "Market segment of the customer: retail or wholesale. Reached from orders through customer, a left join: a orders row with no match keeps a null here, so grouping or counting by it follows orders's rows.",
               "data_type": "string",
               "relationship": "one",
@@ -205,8 +174,76 @@
               "matched_targets": [
                 {
                   "search_text": "customer segment",
-                  "relevance": 0.9221,
-                  "match_reason": "stand-in: 3 candidate(s) scored 2 or more"
+                  "relevance": 1,
+                  "match_reason": "stand-in: 7 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customer.billing_city",
+              "entity_type": "dimension",
+              "entity_id": "dimension:orders:customer.billing_city",
+              "relevance": 0.9198412698412697,
+              "description": "City the customer is billed in. Reached from orders through customer, a left join: a orders row with no match keeps a null here, so grouping or counting by it follows orders's rows.",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "customer",
+              "matched_targets": [
+                {
+                  "search_text": "customer segment",
+                  "relevance": 0.9198,
+                  "match_reason": "stand-in: 7 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customer.city_row.city_name",
+              "entity_type": "dimension",
+              "entity_id": "dimension:orders:customer.city_row.city_name",
+              "relevance": 0.4295774647887324,
+              "description": "Reached from orders through customer.city_row, a left join: a orders row with no match keeps a null here, so grouping or counting by it follows orders's rows.",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "customer.city_row",
+              "matched_targets": [
+                {
+                  "search_text": "customer segment",
+                  "relevance": 0.4296,
+                  "match_reason": "stand-in: 7 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customer.city_row.state_row.census_region_name",
+              "entity_type": "dimension",
+              "entity_id": "dimension:orders:customer.city_row.state_row.census_region_name",
+              "relevance": 0.4919354838709677,
+              "description": "Census region name of the state. Reached from orders through customer.city_row.state_row, a left join: a orders row with no match keeps a null here, so grouping or counting by it follows orders's rows.",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "customer.city_row.state_row",
+              "matched_targets": [
+                {
+                  "search_text": "customer segment",
+                  "relevance": 0.4919,
+                  "match_reason": "stand-in: 7 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customer.city_row.state_row.state_code",
+              "entity_type": "dimension",
+              "entity_id": "dimension:orders:customer.city_row.state_row.state_code",
+              "relevance": 0.44202898550724634,
+              "description": "Reached from orders through customer.city_row.state_row, a left join: a orders row with no match keeps a null here, so grouping or counting by it follows orders's rows.",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "customer.city_row.state_row",
+              "matched_targets": [
+                {
+                  "search_text": "customer segment",
+                  "relevance": 0.442,
+                  "match_reason": "stand-in: 7 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -214,7 +251,7 @@
               "name": "customer.customer_id",
               "entity_type": "dimension",
               "entity_id": "dimension:orders:customer.customer_id",
-              "relevance": 0.9,
+              "relevance": 0.9760624679979518,
               "description": "Reached from orders through customer, a left join: a orders row with no match keeps a null here, so grouping or counting by it follows orders's rows.",
               "data_type": "number",
               "relationship": "one",
@@ -222,8 +259,8 @@
               "matched_targets": [
                 {
                   "search_text": "customer segment",
-                  "relevance": 0.9,
-                  "match_reason": "stand-in: 3 candidate(s) scored 2 or more"
+                  "relevance": 0.9761,
+                  "match_reason": "stand-in: 7 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -231,46 +268,76 @@
               "name": "customer_id",
               "entity_type": "dimension",
               "entity_id": "dimension:orders:customer_id",
-              "relevance": 0.9765,
+              "relevance": 0.953125,
               "data_type": "number",
               "matched_targets": [
                 {
                   "search_text": "customer segment",
-                  "relevance": 0.9765,
-                  "match_reason": "stand-in: 3 candidate(s) scored 2 or more"
+                  "relevance": 0.9531,
+                  "match_reason": "stand-in: 7 candidate(s) scored 2 or more"
                 }
               ]
             }
-          ]
+          ],
+          "relevance": 1
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-clusters",
+              "model_path": "clusters.malloy",
+              "source": "store_orders"
+            },
+            "one_line_summary": "Store orders only: the rows of orders whose channel is store, with the same fields.",
+            "docs": "Store orders only: the rows of orders whose channel is store, with the same fields.",
+            "joins": [
+              {
+                "name": "customer",
+                "relationship": "one",
+                "doc": "The customer who placed the order."
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "customer.customer_segment",
+              "entity_type": "dimension",
+              "entity_id": "dimension:store_orders:customer.customer_segment",
+              "relevance": 1,
+              "description": "Market segment of the customer: retail or wholesale. Reached from store_orders through customer, a left join: a store_orders row with no match keeps a null here, so grouping or counting by it follows store_orders's rows.",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "customer",
+              "matched_targets": [
+                {
+                  "search_text": "customer segment",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 7 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 1
         }
       ],
       "ranking": "relevance",
-      "total_available": 1,
-      "returned": 1,
+      "total_available": 2,
+      "returned": 2,
       "retrieval": "semantic",
       "engine": "fcj",
       "clusters": [
         {
-          "home": {
+          "query_from": {
             "source": "orders",
             "model_path": "clusters.malloy"
           },
-          "reach": [
+          "sources": [
             {
-              "source": "customers",
+              "source": "orders",
               "joins": [
-                "customer"
-              ]
-            },
-            {
-              "source": "cities",
-              "joins": [
-                "customer.city_row"
-              ]
-            },
-            {
-              "source": "states",
-              "joins": [
+                "customer",
+                "customer.city_row",
                 "customer.city_row.state_row"
               ]
             }
@@ -287,17 +354,59 @@
               "measure:orders:min_order_total",
               "measure:orders:net_order_total",
               "measure:orders:order_discount_total",
-              "measure:orders:order_shipping_total",
               "measure:orders:store_order_total",
-              "measure:orders:web_order_total",
-              "measure:orders:order_count"
+              "measure:orders:web_order_total"
             ],
             "1": [
               "dimension:orders:customer.customer_segment",
+              "dimension:orders:customer.billing_city",
+              "dimension:orders:customer.city_row.city_name",
+              "dimension:orders:customer.city_row.state_row.census_region_name",
+              "dimension:orders:customer.city_row.state_row.state_code",
               "dimension:orders:customer.customer_id",
               "dimension:orders:customer_id"
             ]
           }
+        },
+        {
+          "query_from": {
+            "source": "store_orders",
+            "model_path": "clusters.malloy"
+          },
+          "sources": [
+            {
+              "source": "store_orders",
+              "joins": [
+                "customer"
+              ]
+            }
+          ],
+          "covers": [
+            1
+          ],
+          "picks": {
+            "1": [
+              "dimension:store_orders:customer.customer_segment"
+            ]
+          }
+        }
+      ],
+      "coverage": [
+        {
+          "target_index": 0,
+          "search_text": "order total",
+          "clusters": [
+            true,
+            false
+          ]
+        },
+        {
+          "target_index": 1,
+          "search_text": "customer segment",
+          "clusters": [
+            true,
+            true
+          ]
         }
       ],
       "unresolved_targets": []
@@ -309,75 +418,413 @@
       "customer segment",
       "order total"
     ],
-    "judge_calls": 1,
+    "judge_calls": 8,
     "judge": [
       {
-        "system_sha256": "96ec55a0079d6c38dce4bc7e8b4110adfbe3b6a82827f3df398765ade991c146",
-        "prompt_sha256": "7d43c958b9085abb9a8aebd8c306d820f211ce45231744925706e4de6fdb4c19",
+        "call": "order",
+        "system_sha256": "9f40894afb1ad7f2fe5efb8eaa1854a21d6f03ac890ad3069e37e040ac666185",
+        "prompt_sha256": "1c38680e2438e68e02e818de26d11c3ea937cf1455172133e555432e5cfc22db",
         "prompt": [
-          "Home source: orders - Every order, every channel: the source analysts query.",
-          "Sources its joins reach: customers, cities, states",
+          "What the caller is looking for:",
+          "  measure: \"order total\"",
+          "  dimension: \"customer segment\"",
+          "",
+          "<sources>",
+          "[1] orders - \"Every order, every channel: the source analysts query.\"",
+          "  Fields search found here:",
+          "    for \"order total\": discounted_order_total, store_order_total, min_order_total",
+          "    for \"customer segment\": customer.customer_segment, customer.customer_id, customer_id",
+          "[2] customers - \"One row per customer account.\"",
+          "  Fields search found here:",
+          "    for \"order total\": (nothing found)",
+          "    for \"customer segment\": customer_segment, customer_id, billing_city",
+          "[3] store_orders - \"Store orders only: the rows of orders whose channel is store, with the same fields.\"",
+          "  Fields search found here:",
+          "    for \"order total\": discounted_order_total, min_order_total, store_order_total",
+          "    for \"customer segment\": customer.customer_segment, customer.customer_id, customer.billing_city",
+          "[4] web_orders - \"Web orders only: the rows of orders whose channel is web, with the same fields.\"",
+          "  Fields search found here:",
+          "    for \"order total\": discounted_order_total, min_order_total, net_order_total",
+          "    for \"customer segment\": customer.customer_segment, customer.customer_id, customer.billing_city",
+          "[5] states - \"One row per US state.\"",
+          "  Fields search found here:",
+          "    for \"order total\": (nothing found)",
+          "    for \"customer segment\": census_region_name, state_code",
+          "[6] cities - \"One row per city.\"",
+          "  Fields search found here:",
+          "    for \"order total\": (nothing found)",
+          "    for \"customer segment\": state_row.census_region_name, state_row.state_code, city_name",
+          "[7] warehouses - \"One row per warehouse bin.\"",
+          "  Fields search found here:",
+          "    for \"order total\": (nothing found)",
+          "    for \"customer segment\": warehouse_zone",
+          "</sources>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"sources\": [<every source number, best first>]}"
+        ],
+        "reply": {
+          "sources": [
+            1,
+            3,
+            4,
+            2,
+            6,
+            5,
+            7
+          ]
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "2bf2604f5313e370c780eb6896c85732b89c3e199b088659ef1a3917a7c44506",
+        "prompt": [
+          "Source: orders - Every order, every channel: the source analysts query.",
+          "Its doc: \"Every order, every channel: the source analysts query.\"",
           "",
           "<targets>",
           "Target 1 (measure): \"order total\"",
-          "  [1] discounted_order_total (measure, number; source orders; own field): Order total of orders with a discount.",
-          "  [2] min_order_total (measure, number; source orders; own field): Smallest order total.",
-          "  [3] store_order_total (measure, number; source orders; own field): Order total of store orders only.",
-          "  [4] avg_order_total (measure, number; source orders; own field): Average order total per order.",
-          "  [5] net_order_total (measure, number; source orders; own field): Order total after discounts.",
-          "  [6] web_order_total (measure, number; source orders; own field): Order total of web orders only.",
-          "  [7] order_count (measure, number; source orders; own field): Number of orders.",
-          "  [8] max_order_total (measure, number; source orders; own field): Largest order total.",
-          "  [9] order_discount_total (measure, number; source orders; own field): Discounts given on orders.",
-          "  [10] order_shipping_total (measure, number; source orders; own field): Shipping charged on orders.",
+          "  [1] discounted_order_total (measure, number; source orders): Order total of orders with a discount.",
+          "  [2] store_order_total (measure, number; source orders): Order total of store orders only.",
+          "  [3] min_order_total (measure, number; source orders): Smallest order total.",
+          "  [4] web_order_total (measure, number; source orders): Order total of web orders only.",
+          "  [5] avg_order_total (measure, number; source orders): Average order total per order.",
+          "  [6] net_order_total (measure, number; source orders): Order total after discounts.",
+          "  [7] order_count (measure, number; source orders): Number of orders.",
+          "  [8] max_order_total (measure, number; source orders): Largest order total.",
+          "  [9] order_discount_total (measure, number; source orders): Discounts given on orders.",
           "Target 2 (dimension): \"customer segment\"",
-          "  [11] customer_id (dimension, number; source orders; own field): (no doc; name in words: customer id)",
-          "  [12] customer_segment (dimension, string; source customers; through orders.customer (a left join from orders)): Market segment of the customer: retail or wholesale.",
-          "  [13] customer_id (dimension, number; source customers; through orders.customer (a left join from orders)): (no doc; name in words: customer id)",
-          "  [14] billing_city (dimension, string; source customers; through orders.customer (a left join from orders)): City the customer is billed in.",
-          "  [15] discount (dimension, number; source orders; own field): (no doc; name in words: discount)",
-          "  [16] shipping (dimension, number; source orders; own field): (no doc; name in words: shipping)",
-          "  [17] tax (dimension, number; source orders; own field): (no doc; name in words: tax)",
-          "  [18] total (dimension, number; source orders; own field): (no doc; name in words: total)",
-          "  [19] order_id (dimension, number; source orders; own field): (no doc; name in words: order id)",
-          "  [20] order_channel (dimension, string; source orders; own field): Channel the order came through: web or store.",
+          "  [10] customer.customer_segment (dimension, string; source orders; through the join customer): Market segment of the customer: retail or wholesale.",
+          "  [11] customer.customer_id (dimension, number; source orders; through the join customer): (no doc; name in words: customer customer id)",
+          "  [12] customer_id (dimension, number; source orders): (no doc; name in words: customer id)",
+          "  [13] customer.billing_city (dimension, string; source orders; through the join customer): City the customer is billed in.",
+          "  [14] customer.city_row.state_row.census_region_name (dimension, string; source orders; through the join customer.city_row.state_row): Census region name of the state.",
+          "  [15] discount (dimension, number; source orders): (no doc; name in words: discount)",
+          "  [16] shipping (dimension, number; source orders): (no doc; name in words: shipping)",
+          "  [17] tax (dimension, number; source orders): (no doc; name in words: tax)",
+          "  [18] total (dimension, number; source orders): (no doc; name in words: total)",
+          "  [19] customer.city_row.state_row.state_code (dimension, string; source orders; through the join customer.city_row.state_row): (no doc; name in words: customer city row state row state code)",
+          "  [20] customer.city_row.city_name (dimension, string; source orders; through the join customer.city_row): (no doc; name in words: customer city row city name)",
+          "  [21] order_id (dimension, number; source orders): (no doc; name in words: order id)",
+          "  [22] order_channel (dimension, string; source orders): Channel the order came through: web or store.",
           "</targets>",
           "",
-          "Also in this group:",
-          "  [21] orders (source; source orders; own field): Every order, every channel: the source analysts query. | added because: the home source",
-          "",
           "Reply with one JSON object and nothing else:",
-          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
-          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
         ],
         "reply": {
           "picks": [
             {
               "target": 1,
               "candidates": [
-                4,
+                5,
                 1,
                 8,
-                2,
-                5,
-                9,
-                10,
                 3,
                 6,
+                9,
+                2,
+                4,
                 7
               ],
-              "reason": "stand-in: 10 candidate(s) scored 2 or more",
-              "best": 4
+              "reason": "stand-in: 9 candidate(s) scored 2 or more",
+              "best": 5
             },
             {
               "target": 2,
               "candidates": [
-                12,
+                10,
                 13,
-                11
+                20,
+                14,
+                19,
+                11,
+                12
               ],
-              "reason": "stand-in: 3 candidate(s) scored 2 or more",
-              "best": 12
+              "reason": "stand-in: 7 candidate(s) scored 2 or more",
+              "best": 10
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "39d70064c1562c8b64593a2f1d608e1989d44077da57c954dab8bc14a54ab2f8",
+        "prompt": [
+          "Source: customers - One row per customer account.",
+          "Its doc: \"One row per customer account.\"",
+          "",
+          "<targets>",
+          "Target 1 (dimension): \"customer segment\"",
+          "  [1] customer_segment (dimension, string; source customers): Market segment of the customer: retail or wholesale.",
+          "  [2] customer_id (dimension, number; source customers): (no doc; name in words: customer id)",
+          "  [3] billing_city (dimension, string; source customers): City the customer is billed in.",
+          "  [4] city_row.state_row.census_region_name (dimension, string; source customers; through the join city_row.state_row): Census region name of the state.",
+          "  [5] city_row.state_row.state_code (dimension, string; source customers; through the join city_row.state_row): (no doc; name in words: city row state row state code)",
+          "  [6] city_row.city_name (dimension, string; source customers; through the join city_row): (no doc; name in words: city row city name)",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                1,
+                2
+              ],
+              "reason": "stand-in: 2 candidate(s) scored 2 or more",
+              "best": 1
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "3d6db06ae1190165a5bedec6582e68b1b115599eafcefbf26e86556abdab97fe",
+        "prompt": [
+          "Source: warehouses - One row per warehouse bin.",
+          "Its doc: \"One row per warehouse bin.\"",
+          "",
+          "<targets>",
+          "Target 1 (dimension): \"customer segment\"",
+          "  [1] warehouse_zone (dimension, string; source warehouses): Storage zone of the warehouse bin: cold or dry.",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "7afaab7f65e7b085c23084d8aa127fd52c098180368d413aaa139da5c09978f6",
+        "prompt": [
+          "Source: store_orders - Store orders only: the rows of orders whose channel is store, with the same fields.",
+          "Its doc: \"Store orders only: the rows of orders whose channel is store, with the same fields.\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"order total\"",
+          "  [1] discounted_order_total (measure, number; source store_orders): Order total of orders with a discount.",
+          "  [2] min_order_total (measure, number; source store_orders): Smallest order total.",
+          "  [3] store_order_total (measure, number; source store_orders): Order total of store orders only.",
+          "  [4] net_order_total (measure, number; source store_orders): Order total after discounts.",
+          "  [5] web_order_total (measure, number; source store_orders): Order total of web orders only.",
+          "  [6] avg_order_total (measure, number; source store_orders): Average order total per order.",
+          "  [7] order_count (measure, number; source store_orders): Number of orders.",
+          "  [8] max_order_total (measure, number; source store_orders): Largest order total.",
+          "  [9] order_discount_total (measure, number; source store_orders): Discounts given on orders.",
+          "  [10] order_total (measure, number; source store_orders): Sum of order totals, in US dollars.",
+          "  [11] order_shipping_total (measure, number; source store_orders): Shipping charged on orders.",
+          "  [12] order_tax_total (measure, number; source store_orders): Tax collected on orders.",
+          "Target 2 (dimension): \"customer segment\"",
+          "  [13] customer.customer_segment (dimension, string; source store_orders; through the join customer): Market segment of the customer: retail or wholesale.",
+          "  [14] customer.customer_id (dimension, number; source store_orders; through the join customer): (no doc; name in words: customer customer id)",
+          "  [15] customer.billing_city (dimension, string; source store_orders; through the join customer): City the customer is billed in.",
+          "  [16] customer_id (dimension, number; source store_orders): (no doc; name in words: customer id)",
+          "  [17] customer.city_row.state_row.census_region_name (dimension, string; source store_orders; through the join customer.city_row.state_row): Census region name of the state.",
+          "  [18] customer.city_row.state_row.state_code (dimension, string; source store_orders; through the join customer.city_row.state_row): (no doc; name in words: customer city row state row state code)",
+          "  [19] customer.city_row.city_name (dimension, string; source store_orders; through the join customer.city_row): (no doc; name in words: customer city row city name)",
+          "  [20] tax (dimension, number; source store_orders): (no doc; name in words: tax)",
+          "  [21] total (dimension, number; source store_orders): (no doc; name in words: total)",
+          "  [22] discount (dimension, number; source store_orders): (no doc; name in words: discount)",
+          "  [23] shipping (dimension, number; source store_orders): (no doc; name in words: shipping)",
+          "  [24] order_id (dimension, number; source store_orders): (no doc; name in words: order id)",
+          "  [25] order_channel (dimension, string; source store_orders): Channel the order came through: web or store.",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                6,
+                1,
+                8,
+                2,
+                4,
+                9,
+                11,
+                12,
+                10,
+                3,
+                5,
+                7
+              ],
+              "reason": "stand-in: 12 candidate(s) scored 2 or more",
+              "best": 6
+            },
+            {
+              "target": 2,
+              "candidates": [
+                13,
+                15,
+                19,
+                17,
+                18,
+                14,
+                16
+              ],
+              "reason": "stand-in: 7 candidate(s) scored 2 or more",
+              "best": 13
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "8df08b4a753cb8aca3bb01223d04a37f45c1736f841966327a50e04d8695845b",
+        "prompt": [
+          "Source: states - One row per US state.",
+          "Its doc: \"One row per US state.\"",
+          "",
+          "<targets>",
+          "Target 1 (dimension): \"customer segment\"",
+          "  [1] census_region_name (dimension, string; source states): Census region name of the state.",
+          "  [2] state_code (dimension, string; source states): (no doc; name in words: state code)",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "a63dee43df2e76b4959811752292279bbf2edb79f8cc0d437364d559bb47b02d",
+        "prompt": [
+          "Source: cities - One row per city.",
+          "Its doc: \"One row per city.\"",
+          "",
+          "<targets>",
+          "Target 1 (dimension): \"customer segment\"",
+          "  [1] state_row.census_region_name (dimension, string; source cities; through the join state_row): Census region name of the state.",
+          "  [2] state_row.state_code (dimension, string; source cities; through the join state_row): (no doc; name in words: state row state code)",
+          "  [3] city_name (dimension, string; source cities): (no doc; name in words: city name)",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "ecfb36e55067f9fb7e6a746eaa41ccc31842e00ee5c0b4c1103ff9f83f90e935",
+        "prompt": [
+          "Source: web_orders - Web orders only: the rows of orders whose channel is web, with the same fields.",
+          "Its doc: \"Web orders only: the rows of orders whose channel is web, with the same fields.\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"order total\"",
+          "  [1] discounted_order_total (measure, number; source web_orders): Order total of orders with a discount.",
+          "  [2] min_order_total (measure, number; source web_orders): Smallest order total.",
+          "  [3] net_order_total (measure, number; source web_orders): Order total after discounts.",
+          "  [4] store_order_total (measure, number; source web_orders): Order total of store orders only.",
+          "  [5] avg_order_total (measure, number; source web_orders): Average order total per order.",
+          "  [6] web_order_total (measure, number; source web_orders): Order total of web orders only.",
+          "  [7] order_count (measure, number; source web_orders): Number of orders.",
+          "  [8] max_order_total (measure, number; source web_orders): Largest order total.",
+          "  [9] order_discount_total (measure, number; source web_orders): Discounts given on orders.",
+          "Target 2 (dimension): \"customer segment\"",
+          "  [10] customer.customer_segment (dimension, string; source web_orders; through the join customer): Market segment of the customer: retail or wholesale.",
+          "  [11] customer.customer_id (dimension, number; source web_orders; through the join customer): (no doc; name in words: customer customer id)",
+          "  [12] customer.billing_city (dimension, string; source web_orders; through the join customer): City the customer is billed in.",
+          "  [13] customer_id (dimension, number; source web_orders): (no doc; name in words: customer id)",
+          "  [14] customer.city_row.state_row.census_region_name (dimension, string; source web_orders; through the join customer.city_row.state_row): Census region name of the state.",
+          "  [15] customer.city_row.state_row.state_code (dimension, string; source web_orders; through the join customer.city_row.state_row): (no doc; name in words: customer city row state row state code)",
+          "  [16] customer.city_row.city_name (dimension, string; source web_orders; through the join customer.city_row): (no doc; name in words: customer city row city name)",
+          "  [17] tax (dimension, number; source web_orders): (no doc; name in words: tax)",
+          "  [18] total (dimension, number; source web_orders): (no doc; name in words: total)",
+          "  [19] discount (dimension, number; source web_orders): (no doc; name in words: discount)",
+          "  [20] shipping (dimension, number; source web_orders): (no doc; name in words: shipping)",
+          "  [21] order_id (dimension, number; source web_orders): (no doc; name in words: order id)",
+          "  [22] order_channel (dimension, string; source web_orders): Channel the order came through: web or store.",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                5,
+                1,
+                8,
+                2,
+                3,
+                9,
+                4,
+                6,
+                7
+              ],
+              "reason": "stand-in: 9 candidate(s) scored 2 or more",
+              "best": 5
+            },
+            {
+              "target": 2,
+              "candidates": [
+                10,
+                12,
+                16,
+                14,
+                15,
+                11,
+                13
+              ],
+              "reason": "stand-in: 7 candidate(s) scored 2 or more",
+              "best": 10
             }
           ],
           "caveats": []

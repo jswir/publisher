@@ -722,7 +722,7 @@
         "gatedSources": 0,
         "unresolvedReferences": 14,
         "copiesFolded": 0,
-        "copiesKeptApart": 38,
+        "copiesKeptApart": 0,
         "hiddenSources": 0,
         "joinPaths": 12,
         "deepestJoinPath": 3,
@@ -773,6 +773,11 @@
         "charsEmbedded": 0
       }
     },
+    "retrieval_load_warnings": [
+      "publisher.json retrieval.fcj.collapseCopies no longer does anything and is ignored: the search engine it tuned is gone; get_context now ranks by source with one judge call per source. Fix: remove the key.",
+      "publisher.json retrieval.fcj.connect no longer does anything and is ignored: the search engine it tuned is gone; get_context now ranks by source with one judge call per source. Fix: remove the key.",
+      "publisher.json retrieval.fcj.twinRule no longer does anything and is ignored: the search engine it tuned is gone; get_context now ranks by source with one judge call per source. Fix: remove the key."
+    ],
     "traffic": {
       "embedding_calls": 2,
       "embedded_texts": 311,
@@ -1026,6 +1031,9 @@
         "charsEmbedded": 0
       }
     },
+    "retrieval_load_warnings": [
+      "publisher.json retrieval.fcj.listUnion no longer does anything and is ignored: the search engine it tuned is gone; get_context now ranks by source with one judge call per source. Fix: remove the key."
+    ],
     "traffic": {
       "embedding_calls": 1,
       "embedded_texts": 183,

@@ -38,6 +38,7 @@ import {
 import { EmbeddingProvider } from "../../../src/retrieval/llm/embedding_provider";
 import type { ChatModel } from "../../../src/retrieval/llm/types";
 import { splitDocByRules } from "../../../src/retrieval/index/doc_parts";
+import { QUESTION_HEADER } from "../../../src/retrieval/llm/prompts/judge";
 import {
    embedText,
    NO_WAIT_RETRY,
@@ -62,6 +63,7 @@ export class StandInError extends Error {
 /** What kind of call a chat prompt is, from its shape. */
 export type ChatKind =
    | "judge"
+   | "order"
    | "doc_parts"
    | "questions"
    | "source_summary"
@@ -132,6 +134,9 @@ export function replayEmbeddingProvider(traffic: Traffic): EmbeddingProvider {
 function kindOf(system: string, prompt: string): ChatKind {
    if (prompt.includes("\n<targets>\n") && prompt.includes('"picks"')) {
       return "judge";
+   }
+   if (prompt.includes("\n<sources>\n") && prompt.includes('{"sources": [')) {
+      return "order";
    }
    if (prompt.startsWith("<docs>\n")) return "doc_parts";
    if (prompt.startsWith("<fields>\n") && prompt.includes('"questions"')) {
@@ -261,6 +266,10 @@ export interface JudgeTarget {
 }
 
 export interface JudgePrompt {
+   /** The one source a source-first pick call shows (its `Source:` line). */
+   source?: string;
+   /** The caller's question, when the prompt quotes it. */
+   question?: string;
    targets: JudgeTarget[];
    extras: JudgeCandidate[];
    /** The prompt is the repair re-ask of an earlier reply. */
@@ -391,20 +400,65 @@ export function parseCandidateLine(line: string): JudgeCandidate {
    return candidate;
 }
 
+/** A line that must be one JSON string. */
+function jsonString(line: string | undefined, what: string): string {
+   try {
+      const v = JSON.parse(line ?? "") as unknown;
+      if (typeof v === "string") return v;
+   } catch {
+      // Thrown below.
+   }
+   throw new StandInError(
+      `${what} is not one JSON string: ${JSON.stringify(line)}`,
+   );
+}
+
 /**
- * Read a judge prompt through its grammar: a header, then
+ * The header of a pick call, which shows one source:
+ *
+ *    Source: name[ - one-line description]
+ *    Its doc: "<the source's doc, as JSON>"      (when it has one)
+ *
+ * Returns the source's name; anything else above `<targets>` throws.
+ */
+function parsePickHeader(header: readonly string[]): string | undefined {
+   const lines = header.filter((l) => l !== "");
+   if (lines.length === 0) {
+      throw new StandInError("a judge prompt has no header above <targets>");
+   }
+   const m = /^Source: ([A-Za-z_][A-Za-z0-9_]*)(?: - .*)?$/.exec(lines[0]);
+   if (!m) {
+      throw new StandInError(
+         `cannot read a pick call's source line: ${JSON.stringify(lines[0])}`,
+      );
+   }
+   for (const line of lines.slice(1)) {
+      if (!line.startsWith("Its doc: ")) {
+         throw new StandInError(
+            `a pick call's header has a line the stand-in cannot read: ${JSON.stringify(line)}`,
+         );
+      }
+      jsonString(line.slice("Its doc: ".length), "a pick call's source doc");
+   }
+   return m[1];
+}
+
+/**
+ * Read a pick call's prompt through its grammar: the source it shows
+ * ({@link parsePickHeader}), then
  *
  *    <targets>
  *    Target 1 (measure): "total revenue"
- *      [1] name (kind, type; source s): doc                       (a cluster)
- *      From s:                                                    (a list)
- *        [1] name (kind, type; source s): doc
- *            [2] s2.path.name (route from s2 through path, join_one): ...
+ *      [1] name (kind, type; source s[; through the join j]): doc
  *      (no candidates in this group)
  *    </targets>
  *
- *    Also in this group:
- *      [9] name (...): doc | added because: why
+ *    <the question header>                          (when there is one)
+ *    "<the question, as JSON>"
+ *
+ * (The readers for the old engine's list lines, `From s:` headers, route
+ * options and `Also in this group:` extras are kept; the source-first
+ * engine sends none of them.)
  *
  *    Reply with one JSON object and nothing else: ...
  *    [the repair re-ask's "Your previous reply was: ..." tail]
@@ -429,6 +483,7 @@ export function parseJudgePrompt(prompt: string): JudgePrompt {
          `a judge prompt has no "${REPLY_FORMAT_START}" line after </targets>`,
       );
    }
+   const source = parsePickHeader(lines.slice(0, open));
    const targets: JudgeTarget[] = [];
    let current: JudgeTarget | undefined;
    let lastField: JudgeCandidate | undefined;
@@ -502,25 +557,38 @@ export function parseJudgePrompt(prompt: string): JudgePrompt {
       throw new StandInError("a judge prompt lists no target");
    }
    const extras: JudgeCandidate[] = [];
+   let question: string | undefined;
    const tail = lines.slice(close + 1, formatAt).filter((l) => l !== "");
-   if (tail.length > 0) {
-      if (tail[0] !== "Also in this group:") {
+   let inExtras = false;
+   for (let i = 0; i < tail.length; i++) {
+      const line = tail[i];
+      if (line === QUESTION_HEADER && question === undefined) {
+         // The question: one JSON string on the next line.
+         question = jsonString(tail[i + 1], "the question of a judge prompt");
+         i += 1;
+         inExtras = false;
+         continue;
+      }
+      if (line === "Also in this group:") {
+         inExtras = true;
+         continue;
+      }
+      const m = /^ {2}(\[.*)$/.exec(line);
+      if (!inExtras || !m) {
          throw new StandInError(
-            `a judge prompt has a line the stand-in cannot read after </targets>: ${JSON.stringify(tail[0])}`,
+            `a judge prompt has a line the stand-in cannot read after </targets>: ${JSON.stringify(line)}`,
          );
       }
-      for (const line of tail.slice(1)) {
-         const m = /^ {2}(\[.*)$/.exec(line);
-         if (!m) {
-            throw new StandInError(
-               `cannot read a judge extra line: ${JSON.stringify(line)}`,
-            );
-         }
-         extras.push(parseCandidateLine(m[1]));
-      }
+      extras.push(parseCandidateLine(m[1]));
    }
    const repair = lines.slice(formatAt).includes(REPAIR_START);
-   return { targets, extras, repair };
+   return {
+      ...(source ? { source } : {}),
+      ...(question !== undefined ? { question } : {}),
+      targets,
+      extras,
+      repair,
+   };
 }
 
 // ---------------------------------------------------------------------------
@@ -789,10 +857,185 @@ export function standInJudgeReply(prompt: string): string {
    return JSON.stringify({ picks, caveats });
 }
 
+/** One source of an ordering prompt: its number, name and the field names listed under each target. */
+export interface OrderSource {
+   number: number;
+   name: string;
+   /** Per target text: the field names search found on the source. */
+   fields: Map<string, string[]>;
+}
+
+export interface OrderPrompt {
+   question?: string;
+   targets: Array<{ type: string; text: string }>;
+   sources: OrderSource[];
+}
+
+/**
+ * Read an ordering prompt through its grammar:
+ *
+ *    Question: "<the question, as JSON>"            (when there is one)
+ *    What the caller is looking for:
+ *      measure: "total revenue"
+ *
+ *    <sources>
+ *    [1] name - "<its doc, as JSON>"                 (or `[1] name[ - description]`)
+ *      Fields search found here:
+ *        for "total revenue": total_sales, margin_rate
+ *        for "customer state": (nothing found)
+ *    </sources>
+ *
+ *    Reply with one JSON object and nothing else: ...
+ *
+ * Anything else throws.
+ */
+export function parseOrderPrompt(prompt: string): OrderPrompt {
+   const lines = prompt.split("\n");
+   let i = 0;
+   let question: string | undefined;
+   if (lines[i]?.startsWith("Question: ")) {
+      question = jsonString(
+         lines[i].slice("Question: ".length),
+         "the question of an ordering prompt",
+      );
+      i += 1;
+   }
+   if (lines[i] !== "What the caller is looking for:") {
+      throw new StandInError(
+         `an ordering prompt does not say what the caller is looking for: ${JSON.stringify(lines[i])}`,
+      );
+   }
+   i += 1;
+   const targets: OrderPrompt["targets"] = [];
+   for (; i < lines.length && lines[i] !== ""; i++) {
+      const m = /^ {2}([a-z_]+): (".*")$/.exec(lines[i]);
+      if (!m) {
+         throw new StandInError(
+            `cannot read an ordering prompt's target line: ${JSON.stringify(lines[i])}`,
+         );
+      }
+      targets.push({
+         type: m[1],
+         text: jsonString(m[2], "an ordering target"),
+      });
+   }
+   if (targets.length === 0 || lines[i + 1] !== "<sources>") {
+      throw new StandInError(
+         "an ordering prompt has no targets, or no <sources> block after them",
+      );
+   }
+   const sources: OrderSource[] = [];
+   for (i += 2; i < lines.length && lines[i] !== "</sources>"; i++) {
+      const line = lines[i];
+      const head = /^\[(\d+)\] ([A-Za-z_][A-Za-z0-9_]*)(?: - (.*))?$/.exec(
+         line,
+      );
+      if (head) {
+         if (head[3]?.startsWith('"')) jsonString(head[3], "a source's doc");
+         sources.push({
+            number: Number(head[1]),
+            name: head[2],
+            fields: new Map(),
+         });
+         continue;
+      }
+      const current = sources[sources.length - 1];
+      if (line === "  Fields search found here:" && current) continue;
+      const f = /^ {4}for (".*?"): (.*)$/.exec(line);
+      if (!f || !current) {
+         throw new StandInError(
+            `an ordering prompt has a line the stand-in cannot read: ${JSON.stringify(line)}`,
+         );
+      }
+      const names =
+         f[2] === "(nothing found)"
+            ? []
+            : f[2].split(", ").map((n) => n.trim());
+      current.fields.set(
+         jsonString(f[1], "an ordering field line's target"),
+         names,
+      );
+   }
+   if (lines[i] !== "</sources>" || sources.length === 0) {
+      throw new StandInError(
+         "an ordering prompt has no sources, or no </sources>",
+      );
+   }
+   if (!lines.slice(i).includes(REPLY_FORMAT_START)) {
+      throw new StandInError(
+         `an ordering prompt has no "${REPLY_FORMAT_START}" line`,
+      );
+   }
+   sources.forEach((src, n) => {
+      if (src.number !== n + 1) {
+         throw new StandInError(
+            "an ordering prompt's sources are not numbered 1, 2, ... in order",
+         );
+      }
+   });
+   return { ...(question !== undefined ? { question } : {}), targets, sources };
+}
+
+/**
+ * Steering a case cannot put in a target's text, read from its `user_prompt`
+ * (which both box 5 prompts quote): `[replay: fail pick <source>]` fails
+ * that source's pick call, `[replay: order invalid]` answers the ordering
+ * call with no kept source, `[replay: order late]` holds the ordering reply
+ * until the call is cut.
+ */
+export function directives(question: string | undefined): string[] {
+   return [...(question ?? "").matchAll(/\[replay: ([^\]]+)\]/g)].map(
+      (m) => m[1],
+   );
+}
+
+/**
+ * The stand-in ordering call: each source scores, for each target, the
+ * stand-in judge's name score ({@link fieldScore}, docs not shown) of the
+ * fields listed under it, summed; most first, ties by source name. Not box
+ * 4's order, so a reordering shows in the replay.
+ */
+export function standInOrderReply(prompt: string): string {
+   const parsed = parseOrderPrompt(prompt);
+   if (parsed.targets.some((t) => /\bzzjudgefail\b/i.test(t.text))) {
+      return `stand-in: no JSON here, as ${MARKERS.fail} asks`;
+   }
+   if (directives(parsed.question).includes("order invalid")) {
+      return JSON.stringify({ sources: [parsed.sources.length + 90] });
+   }
+   const scored = parsed.sources.map((src) => {
+      let score = 0;
+      for (const t of parsed.targets) {
+         const words = contentWords(unmarked(t.text));
+         for (const name of src.fields.get(t.text) ?? []) {
+            score += fieldScore(words, name, "");
+         }
+      }
+      return { src, score };
+   });
+   scored.sort(
+      (a, b) =>
+         b.score - a.score ||
+         (a.src.name < b.src.name ? -1 : a.src.name > b.src.name ? 1 : 0),
+   );
+   return JSON.stringify({ sources: scored.map((x) => x.src.number) });
+}
+
 function replyFor(kind: ChatKind, prompt: string): string {
    switch (kind) {
-      case "judge":
+      case "judge": {
+         const parsed = parseJudgePrompt(prompt);
+         if (
+            directives(parsed.question).includes(`fail pick ${parsed.source}`)
+         ) {
+            throw new Error(
+               `replay stand-in: the pick call for ${parsed.source} fails, as the case asks`,
+            );
+         }
          return standInJudgeReply(prompt);
+      }
+      case "order":
+         return standInOrderReply(prompt);
       case "doc_parts":
          return docPartsReply(prompt);
       case "questions":
@@ -803,6 +1046,17 @@ function replyFor(kind: ChatKind, prompt: string): string {
          throw new StandInError(
             `a chat prompt of a kind it does not recognize, starting ${JSON.stringify(prompt.slice(0, 120))}`,
          );
+   }
+}
+
+/** An ordering prompt whose case asks for a late reply (`[replay: order late]`). */
+function orderIsLate(prompt: string): boolean {
+   try {
+      return directives(parseOrderPrompt(prompt).question).includes(
+         "order late",
+      );
+   } catch {
+      return false;
    }
 }
 
@@ -823,6 +1077,15 @@ export function replayChat(traffic: Traffic): ChatModel {
             reply: "",
          };
          traffic.chatCalls.push(call);
+         if (kind === "order" && orderIsLate(req.prompt)) {
+            // Never answers: the call is cut once the pick calls are done.
+            call.error = "cut before it answered, as the case asks";
+            await new Promise<never>((_, reject) => {
+               const cut = () => reject(req.signal.reason);
+               if (req.signal.aborted) cut();
+               else req.signal.addEventListener("abort", cut, { once: true });
+            });
+         }
          await jitter(req.prompt);
          try {
             call.reply = replyFor(kind, req.prompt);

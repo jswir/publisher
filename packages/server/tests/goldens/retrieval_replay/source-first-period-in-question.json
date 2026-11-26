@@ -1,0 +1,572 @@
+{
+  "case": "source-first-period-in-question",
+  "about": "Only a measure target, and a question that names a period (month by month in 2025): each kept source also offers its date fields for an implicit target, and a card shows at most one, marked also_likely.",
+  "request": {
+    "search_targets": [
+      {
+        "target_type": "measure",
+        "search_text": "orders per customer"
+      }
+    ],
+    "scopes": [
+      {
+        "environment": "examples",
+        "package": "storefront"
+      }
+    ],
+    "user_prompt": "How many orders does the average customer place, month by month in 2025?"
+  },
+  "response": {
+    "is_error": false,
+    "payload": {
+      "sources": [
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "storefront.malloy",
+              "source": "order_items"
+            },
+            "one_line_summary": "Order line items — the fact table, one row per product sold on an order.",
+            "docs": "Order line items — the fact table, one row per product sold on an order",
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "orders_per_customer",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:orders_per_customer",
+              "relevance": 1,
+              "description": "Average orders placed per customer",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "orders per customer",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "avg_order_value",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:avg_order_value",
+              "relevance": 0.8146558265582655,
+              "description": "Average order value",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "orders per customer",
+                  "relevance": 0.8147,
+                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customer_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:customer_count",
+              "relevance": 0.9193835497835496,
+              "description": "Distinct customers",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "orders per customer",
+                  "relevance": 0.9194,
+                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customers.customer_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:customers.customer_count",
+              "relevance": 1,
+              "description": "Distinct customers Reached from order_items through customers, a left join: a order_items row with no match keeps a null here, so grouping or counting by it follows order_items's rows.",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "customers",
+              "matched_targets": [
+                {
+                  "search_text": "orders per customer",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "order_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:order_count",
+              "relevance": 0.8871297340854148,
+              "description": "Distinct orders",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "orders per customer",
+                  "relevance": 0.8871,
+                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "order_item_count",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:order_item_count",
+              "relevance": 0.7988758296907884,
+              "description": "Line items sold",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "orders per customer",
+                  "relevance": 0.7989,
+                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 1
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "overview.malloy",
+              "source": "overview"
+            },
+            "one_line_summary": "The overview report's tiles, each over the order lines its controls select.",
+            "docs": "The overview report's tiles, each over the order lines its controls select",
+            "givens": [
+              {
+                "name": "CATEGORY",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "BRAND",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "REGION",
+                "type": "filter<string>",
+                "default": "f''"
+              },
+              {
+                "name": "SINCE",
+                "type": "date",
+                "default": "@2023-01-01"
+              },
+              {
+                "name": "MIN_SALE",
+                "type": "filter<number>",
+                "default": "f''"
+              }
+            ],
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "orders_per_customer",
+              "entity_type": "measure",
+              "entity_id": "measure:overview:orders_per_customer",
+              "relevance": 0.9994879672299025,
+              "description": "Average orders placed per customer",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "orders per customer",
+                  "relevance": 0.9995,
+                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "avg_order_value",
+              "entity_type": "measure",
+              "entity_id": "measure:overview:avg_order_value",
+              "relevance": 0.7673480149812734,
+              "description": "Average order value",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "orders per customer",
+                  "relevance": 0.7673,
+                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 0.9994879672299025
+        }
+      ],
+      "ranking": "relevance",
+      "total_available": 2,
+      "returned": 2,
+      "retrieval": "semantic",
+      "engine": "fcj",
+      "clusters": [
+        {
+          "query_from": {
+            "source": "order_items",
+            "model_path": "storefront.malloy"
+          },
+          "sources": [
+            {
+              "source": "order_items",
+              "joins": [
+                "customers"
+              ]
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "measure:order_items:orders_per_customer",
+              "measure:order_items:avg_order_value",
+              "measure:order_items:customer_count",
+              "measure:order_items:customers.customer_count",
+              "measure:order_items:order_count",
+              "measure:order_items:order_item_count"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "overview",
+            "model_path": "overview.malloy"
+          },
+          "sources": [
+            {
+              "source": "overview",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "measure:overview:orders_per_customer",
+              "measure:overview:avg_order_value"
+            ]
+          }
+        }
+      ],
+      "coverage": [
+        {
+          "target_index": 0,
+          "search_text": "orders per customer",
+          "clusters": [
+            true,
+            true
+          ]
+        }
+      ],
+      "unresolved_targets": [],
+      "skills": [
+        {
+          "name": "malloy-phrase-detection",
+          "description": "How to turn a storefront question into get_context search targets, including the shop vocabulary that does not appear anywhere in the model. Replaces the built-in phrase-detection guide for this package."
+        },
+        {
+          "name": "storefront-conventions",
+          "description": "What storefront's measures actually count, and the four places a reasonable reading of them is wrong. Read before answering any revenue, order, margin, or region question against this package."
+        }
+      ],
+      "skills_note": "This package ships its own guidance, listed above. Read the relevant one before relying on names or conventions from this package. If it is already loaded as a skill, use that; otherwise fetch it with get_skill(skill_name, scopes), and if that tool is not available to you, proceed and say which guidance you could not read. A guide whose name matches a built-in one replaces it here."
+    }
+  },
+  "traffic": {
+    "embedding_calls": 1,
+    "embedded_texts": [
+      "orders per customer"
+    ],
+    "judge_calls": 5,
+    "judge": [
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "3b12e0c9c1e3b0f8e64fb72b6dc31aacaab9f1b00306007eecb496fb31f2cc95",
+        "prompt": [
+          "Source: overview - The overview report's tiles, each over the order lines its controls select.",
+          "Its doc: \"The overview report's tiles, each over the order lines its controls select\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"orders per customer\"",
+          "  [1] customers.customer_count (measure, number; source overview; through the join customers): Distinct customers",
+          "  [2] orders_per_customer (measure, number; source overview): Average orders placed per customer",
+          "  [3] customer_count (measure, number; source overview): Distinct customers",
+          "  [4] return_rate (measure, number; source overview): Share of line items that were returned",
+          "  [5] order_count (measure, number; source overview): Distinct orders",
+          "  [6] avg_order_value (measure, number; source overview): Average order value",
+          "  [7] order_item_count (measure, number; source overview): Line items sold",
+          "  [8] margin_rate (measure, number; source overview): Gross margin as a share of revenue",
+          "  [9] total_margin (measure, number; source overview): Total gross margin (revenue minus cost of goods sold), summed per line",
+          "  [10] total_sales (measure, number; source overview): Total revenue",
+          "Target 2 (dimension): \"the date or time field to group or filter by for the period the question names\"",
+          "  [11] created_at (dimension, date; source overview): (no doc; name in words: created at)",
+          "</targets>",
+          "",
+          "The user's question this search serves (context only; do not answer it). When a target's list holds a field this question needs that the target text does not name, such as the date field for a period it names or a field it filters or counts by, pick that field under that target as well:",
+          "\"How many orders does the average customer place, month by month in 2025?\"",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                2,
+                6,
+                3,
+                1,
+                5,
+                7
+              ],
+              "reason": "stand-in: 6 candidate(s) scored 2 or more",
+              "best": 2
+            },
+            {
+              "target": 2,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "4dd18eee028ca491c70402921f5fc73eb0006fe294748a2f222a668743d157e4",
+        "prompt": [
+          "Source: order_items - Order line items — the fact table, one row per product sold on an order.",
+          "Its doc: \"Order line items — the fact table, one row per product sold on an order\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"orders per customer\"",
+          "  [1] customers.customer_count (measure, number; source order_items; through the join customers): Distinct customers",
+          "  [2] orders_per_customer (measure, number; source order_items): Average orders placed per customer",
+          "  [3] customer_count (measure, number; source order_items): Distinct customers",
+          "  [4] order_count (measure, number; source order_items): Distinct orders",
+          "  [5] return_rate (measure, number; source order_items): Share of line items that were returned",
+          "  [6] avg_order_value (measure, number; source order_items): Average order value",
+          "  [7] order_item_count (measure, number; source order_items): Line items sold",
+          "  [8] margin_rate (measure, number; source order_items): Gross margin as a share of revenue",
+          "  [9] total_sales (measure, number; source order_items): Total revenue",
+          "  [10] total_margin (measure, number; source order_items): Total gross margin (revenue minus cost of goods sold), summed per line",
+          "  [11] percent_of_sales (measure, number; source order_items): Share of total sales",
+          "Target 2 (dimension): \"the date or time field to group or filter by for the period the question names\"",
+          "  [12] created_at (dimension, date; source order_items): (no doc; name in words: created at)",
+          "</targets>",
+          "",
+          "The user's question this search serves (context only; do not answer it). When a target's list holds a field this question needs that the target text does not name, such as the date field for a period it names or a field it filters or counts by, pick that field under that target as well:",
+          "\"How many orders does the average customer place, month by month in 2025?\"",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                2,
+                6,
+                3,
+                1,
+                4,
+                7
+              ],
+              "reason": "stand-in: 6 candidate(s) scored 2 or more",
+              "best": 2
+            },
+            {
+              "target": 2,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "5d662f58ecc91a8424535995fb137c5c441de50811bc801d66ddff0534c1ccf4",
+        "prompt": [
+          "Source: customers - People who have placed orders — one row per customer, keyed by `customer_id`.",
+          "Its doc: \"People who have placed orders — one row per customer, keyed by `customer_id`\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"orders per customer\"",
+          "  [1] customer_count (measure, number; source customers): Distinct customers",
+          "Target 2 (dimension): \"the date or time field to group or filter by for the period the question names\"",
+          "  [2] signup_date (dimension, date; source customers): (no doc; name in words: signup date)",
+          "</targets>",
+          "",
+          "The user's question this search serves (context only; do not answer it). When a target's list holds a field this question needs that the target text does not name, such as the date field for a period it names or a field it filters or counts by, pick that field under that target as well:",
+          "\"How many orders does the average customer place, month by month in 2025?\"",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                1
+              ],
+              "reason": "stand-in: 1 candidate(s) scored 2 or more",
+              "best": 1
+            },
+            {
+              "target": 2,
+              "candidates": [
+                2
+              ],
+              "reason": "stand-in: 1 candidate(s) scored 2 or more",
+              "best": 2
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "6d7e05fc6615f4bc1ab13c7b92da8b1f76990501d02a02fd026b04b5689e082f",
+        "prompt": [
+          "Source: scoped_orders - Order lines narrowed by the data app's control row.",
+          "Its doc: \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"orders per customer\"",
+          "  [1] customers.customer_count (measure, number; source scoped_orders; through the join customers): Distinct customers",
+          "  [2] orders_per_customer (measure, number; source scoped_orders): Average orders placed per customer",
+          "  [3] customer_count (measure, number; source scoped_orders): Distinct customers",
+          "  [4] order_count (measure, number; source scoped_orders): Distinct orders",
+          "  [5] return_rate (measure, number; source scoped_orders): Share of line items that were returned",
+          "  [6] avg_order_value (measure, number; source scoped_orders): Average order value",
+          "  [7] order_item_count (measure, number; source scoped_orders): Line items sold",
+          "  [8] total_margin (measure, number; source scoped_orders): Total gross margin (revenue minus cost of goods sold), summed per line",
+          "  [9] total_sales (measure, number; source scoped_orders): Total revenue",
+          "  [10] margin_rate (measure, number; source scoped_orders): Gross margin as a share of revenue",
+          "  [11] percent_of_sales (measure, number; source scoped_orders): Share of total sales",
+          "Target 2 (dimension): \"the date or time field to group or filter by for the period the question names\"",
+          "  [12] created_at (dimension, date; source scoped_orders): (no doc; name in words: created at)",
+          "</targets>",
+          "",
+          "The user's question this search serves (context only; do not answer it). When a target's list holds a field this question needs that the target text does not name, such as the date field for a period it names or a field it filters or counts by, pick that field under that target as well:",
+          "\"How many orders does the average customer place, month by month in 2025?\"",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                2,
+                6,
+                3,
+                1,
+                4,
+                7
+              ],
+              "reason": "stand-in: 6 candidate(s) scored 2 or more",
+              "best": 2
+            },
+            {
+              "target": 2,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "order",
+        "system_sha256": "9f40894afb1ad7f2fe5efb8eaa1854a21d6f03ac890ad3069e37e040ac666185",
+        "prompt_sha256": "b836b5e0758b5c382fb74f187f61053c0deb75f39051ad54e406e54c33938e8a",
+        "prompt": [
+          "Question: \"How many orders does the average customer place, month by month in 2025?\"",
+          "What the caller is looking for:",
+          "  measure: \"orders per customer\"",
+          "",
+          "<sources>",
+          "[1] customers - \"People who have placed orders — one row per customer, keyed by `customer_id`\"",
+          "  Fields search found here:",
+          "    for \"orders per customer\": customer_count",
+          "[2] order_items - \"Order line items — the fact table, one row per product sold on an order\"",
+          "  Fields search found here:",
+          "    for \"orders per customer\": customers.customer_count, orders_per_customer, customer_count",
+          "[3] overview - \"The overview report's tiles, each over the order lines its controls select\"",
+          "  Fields search found here:",
+          "    for \"orders per customer\": customers.customer_count, orders_per_customer, customer_count",
+          "[4] scoped_orders - \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
+          "  Fields search found here:",
+          "    for \"orders per customer\": customers.customer_count, orders_per_customer, customer_count",
+          "</sources>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"sources\": [<every source number, best first>]}"
+        ],
+        "reply": {
+          "sources": [
+            2,
+            3,
+            4,
+            1
+          ]
+        }
+      }
+    ]
+  }
+}

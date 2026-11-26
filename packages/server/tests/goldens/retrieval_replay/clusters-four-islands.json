@@ -37,75 +37,12 @@
               "environment": "examples",
               "package": "replay-clusters",
               "model_path": "clusters.malloy",
-              "source": "freight"
-            },
-            "one_line_summary": "One row per freight shipment from a carrier.",
-            "docs": "One row per freight shipment from a carrier.",
-            "joins": []
-          },
-          "relevance": 1,
-          "entities": [
-            {
-              "name": "freight_cost",
-              "entity_type": "measure",
-              "entity_id": "measure:freight:freight_cost",
-              "relevance": 1,
-              "description": "Freight cost paid to carriers.",
-              "data_type": "number",
-              "matched_targets": [
-                {
-                  "search_text": "freight cost",
-                  "relevance": 1,
-                  "match_reason": "stand-in: 1 candidate(s) scored 2 or more"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "source_info": {
-            "resource_id": {
-              "environment": "examples",
-              "package": "replay-clusters",
-              "model_path": "clusters.malloy",
-              "source": "payroll"
-            },
-            "one_line_summary": "One row per salary payment.",
-            "docs": "One row per salary payment.",
-            "joins": []
-          },
-          "relevance": 1,
-          "entities": [
-            {
-              "name": "payroll_gross",
-              "entity_type": "measure",
-              "entity_id": "measure:payroll:payroll_gross",
-              "relevance": 1,
-              "description": "Gross payroll paid to staff.",
-              "data_type": "number",
-              "matched_targets": [
-                {
-                  "search_text": "payroll gross",
-                  "relevance": 1,
-                  "match_reason": "stand-in: 1 candidate(s) scored 2 or more"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "source_info": {
-            "resource_id": {
-              "environment": "examples",
-              "package": "replay-clusters",
-              "model_path": "clusters.malloy",
               "source": "campaigns"
             },
             "one_line_summary": "One row per marketing campaign.",
             "docs": "One row per marketing campaign.",
             "joins": []
           },
-          "relevance": 1,
           "entities": [
             {
               "name": "advertising_medium",
@@ -125,21 +62,143 @@
                 "medium"
               ]
             }
-          ]
+          ],
+          "relevance": 1
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-clusters",
+              "model_path": "clusters.malloy",
+              "source": "freight"
+            },
+            "one_line_summary": "One row per freight shipment from a carrier.",
+            "docs": "One row per freight shipment from a carrier.",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "freight_cost",
+              "entity_type": "measure",
+              "entity_id": "measure:freight:freight_cost",
+              "relevance": 1,
+              "description": "Freight cost paid to carriers.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "freight cost",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 1 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 1
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-clusters",
+              "model_path": "clusters.malloy",
+              "source": "payroll"
+            },
+            "one_line_summary": "One row per salary payment.",
+            "docs": "One row per salary payment.",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "payroll_gross",
+              "entity_type": "measure",
+              "entity_id": "measure:payroll:payroll_gross",
+              "relevance": 1,
+              "description": "Gross payroll paid to staff.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "payroll gross",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 1 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 1
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-clusters",
+              "model_path": "clusters.malloy",
+              "source": "warehouses"
+            },
+            "one_line_summary": "One row per warehouse bin.",
+            "docs": "One row per warehouse bin.",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "warehouse_zone",
+              "entity_type": "dimension",
+              "entity_id": "dimension:warehouses:warehouse_zone",
+              "relevance": 1,
+              "description": "Storage zone of the warehouse bin: cold or dry.",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "warehouse zone",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 1 candidate(s) scored 2 or more"
+                }
+              ],
+              "aliases": [
+                "zone"
+              ]
+            }
+          ],
+          "relevance": 1
         }
       ],
       "ranking": "relevance",
-      "total_available": 3,
-      "returned": 3,
+      "total_available": 4,
+      "returned": 4,
       "retrieval": "semantic",
       "engine": "fcj",
       "clusters": [
         {
-          "home": {
+          "query_from": {
+            "source": "campaigns",
+            "model_path": "clusters.malloy"
+          },
+          "sources": [
+            {
+              "source": "campaigns",
+              "joins": []
+            }
+          ],
+          "covers": [
+            3
+          ],
+          "picks": {
+            "3": [
+              "dimension:campaigns:advertising_medium"
+            ]
+          }
+        },
+        {
+          "query_from": {
             "source": "freight",
             "model_path": "clusters.malloy"
           },
-          "reach": [],
+          "sources": [
+            {
+              "source": "freight",
+              "joins": []
+            }
+          ],
           "covers": [
             0
           ],
@@ -150,11 +209,16 @@
           }
         },
         {
-          "home": {
+          "query_from": {
             "source": "payroll",
             "model_path": "clusters.malloy"
           },
-          "reach": [],
+          "sources": [
+            {
+              "source": "payroll",
+              "joins": []
+            }
+          ],
           "covers": [
             2
           ],
@@ -165,17 +229,22 @@
           }
         },
         {
-          "home": {
-            "source": "campaigns",
+          "query_from": {
+            "source": "warehouses",
             "model_path": "clusters.malloy"
           },
-          "reach": [],
+          "sources": [
+            {
+              "source": "warehouses",
+              "joins": []
+            }
+          ],
           "covers": [
-            3
+            1
           ],
           "picks": {
-            "3": [
-              "dimension:campaigns:advertising_medium"
+            "1": [
+              "dimension:warehouses:warehouse_zone"
             ]
           }
         }
@@ -185,6 +254,7 @@
           "target_index": 0,
           "search_text": "freight cost",
           "clusters": [
+            false,
             true,
             false,
             false
@@ -196,13 +266,15 @@
           "clusters": [
             false,
             false,
-            false
+            false,
+            true
           ]
         },
         {
           "target_index": 2,
           "search_text": "payroll gross",
           "clusters": [
+            false,
             false,
             true,
             false
@@ -212,22 +284,14 @@
           "target_index": 3,
           "search_text": "advertising medium",
           "clusters": [
+            true,
             false,
             false,
-            true
+            false
           ]
         }
       ],
-      "unresolved_targets": [
-        {
-          "target_index": 1,
-          "target_type": "dimension",
-          "search_text": "warehouse zone"
-        }
-      ],
-      "warnings": [
-        "No source in this package answered 1 target(s); see unresolved_targets. Rephrase them, ask the user, or answer without them."
-      ]
+      "unresolved_targets": []
     }
   },
   "traffic": {
@@ -238,88 +302,405 @@
       "payroll gross",
       "warehouse zone"
     ],
-    "judge_calls": 3,
+    "judge_calls": 8,
     "judge": [
       {
-        "system_sha256": "96ec55a0079d6c38dce4bc7e8b4110adfbe3b6a82827f3df398765ade991c146",
-        "prompt_sha256": "6f420c0682adecf29ab8cf0a747b8e861f9c4e1bc912fb733f26f3508e5ad557",
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "0b31aa9320d662275959208117e8dbab0f82bb8e99c8a0432664b966af66aec2",
         "prompt": [
-          "Home source: payroll - One row per salary payment.",
-          "",
-          "<targets>",
-          "Target 1 (measure; this group matched it weakly): \"freight cost\"",
-          "  [1] payroll_gross (measure, number; source payroll; own field): Gross payroll paid to staff.",
-          "Target 2 (dimension; this group matched it weakly): \"warehouse zone\"",
-          "  [2] gross (dimension, number; source payroll; own field): (no doc; name in words: gross)",
-          "  [3] pay_id (dimension, number; source payroll; own field): (no doc; name in words: pay id)",
-          "Target 3 (measure): \"payroll gross\"",
-          "  [1] payroll_gross (measure, number; source payroll; own field): Gross payroll paid to staff.",
-          "Target 4 (dimension; this group matched it weakly): \"advertising medium\"",
-          "  [2] gross (dimension, number; source payroll; own field): (no doc; name in words: gross)",
-          "  [3] pay_id (dimension, number; source payroll; own field): (no doc; name in words: pay id)",
-          "</targets>",
-          "",
-          "Also in this group:",
-          "  [4] payroll (source; source payroll; own field): One row per salary payment. | added because: the home source",
-          "",
-          "Reply with one JSON object and nothing else:",
-          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
-          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
-        ],
-        "reply": {
-          "picks": [
-            {
-              "target": 1,
-              "candidates": [],
-              "reason": "stand-in: no candidate scored high enough"
-            },
-            {
-              "target": 2,
-              "candidates": [],
-              "reason": "stand-in: no candidate scored high enough"
-            },
-            {
-              "target": 3,
-              "candidates": [
-                1
-              ],
-              "reason": "stand-in: 1 candidate(s) scored 2 or more",
-              "best": 1
-            },
-            {
-              "target": 4,
-              "candidates": [],
-              "reason": "stand-in: no candidate scored high enough"
-            }
-          ],
-          "caveats": []
-        }
-      },
-      {
-        "system_sha256": "96ec55a0079d6c38dce4bc7e8b4110adfbe3b6a82827f3df398765ade991c146",
-        "prompt_sha256": "9381c343d84243061e620176538842b2837faa4a933d81834c425b62e201b14b",
-        "prompt": [
-          "Home source: freight - One row per freight shipment from a carrier.",
+          "Source: web_orders - Web orders only: the rows of orders whose channel is web, with the same fields.",
+          "Its doc: \"Web orders only: the rows of orders whose channel is web, with the same fields.\"",
           "",
           "<targets>",
           "Target 1 (measure): \"freight cost\"",
-          "  [1] freight_cost (measure, number; source freight; own field): Freight cost paid to carriers.",
-          "Target 2 (dimension; this group matched it weakly): \"warehouse zone\"",
-          "  [2] cost (dimension, number; source freight; own field): (no doc; name in words: cost)",
-          "  [3] shipment_id (dimension, number; source freight; own field): (no doc; name in words: shipment id)",
-          "Target 3 (measure; this group matched it weakly): \"payroll gross\"",
-          "  [1] freight_cost (measure, number; source freight; own field): Freight cost paid to carriers.",
-          "Target 4 (dimension; this group matched it weakly): \"advertising medium\"",
-          "  [2] cost (dimension, number; source freight; own field): (no doc; name in words: cost)",
-          "  [3] shipment_id (dimension, number; source freight; own field): (no doc; name in words: shipment id)",
+          "  [1] order_count (measure, number; source web_orders): Number of orders.",
+          "  [2] avg_order_total (measure, number; source web_orders): Average order total per order.",
+          "  [3] max_order_total (measure, number; source web_orders): Largest order total.",
+          "  [4] order_discount_total (measure, number; source web_orders): Discounts given on orders.",
+          "  [5] order_shipping_total (measure, number; source web_orders): Shipping charged on orders.",
+          "  [6] order_tax_total (measure, number; source web_orders): Tax collected on orders.",
+          "  [7] discounted_order_total (measure, number; source web_orders): Order total of orders with a discount.",
+          "Target 2 (dimension): \"warehouse zone\"",
+          "  [8] order_channel (dimension, string; source web_orders): Channel the order came through: web or store.",
+          "  [9] customer.city_row.city_name (dimension, string; source web_orders; through the join customer.city_row): (no doc; name in words: customer city row city name)",
+          "  [10] customer.city_row.state_code (dimension, string; source web_orders; through the join customer.city_row): (no doc; name in words: customer city row state code)",
+          "  [11] customer.customer_id (dimension, number; source web_orders; through the join customer): (no doc; name in words: customer customer id)",
+          "  [12] customer.city_row.state_row.state_code (dimension, string; source web_orders; through the join customer.city_row.state_row): (no doc; name in words: customer city row state row state code)",
+          "  [13] tax (dimension, number; source web_orders): (no doc; name in words: tax)",
+          "  [14] total (dimension, number; source web_orders): (no doc; name in words: total)",
+          "  [15] customer_id (dimension, number; source web_orders): (no doc; name in words: customer id)",
+          "  [16] discount (dimension, number; source web_orders): (no doc; name in words: discount)",
+          "Target 3 (measure): \"payroll gross\"",
+          "  [2] avg_order_total (measure, number; source web_orders): Average order total per order.",
+          "  [3] max_order_total (measure, number; source web_orders): Largest order total.",
+          "  [7] discounted_order_total (measure, number; source web_orders): Order total of orders with a discount.",
+          "  [17] min_order_total (measure, number; source web_orders): Smallest order total.",
+          "Target 4 (dimension): \"advertising medium\"",
+          "  [8] order_channel (dimension, string; source web_orders): Channel the order came through: web or store.",
+          "  [9] customer.city_row.city_name (dimension, string; source web_orders; through the join customer.city_row): (no doc; name in words: customer city row city name)",
+          "  [10] customer.city_row.state_code (dimension, string; source web_orders; through the join customer.city_row): (no doc; name in words: customer city row state code)",
+          "  [11] customer.customer_id (dimension, number; source web_orders; through the join customer): (no doc; name in words: customer customer id)",
+          "  [12] customer.city_row.state_row.state_code (dimension, string; source web_orders; through the join customer.city_row.state_row): (no doc; name in words: customer city row state row state code)",
+          "  [13] tax (dimension, number; source web_orders): (no doc; name in words: tax)",
+          "  [14] total (dimension, number; source web_orders): (no doc; name in words: total)",
+          "  [15] customer_id (dimension, number; source web_orders): (no doc; name in words: customer id)",
+          "  [16] discount (dimension, number; source web_orders): (no doc; name in words: discount)",
+          "  [18] customer.city_row.state_row.census_region_name (dimension, string; source web_orders; through the join customer.city_row.state_row): Census region name of the state.",
+          "  [19] shipping (dimension, number; source web_orders): (no doc; name in words: shipping)",
+          "  [20] order_id (dimension, number; source web_orders): (no doc; name in words: order id)",
+          "  [21] customer.billing_city (dimension, string; source web_orders; through the join customer): City the customer is billed in.",
+          "  [22] customer.customer_segment (dimension, string; source web_orders; through the join customer): Market segment of the customer: retail or wholesale.",
           "</targets>",
           "",
-          "Also in this group:",
-          "  [4] freight (source; source freight; own field): One row per freight shipment from a carrier. | added because: the home source",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            },
+            {
+              "target": 2,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            },
+            {
+              "target": 3,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            },
+            {
+              "target": 4,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "224394e5a57ac6e9a430c84f36a49704583c917784a83b19f63b0d94e77d40bc",
+        "prompt": [
+          "Source: store_orders - Store orders only: the rows of orders whose channel is store, with the same fields.",
+          "Its doc: \"Store orders only: the rows of orders whose channel is store, with the same fields.\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"freight cost\"",
+          "  [1] order_count (measure, number; source store_orders): Number of orders.",
+          "  [2] avg_order_total (measure, number; source store_orders): Average order total per order.",
+          "  [3] max_order_total (measure, number; source store_orders): Largest order total.",
+          "  [4] order_discount_total (measure, number; source store_orders): Discounts given on orders.",
+          "  [5] order_shipping_total (measure, number; source store_orders): Shipping charged on orders.",
+          "  [6] order_tax_total (measure, number; source store_orders): Tax collected on orders.",
+          "  [7] discounted_order_total (measure, number; source store_orders): Order total of orders with a discount.",
+          "  [8] net_order_total (measure, number; source store_orders): Order total after discounts.",
+          "  [9] order_total (measure, number; source store_orders): Sum of order totals, in US dollars.",
+          "  [10] store_order_total (measure, number; source store_orders): Order total of store orders only.",
+          "  [11] web_order_total (measure, number; source store_orders): Order total of web orders only.",
+          "Target 2 (dimension): \"warehouse zone\"",
+          "  [12] order_channel (dimension, string; source store_orders): Channel the order came through: web or store.",
+          "  [13] customer.city_row.city_name (dimension, string; source store_orders; through the join customer.city_row): (no doc; name in words: customer city row city name)",
+          "  [14] customer.city_row.state_code (dimension, string; source store_orders; through the join customer.city_row): (no doc; name in words: customer city row state code)",
+          "  [15] customer.customer_id (dimension, number; source store_orders; through the join customer): (no doc; name in words: customer customer id)",
+          "  [16] customer.city_row.state_row.state_code (dimension, string; source store_orders; through the join customer.city_row.state_row): (no doc; name in words: customer city row state row state code)",
+          "  [17] tax (dimension, number; source store_orders): (no doc; name in words: tax)",
+          "  [18] total (dimension, number; source store_orders): (no doc; name in words: total)",
+          "  [19] customer_id (dimension, number; source store_orders): (no doc; name in words: customer id)",
+          "  [20] discount (dimension, number; source store_orders): (no doc; name in words: discount)",
+          "  [21] shipping (dimension, number; source store_orders): (no doc; name in words: shipping)",
+          "Target 3 (measure): \"payroll gross\"",
+          "  [1] order_count (measure, number; source store_orders): Number of orders.",
+          "  [2] avg_order_total (measure, number; source store_orders): Average order total per order.",
+          "  [3] max_order_total (measure, number; source store_orders): Largest order total.",
+          "  [4] order_discount_total (measure, number; source store_orders): Discounts given on orders.",
+          "  [5] order_shipping_total (measure, number; source store_orders): Shipping charged on orders.",
+          "  [6] order_tax_total (measure, number; source store_orders): Tax collected on orders.",
+          "  [7] discounted_order_total (measure, number; source store_orders): Order total of orders with a discount.",
+          "  [8] net_order_total (measure, number; source store_orders): Order total after discounts.",
+          "  [9] order_total (measure, number; source store_orders): Sum of order totals, in US dollars.",
+          "  [10] store_order_total (measure, number; source store_orders): Order total of store orders only.",
+          "  [11] web_order_total (measure, number; source store_orders): Order total of web orders only.",
+          "  [22] min_order_total (measure, number; source store_orders): Smallest order total.",
+          "Target 4 (dimension): \"advertising medium\"",
+          "  [12] order_channel (dimension, string; source store_orders): Channel the order came through: web or store.",
+          "  [13] customer.city_row.city_name (dimension, string; source store_orders; through the join customer.city_row): (no doc; name in words: customer city row city name)",
+          "  [14] customer.city_row.state_code (dimension, string; source store_orders; through the join customer.city_row): (no doc; name in words: customer city row state code)",
+          "  [15] customer.customer_id (dimension, number; source store_orders; through the join customer): (no doc; name in words: customer customer id)",
+          "  [16] customer.city_row.state_row.state_code (dimension, string; source store_orders; through the join customer.city_row.state_row): (no doc; name in words: customer city row state row state code)",
+          "  [17] tax (dimension, number; source store_orders): (no doc; name in words: tax)",
+          "  [18] total (dimension, number; source store_orders): (no doc; name in words: total)",
+          "  [19] customer_id (dimension, number; source store_orders): (no doc; name in words: customer id)",
+          "  [20] discount (dimension, number; source store_orders): (no doc; name in words: discount)",
+          "  [21] shipping (dimension, number; source store_orders): (no doc; name in words: shipping)",
+          "  [23] customer.city_row.state_row.census_region_name (dimension, string; source store_orders; through the join customer.city_row.state_row): Census region name of the state.",
+          "  [24] order_id (dimension, number; source store_orders): (no doc; name in words: order id)",
+          "  [25] customer.billing_city (dimension, string; source store_orders; through the join customer): City the customer is billed in.",
+          "  [26] customer.customer_segment (dimension, string; source store_orders; through the join customer): Market segment of the customer: retail or wholesale.",
+          "</targets>",
           "",
           "Reply with one JSON object and nothing else:",
-          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
-          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            },
+            {
+              "target": 2,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            },
+            {
+              "target": 3,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            },
+            {
+              "target": 4,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "4a017f578f1b21c7500919cf19e507d8ca1c96c11a60805e71c2a55e54b8d0e5",
+        "prompt": [
+          "Source: campaigns - One row per marketing campaign.",
+          "Its doc: \"One row per marketing campaign.\"",
+          "",
+          "<targets>",
+          "Target 1 (dimension): \"warehouse zone\"",
+          "  [1] advertising_medium (dimension, string; source campaigns): Advertising medium of the campaign: email or radio.",
+          "  [2] campaign_id (dimension, number; source campaigns): (no doc; name in words: campaign id)",
+          "Target 2 (dimension): \"advertising medium\"",
+          "  [1] advertising_medium (dimension, string; source campaigns): Advertising medium of the campaign: email or radio.",
+          "  [2] campaign_id (dimension, number; source campaigns): (no doc; name in words: campaign id)",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            },
+            {
+              "target": 2,
+              "candidates": [
+                1
+              ],
+              "reason": "stand-in: 1 candidate(s) scored 2 or more",
+              "best": 1
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "dff551bc242b419477f1c87345abcf00e9fbede16c25d75d4d97e8cc4c355661",
+        "prompt": [
+          "Source: warehouses - One row per warehouse bin.",
+          "Its doc: \"One row per warehouse bin.\"",
+          "",
+          "<targets>",
+          "Target 1 (dimension): \"warehouse zone\"",
+          "  [1] warehouse_zone (dimension, string; source warehouses): Storage zone of the warehouse bin: cold or dry.",
+          "  [2] bin_id (dimension, number; source warehouses): (no doc; name in words: bin id)",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                1
+              ],
+              "reason": "stand-in: 1 candidate(s) scored 2 or more",
+              "best": 1
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "e1869537aa399e7732a332497634a7883197f8a77bee284a7da7e69cdc865015",
+        "prompt": [
+          "Source: orders - Every order, every channel: the source analysts query.",
+          "Its doc: \"Every order, every channel: the source analysts query.\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"freight cost\"",
+          "  [1] order_count (measure, number; source orders): Number of orders.",
+          "  [2] avg_order_total (measure, number; source orders): Average order total per order.",
+          "  [3] max_order_total (measure, number; source orders): Largest order total.",
+          "  [4] order_discount_total (measure, number; source orders): Discounts given on orders.",
+          "  [5] order_shipping_total (measure, number; source orders): Shipping charged on orders.",
+          "  [6] order_tax_total (measure, number; source orders): Tax collected on orders.",
+          "  [7] discounted_order_total (measure, number; source orders): Order total of orders with a discount.",
+          "  [8] net_order_total (measure, number; source orders): Order total after discounts.",
+          "  [9] order_total (measure, number; source orders): Sum of order totals, in US dollars.",
+          "  [10] store_order_total (measure, number; source orders): Order total of store orders only.",
+          "  [11] web_order_total (measure, number; source orders): Order total of web orders only.",
+          "Target 2 (dimension): \"warehouse zone\"",
+          "  [12] order_channel (dimension, string; source orders): Channel the order came through: web or store.",
+          "  [13] customer.city_row.city_name (dimension, string; source orders; through the join customer.city_row): (no doc; name in words: customer city row city name)",
+          "  [14] customer.city_row.state_code (dimension, string; source orders; through the join customer.city_row): (no doc; name in words: customer city row state code)",
+          "  [15] customer.customer_id (dimension, number; source orders; through the join customer): (no doc; name in words: customer customer id)",
+          "  [16] customer_id (dimension, number; source orders): (no doc; name in words: customer id)",
+          "  [17] discount (dimension, number; source orders): (no doc; name in words: discount)",
+          "  [18] order_id (dimension, number; source orders): (no doc; name in words: order id)",
+          "  [19] shipping (dimension, number; source orders): (no doc; name in words: shipping)",
+          "  [20] tax (dimension, number; source orders): (no doc; name in words: tax)",
+          "  [21] total (dimension, number; source orders): (no doc; name in words: total)",
+          "  [22] customer.city_row.state_row.state_code (dimension, string; source orders; through the join customer.city_row.state_row): (no doc; name in words: customer city row state row state code)",
+          "Target 3 (measure): \"payroll gross\"",
+          "  [1] order_count (measure, number; source orders): Number of orders.",
+          "  [2] avg_order_total (measure, number; source orders): Average order total per order.",
+          "  [3] max_order_total (measure, number; source orders): Largest order total.",
+          "  [4] order_discount_total (measure, number; source orders): Discounts given on orders.",
+          "  [5] order_shipping_total (measure, number; source orders): Shipping charged on orders.",
+          "  [6] order_tax_total (measure, number; source orders): Tax collected on orders.",
+          "  [7] discounted_order_total (measure, number; source orders): Order total of orders with a discount.",
+          "  [8] net_order_total (measure, number; source orders): Order total after discounts.",
+          "  [9] order_total (measure, number; source orders): Sum of order totals, in US dollars.",
+          "  [10] store_order_total (measure, number; source orders): Order total of store orders only.",
+          "  [11] web_order_total (measure, number; source orders): Order total of web orders only.",
+          "  [23] min_order_total (measure, number; source orders): Smallest order total.",
+          "Target 4 (dimension): \"advertising medium\"",
+          "  [12] order_channel (dimension, string; source orders): Channel the order came through: web or store.",
+          "  [13] customer.city_row.city_name (dimension, string; source orders; through the join customer.city_row): (no doc; name in words: customer city row city name)",
+          "  [14] customer.city_row.state_code (dimension, string; source orders; through the join customer.city_row): (no doc; name in words: customer city row state code)",
+          "  [15] customer.customer_id (dimension, number; source orders; through the join customer): (no doc; name in words: customer customer id)",
+          "  [16] customer_id (dimension, number; source orders): (no doc; name in words: customer id)",
+          "  [17] discount (dimension, number; source orders): (no doc; name in words: discount)",
+          "  [18] order_id (dimension, number; source orders): (no doc; name in words: order id)",
+          "  [19] shipping (dimension, number; source orders): (no doc; name in words: shipping)",
+          "  [22] customer.city_row.state_row.state_code (dimension, string; source orders; through the join customer.city_row.state_row): (no doc; name in words: customer city row state row state code)",
+          "  [24] customer.city_row.state_row.census_region_name (dimension, string; source orders; through the join customer.city_row.state_row): Census region name of the state.",
+          "  [25] customer.billing_city (dimension, string; source orders; through the join customer): City the customer is billed in.",
+          "  [26] customer.customer_segment (dimension, string; source orders; through the join customer): Market segment of the customer: retail or wholesale.",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            },
+            {
+              "target": 2,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            },
+            {
+              "target": 3,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            },
+            {
+              "target": 4,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "f0ea1e077fa443dacf43fb5d43b3b51e71f95b7e4fae0ea2d116df8486a1cfda",
+        "prompt": [
+          "Source: payroll - One row per salary payment.",
+          "Its doc: \"One row per salary payment.\"",
+          "",
+          "<targets>",
+          "Target 1 (dimension): \"warehouse zone\"",
+          "  [1] gross (dimension, number; source payroll): (no doc; name in words: gross)",
+          "  [2] pay_id (dimension, number; source payroll): (no doc; name in words: pay id)",
+          "Target 2 (measure): \"payroll gross\"",
+          "  [3] payroll_gross (measure, number; source payroll): Gross payroll paid to staff.",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            },
+            {
+              "target": 2,
+              "candidates": [
+                3
+              ],
+              "reason": "stand-in: 1 candidate(s) scored 2 or more",
+              "best": 3
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "f84149fcc5b9505d17d555c8988aea956916b058a5d2d2c76750702b5d2ebc76",
+        "prompt": [
+          "Source: freight - One row per freight shipment from a carrier.",
+          "Its doc: \"One row per freight shipment from a carrier.\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"freight cost\"",
+          "  [1] freight_cost (measure, number; source freight): Freight cost paid to carriers.",
+          "Target 2 (dimension): \"warehouse zone\"",
+          "  [2] cost (dimension, number; source freight): (no doc; name in words: cost)",
+          "  [3] shipment_id (dimension, number; source freight): (no doc; name in words: shipment id)",
+          "Target 3 (measure): \"payroll gross\"",
+          "  [1] freight_cost (measure, number; source freight): Freight cost paid to carriers.",
+          "Target 4 (dimension): \"advertising medium\"",
+          "  [2] cost (dimension, number; source freight): (no doc; name in words: cost)",
+          "  [3] shipment_id (dimension, number; source freight): (no doc; name in words: shipment id)",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
         ],
         "reply": {
           "picks": [
@@ -351,58 +732,74 @@
         }
       },
       {
-        "system_sha256": "96ec55a0079d6c38dce4bc7e8b4110adfbe3b6a82827f3df398765ade991c146",
-        "prompt_sha256": "fa19529c060516a0c1872963b66acb07e05f6ff48db3c3b59fd9e0ce2310b6d8",
+        "call": "order",
+        "system_sha256": "9f40894afb1ad7f2fe5efb8eaa1854a21d6f03ac890ad3069e37e040ac666185",
+        "prompt_sha256": "fae38bda5e53569e8b8c8ca3442f68b51b53cc7b5abb4bce0b7def47877925e0",
         "prompt": [
-          "Home source: campaigns - One row per marketing campaign.",
+          "What the caller is looking for:",
+          "  measure: \"freight cost\"",
+          "  dimension: \"warehouse zone\"",
+          "  measure: \"payroll gross\"",
+          "  dimension: \"advertising medium\"",
           "",
-          "<targets>",
-          "Target 1 (measure; this group matched it weakly): \"freight cost\"",
-          "  (no candidates in this group)",
-          "Target 2 (dimension; this group matched it weakly): \"warehouse zone\"",
-          "  [1] advertising_medium (dimension, string; source campaigns; own field): Advertising medium of the campaign: email or radio.",
-          "  [2] campaign_id (dimension, number; source campaigns; own field): (no doc; name in words: campaign id)",
-          "Target 3 (measure; this group matched it weakly): \"payroll gross\"",
-          "  (no candidates in this group)",
-          "Target 4 (dimension): \"advertising medium\"",
-          "  [1] advertising_medium (dimension, string; source campaigns; own field): Advertising medium of the campaign: email or radio.",
-          "  [2] campaign_id (dimension, number; source campaigns; own field): (no doc; name in words: campaign id)",
-          "</targets>",
-          "",
-          "Also in this group:",
-          "  [3] campaigns (source; source campaigns; own field): One row per marketing campaign. | added because: the home source",
+          "<sources>",
+          "[1] freight - \"One row per freight shipment from a carrier.\"",
+          "  Fields search found here:",
+          "    for \"freight cost\": freight_cost",
+          "    for \"warehouse zone\": cost, shipment_id",
+          "    for \"payroll gross\": freight_cost",
+          "    for \"advertising medium\": cost, shipment_id",
+          "[2] payroll - \"One row per salary payment.\"",
+          "  Fields search found here:",
+          "    for \"freight cost\": (nothing found)",
+          "    for \"warehouse zone\": gross, pay_id",
+          "    for \"payroll gross\": payroll_gross",
+          "    for \"advertising medium\": (nothing found)",
+          "[3] campaigns - \"One row per marketing campaign.\"",
+          "  Fields search found here:",
+          "    for \"freight cost\": (nothing found)",
+          "    for \"warehouse zone\": advertising_medium, campaign_id",
+          "    for \"payroll gross\": (nothing found)",
+          "    for \"advertising medium\": advertising_medium, campaign_id",
+          "[4] warehouses - \"One row per warehouse bin.\"",
+          "  Fields search found here:",
+          "    for \"freight cost\": (nothing found)",
+          "    for \"warehouse zone\": warehouse_zone, bin_id",
+          "    for \"payroll gross\": (nothing found)",
+          "    for \"advertising medium\": (nothing found)",
+          "[5] orders - \"Every order, every channel: the source analysts query.\"",
+          "  Fields search found here:",
+          "    for \"freight cost\": order_count, avg_order_total, max_order_total",
+          "    for \"warehouse zone\": order_channel, customer.city_row.city_name, customer.city_row.state_code",
+          "    for \"payroll gross\": avg_order_total, discounted_order_total, max_order_total",
+          "    for \"advertising medium\": customer.city_row.state_row.state_code, customer.city_row.state_row.census_region_name, customer.city_row.state_code",
+          "[6] store_orders - \"Store orders only: the rows of orders whose channel is store, with the same fields.\"",
+          "  Fields search found here:",
+          "    for \"freight cost\": order_count, avg_order_total, max_order_total",
+          "    for \"warehouse zone\": order_channel, customer.city_row.city_name, customer.city_row.state_code",
+          "    for \"payroll gross\": avg_order_total, discounted_order_total, max_order_total",
+          "    for \"advertising medium\": customer.city_row.state_row.state_code, customer.city_row.state_row.census_region_name, customer.city_row.state_code",
+          "[7] web_orders - \"Web orders only: the rows of orders whose channel is web, with the same fields.\"",
+          "  Fields search found here:",
+          "    for \"freight cost\": order_count, avg_order_total, max_order_total",
+          "    for \"warehouse zone\": order_channel, customer.city_row.city_name, customer.city_row.state_code",
+          "    for \"payroll gross\": avg_order_total, discounted_order_total, max_order_total",
+          "    for \"advertising medium\": customer.city_row.state_row.state_code, customer.city_row.state_row.census_region_name, customer.city_row.state_code",
+          "</sources>",
           "",
           "Reply with one JSON object and nothing else:",
-          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
-          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+          "{\"sources\": [<every source number, best first>]}"
         ],
         "reply": {
-          "picks": [
-            {
-              "target": 1,
-              "candidates": [],
-              "reason": "stand-in: no candidate scored high enough"
-            },
-            {
-              "target": 2,
-              "candidates": [],
-              "reason": "stand-in: no candidate scored high enough"
-            },
-            {
-              "target": 3,
-              "candidates": [],
-              "reason": "stand-in: no candidate scored high enough"
-            },
-            {
-              "target": 4,
-              "candidates": [
-                1
-              ],
-              "reason": "stand-in: 1 candidate(s) scored 2 or more",
-              "best": 1
-            }
-          ],
-          "caveats": []
+          "sources": [
+            3,
+            1,
+            2,
+            4,
+            5,
+            6,
+            7
+          ]
         }
       }
     ]

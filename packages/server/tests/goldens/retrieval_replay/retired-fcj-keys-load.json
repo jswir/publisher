@@ -1,0 +1,193 @@
+{
+  "case": "retired-fcj-keys-load",
+  "about": "replay-clusters sets retired retrieval.fcj keys (connect, collapseCopies, twinRule): the package still loads, and its listing carries a warning naming each key.",
+  "request": {
+    "scopes": [
+      {
+        "environment": "examples",
+        "package": "replay-clusters"
+      }
+    ]
+  },
+  "response": {
+    "is_error": false,
+    "payload": {
+      "sources": [
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-clusters",
+              "model_path": "clusters.malloy",
+              "source": "states"
+            },
+            "one_line_summary": "One row per US state.",
+            "docs": "One row per US state.",
+            "joins": []
+          }
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-clusters",
+              "model_path": "clusters.malloy",
+              "source": "cities"
+            },
+            "one_line_summary": "One row per city.",
+            "docs": "One row per city.",
+            "joins": [
+              {
+                "name": "state_row",
+                "relationship": "one",
+                "doc": "The state the city is in."
+              }
+            ]
+          }
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-clusters",
+              "model_path": "clusters.malloy",
+              "source": "customers"
+            },
+            "one_line_summary": "One row per customer account.",
+            "docs": "One row per customer account.",
+            "joins": [
+              {
+                "name": "city_row",
+                "relationship": "one",
+                "doc": "The city the customer is billed in."
+              }
+            ]
+          }
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-clusters",
+              "model_path": "clusters.malloy",
+              "source": "orders"
+            },
+            "one_line_summary": "Every order, every channel: the source analysts query.",
+            "docs": "Every order, every channel: the source analysts query.",
+            "joins": [
+              {
+                "name": "customer",
+                "relationship": "one",
+                "doc": "The customer who placed the order."
+              }
+            ]
+          }
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-clusters",
+              "model_path": "clusters.malloy",
+              "source": "web_orders"
+            },
+            "one_line_summary": "Web orders only: the rows of orders whose channel is web, with the same fields.",
+            "docs": "Web orders only: the rows of orders whose channel is web, with the same fields.",
+            "joins": [
+              {
+                "name": "customer",
+                "relationship": "one",
+                "doc": "The customer who placed the order."
+              }
+            ]
+          }
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-clusters",
+              "model_path": "clusters.malloy",
+              "source": "store_orders"
+            },
+            "one_line_summary": "Store orders only: the rows of orders whose channel is store, with the same fields.",
+            "docs": "Store orders only: the rows of orders whose channel is store, with the same fields.",
+            "joins": [
+              {
+                "name": "customer",
+                "relationship": "one",
+                "doc": "The customer who placed the order."
+              }
+            ]
+          }
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-clusters",
+              "model_path": "clusters.malloy",
+              "source": "freight"
+            },
+            "one_line_summary": "One row per freight shipment from a carrier.",
+            "docs": "One row per freight shipment from a carrier.",
+            "joins": []
+          }
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-clusters",
+              "model_path": "clusters.malloy",
+              "source": "warehouses"
+            },
+            "one_line_summary": "One row per warehouse bin.",
+            "docs": "One row per warehouse bin.",
+            "joins": []
+          }
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-clusters",
+              "model_path": "clusters.malloy",
+              "source": "payroll"
+            },
+            "one_line_summary": "One row per salary payment.",
+            "docs": "One row per salary payment.",
+            "joins": []
+          }
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-clusters",
+              "model_path": "clusters.malloy",
+              "source": "campaigns"
+            },
+            "one_line_summary": "One row per marketing campaign.",
+            "docs": "One row per marketing campaign.",
+            "joins": []
+          }
+        }
+      ],
+      "ranking": "prominence",
+      "total_available": 10,
+      "returned": 10,
+      "package_info": {
+        "environment": "examples",
+        "package": "replay-clusters",
+        "description": "Synthetic fixture for the retrieval replay, searched with connect: clusters, collapseCopies and twinRule on: a joined star with two twins, and islands that each answer one target."
+      }
+    }
+  },
+  "traffic": {
+    "embedding_calls": 0,
+    "embedded_texts": [],
+    "judge_calls": 0,
+    "judge": []
+  }
+}

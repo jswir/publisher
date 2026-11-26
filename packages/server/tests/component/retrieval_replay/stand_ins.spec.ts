@@ -9,11 +9,14 @@
  */
 
 import { describe, expect, it } from "bun:test";
+import { QUESTION_HEADER } from "../../../src/retrieval/llm/prompts/judge";
 import {
    MARKERS,
    parseJudgePrompt,
+   parseOrderPrompt,
    StandInError,
    standInJudgeReply,
+   standInOrderReply,
 } from "./stand_ins";
 
 const FORMAT = [
@@ -21,11 +24,11 @@ const FORMAT = [
    '{"picks": [...], "caveats": [...]}',
 ];
 
-/** A judge prompt in list form: `targets` as [type, text, candidate lines]. */
+/** A pick call's prompt: `targets` as [type, text, candidate lines]. */
 function prompt(targets: Array<[string, string, string[]]>): string {
    return [
-      "Sources with candidates:",
-      "- sales - Every sale.",
+      "Source: sales - Every sale.",
+      'Its doc: "Every sale, one row each."',
       "",
       "<targets>",
       ...targets.flatMap(([type, text, lines], i) => [
@@ -60,6 +63,17 @@ describe("the stand-in judge's grammar", () => {
    const ok = prompt([
       ["measure", "total amount", [field(1, "total_amount", "sales", "Sum.")]],
    ]);
+
+   it("reads the source a pick call shows and the question it quotes", () => {
+      const withQuestion = ok.replace(
+         "</targets>\n",
+         `</targets>\n\n${QUESTION_HEADER}\n"Which sales were largest?"\n`,
+      );
+      expect(parseJudgePrompt(withQuestion)).toMatchObject({
+         source: "sales",
+         question: "Which sales were largest?",
+      });
+   });
 
    it("reads a well-formed prompt", () => {
       expect(parseJudgePrompt(ok).targets[0].candidates[0]).toMatchObject({
@@ -102,6 +116,19 @@ describe("the stand-in judge's grammar", () => {
          /no "Reply with one JSON object/,
       ],
       ["no target at all", prompt([]), /lists no target/],
+      [
+         "a header line it does not know",
+         ok.replace("Source: sales - Every sale.", "Sources with candidates:"),
+         /cannot read a pick call's source line/,
+      ],
+      [
+         "a question that is not one JSON string",
+         ok.replace(
+            "</targets>\n",
+            `</targets>\n\n${QUESTION_HEADER}\nWhich sales?\n`,
+         ),
+         /the question of a judge prompt is not one JSON string/,
+      ],
       [
          "stored values in another format",
          prompt([
@@ -280,5 +307,65 @@ describe("the stand-in judge's decision", () => {
       );
       expect(r.picks[0].candidates).toEqual([1, 2]);
       expect(r.picks[0].values).toEqual(["1a", "2a"]);
+   });
+});
+
+describe("the stand-in ordering call", () => {
+   const order = (sources: string[], question?: string) =>
+      [
+         ...(question ? [`Question: ${JSON.stringify(question)}`] : []),
+         "What the caller is looking for:",
+         '  measure: "total amount"',
+         '  dimension: "region"',
+         "",
+         "<sources>",
+         ...sources,
+         "</sources>",
+         "",
+         "Reply with one JSON object and nothing else:",
+         '{"sources": [<every source number, best first>]}',
+      ].join("\n");
+   const block = (n: number, name: string, amount: string, region: string) => [
+      `[${n}] ${name} - "One row each."`,
+      "  Fields search found here:",
+      `    for "total amount": ${amount}`,
+      `    for "region": ${region}`,
+   ];
+
+   it("orders by the summed name score of the fields listed under each target, ties by name", () => {
+      const text = order([
+         ...block(1, "zeta", "count", "(nothing found)"),
+         ...block(2, "beta", "total_amount, amount", "region"),
+         ...block(3, "alpha", "amount", "(nothing found)"),
+         ...block(4, "aardvark", "amount", "(nothing found)"),
+      ]);
+      expect(
+         parseOrderPrompt(text).sources[1].fields.get("total amount"),
+      ).toEqual(["total_amount", "amount"]);
+      expect(JSON.parse(standInOrderReply(text))).toEqual({
+         sources: [2, 4, 3, 1],
+      });
+   });
+
+   it("answers an invalid order when the question asks for one", () => {
+      const text = order(
+         [
+            ...block(1, "a", "amount", "region"),
+            ...block(2, "b", "amount", "region"),
+         ],
+         "Totals [replay: order invalid]",
+      );
+      expect(JSON.parse(standInOrderReply(text))).toEqual({ sources: [92] });
+   });
+
+   it("throws a StandInError on a line it does not know", () => {
+      const text = order([
+         ...block(1, "a", "amount", "region"),
+         "  Joins: none",
+      ]);
+      expect(() => standInOrderReply(text)).toThrow(StandInError);
+      expect(() =>
+         standInOrderReply(text.replace("What the caller", "What we")),
+      ).toThrow(StandInError);
    });
 });

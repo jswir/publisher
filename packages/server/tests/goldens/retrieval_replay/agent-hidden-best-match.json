@@ -117,39 +117,111 @@
     "embedded_texts": [
       "freight cost total"
     ],
-    "judge_calls": 1,
+    "judge_calls": 4,
     "judge": [
       {
-        "system_sha256": "9f5997fde3c4a50ca93d49e0090e8c6b85eab6867ed48888adaf95f6f77a40c2",
-        "prompt_sha256": "a20dbb06d5e48c59f82e86f038bf028acc1efdf916c0dd307b24c14c911c3391",
+        "call": "order",
+        "system_sha256": "9f40894afb1ad7f2fe5efb8eaa1854a21d6f03ac890ad3069e37e040ac666185",
+        "prompt_sha256": "14b95bb539ad83003fb25bcec27b6800970c4e54877ddfe74230a72781bb5c10",
         "prompt": [
-          "Sources with candidates:",
-          "- tenant_orders - Orders of every tenant; each caller reads only its own tenants' rows.",
-          "  A query from tenant_orders can use none of the other listed sources.",
-          "- payroll_ledger - Payroll ledger: one row per salary payment.",
-          "  Its doc begins: \"Payroll ledger: one row per salary payment. Finance only.\"",
-          "  A query from payroll_ledger can use none of the other listed sources.",
-          "- shipments - Every shipment, open to every caller.",
-          "  A query from shipments can use none of the other listed sources.",
+          "What the caller is looking for:",
+          "  measure: \"freight cost total\"",
+          "",
+          "<sources>",
+          "[1] tenant_orders - \"Orders of every tenant; each caller reads only its own tenants' rows.\"",
+          "  Fields search found here:",
+          "    for \"freight cost total\": tenant_order_total",
+          "[2] payroll_ledger - \"Payroll ledger: one row per salary payment. Finance only.\"",
+          "  Fields search found here:",
+          "    for \"freight cost total\": payroll_gross",
+          "[3] shipments - \"Every shipment, open to every caller.\"",
+          "  Fields search found here:",
+          "    for \"freight cost total\": carrier_charge",
+          "</sources>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"sources\": [<every source number, best first>]}"
+        ],
+        "reply": {
+          "sources": [
+            1,
+            2,
+            3
+          ]
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "96737887f0b01c5a036b887c7702f0962b8e77ac6e6ad89ebbff8621857e944e",
+        "prompt": [
+          "Source: shipments - Every shipment, open to every caller.",
+          "Its doc: \"Every shipment, open to every caller.\"",
           "",
           "<targets>",
           "Target 1 (measure): \"freight cost total\"",
-          "  From tenant_orders:",
-          "    [1] tenant_order_total (measure, number; source tenant_orders): Sum of order totals.",
-          "  From payroll_ledger:",
-          "    [2] payroll_gross (measure, number; source payroll_ledger): Gross payroll paid to staff.",
-          "  From shipments:",
-          "    [3] carrier_charge (measure, number; source shipments): Carrier charge for the shipments, in US dollars.",
+          "  [1] carrier_charge (measure, number; source shipments): Carrier charge for the shipments, in US dollars.",
           "</targets>",
           "",
-          "Also in this group:",
-          "  [4] total (dimension, number; source tenant_orders): (no doc; name in words: total) | added because: tenant_order_total is computed from it",
-          "  [5] gross (dimension, number; source payroll_ledger): (no doc; name in words: gross) | added because: payroll_gross is computed from it",
-          "  [6] charge (dimension, number; source shipments): (no doc; name in words: charge) | added because: carrier_charge is computed from it",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "9857749b7afc62fcb6f696bc0155805e669daea4f5c7973c00d2188a78c6cbcf",
+        "prompt": [
+          "Source: payroll_ledger - Payroll ledger: one row per salary payment.",
+          "Its doc: \"Payroll ledger: one row per salary payment. Finance only.\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"freight cost total\"",
+          "  [1] payroll_gross (measure, number; source payroll_ledger): Gross payroll paid to staff.",
+          "</targets>",
           "",
           "Reply with one JSON object and nothing else:",
-          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
-          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "b8e0df74b7059177222d2ee207ae420f727def5edf122914988abfae0b125c82",
+        "prompt": [
+          "Source: tenant_orders - Orders of every tenant; each caller reads only its own tenants' rows.",
+          "Its doc: \"Orders of every tenant; each caller reads only its own tenants' rows.\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"freight cost total\"",
+          "  [1] tenant_order_total (measure, number; source tenant_orders): Sum of order totals.",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
         ],
         "reply": {
           "picks": [

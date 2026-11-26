@@ -51,17 +51,20 @@
               ]
             },
             {
-              "name": "quote_count",
-              "entity_type": "measure",
-              "entity_id": "measure:quotes:quote_count",
-              "relevance": 0.38375919473480447,
-              "description": "Number of quotes.",
-              "data_type": "number",
+              "name": "quote_region",
+              "entity_type": "dimension",
+              "entity_id": "dimension:quotes:quote_region",
+              "relevance": 0.9762878215259166,
+              "description": "Sales region of the prospect.",
+              "data_type": "string",
               "matched_targets": [
                 {
-                  "search_text": "total amount",
-                  "relevance": 0.3838
+                  "search_text": "region",
+                  "relevance": 0.9763
                 }
+              ],
+              "aliases": [
+                "region"
               ]
             }
           ],
@@ -96,45 +99,6 @@
               "aliases": [
                 "region"
               ]
-            },
-            {
-              "name": "amount",
-              "entity_type": "dimension",
-              "entity_id": "dimension:commissions:amount",
-              "relevance": 0.4034391534391534,
-              "data_type": "number",
-              "matched_targets": [
-                {
-                  "search_text": "region",
-                  "relevance": 0.4034
-                }
-              ]
-            },
-            {
-              "name": "commission_id",
-              "entity_type": "dimension",
-              "entity_id": "dimension:commissions:commission_id",
-              "relevance": 0.39833232871207547,
-              "data_type": "number",
-              "matched_targets": [
-                {
-                  "search_text": "region",
-                  "relevance": 0.3983
-                }
-              ]
-            },
-            {
-              "name": "status",
-              "entity_type": "dimension",
-              "entity_id": "dimension:commissions:status",
-              "relevance": 0.39335317460317454,
-              "data_type": "string",
-              "matched_targets": [
-                {
-                  "search_text": "region",
-                  "relevance": 0.3934
-                }
-              ]
             }
           ],
           "relevance": 1
@@ -153,6 +117,20 @@
           },
           "entities": [
             {
+              "name": "total_refund_amount",
+              "entity_type": "measure",
+              "entity_id": "measure:refunds:total_refund_amount",
+              "relevance": 0.999243951612903,
+              "description": "Total amount refunded to customers.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "total amount",
+                  "relevance": 0.9992
+                }
+              ]
+            },
+            {
               "name": "refund_region",
               "entity_type": "dimension",
               "entity_id": "dimension:refunds:refund_region",
@@ -170,12 +148,78 @@
               ]
             }
           ],
-          "relevance": 0.991187562988158
+          "relevance": 0.999243951612903
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-judge-off",
+              "model_path": "many.malloy",
+              "source": "budgets"
+            },
+            "one_line_summary": "One row per planned budget line of a region, for the finance plan.",
+            "docs": "One row per planned budget line of a region, for the finance plan. Amounts are planned, not actual.",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "budget_region",
+              "entity_type": "dimension",
+              "entity_id": "dimension:budgets:budget_region",
+              "relevance": 0.9786414565826329,
+              "description": "Region the budget line is planned for.",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "region",
+                  "relevance": 0.9786
+                }
+              ],
+              "aliases": [
+                "region"
+              ]
+            }
+          ],
+          "relevance": 0.9786414565826329
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-judge-off",
+              "model_path": "many.malloy",
+              "source": "invoices"
+            },
+            "one_line_summary": "One row per invoice sent to a customer.",
+            "docs": "One row per invoice sent to a customer. The amount is the invoiced amount; the region is the billing region of the customer.",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "billing_region",
+              "entity_type": "dimension",
+              "entity_id": "dimension:invoices:billing_region",
+              "relevance": 0.9477531199677938,
+              "description": "Billing region of the invoiced customer.",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "region",
+                  "relevance": 0.9478
+                }
+              ],
+              "aliases": [
+                "region"
+              ]
+            }
+          ],
+          "relevance": 0.9477531199677938
         }
       ],
       "ranking": "relevance",
-      "total_available": 3,
-      "returned": 3,
+      "total_available": 5,
+      "returned": 5,
       "retrieval": "semantic",
       "engine": "fcj",
       "clusters": [
@@ -191,32 +235,15 @@
             }
           ],
           "covers": [
-            0
-          ],
-          "picks": {
-            "0": [
-              "measure:quotes:total_quoted_amount",
-              "measure:quotes:quote_count"
-            ]
-          }
-        },
-        {
-          "query_from": {
-            "source": "refunds",
-            "model_path": "many.malloy"
-          },
-          "sources": [
-            {
-              "source": "refunds",
-              "joins": []
-            }
-          ],
-          "covers": [
+            0,
             1
           ],
           "picks": {
+            "0": [
+              "measure:quotes:total_quoted_amount"
+            ],
             "1": [
-              "dimension:refunds:refund_region"
+              "dimension:quotes:quote_region"
             ]
           }
         },
@@ -236,10 +263,71 @@
           ],
           "picks": {
             "1": [
-              "dimension:commissions:rep_region",
-              "dimension:commissions:amount",
-              "dimension:commissions:commission_id",
-              "dimension:commissions:status"
+              "dimension:commissions:rep_region"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "refunds",
+            "model_path": "many.malloy"
+          },
+          "sources": [
+            {
+              "source": "refunds",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0,
+            1
+          ],
+          "picks": {
+            "0": [
+              "measure:refunds:total_refund_amount"
+            ],
+            "1": [
+              "dimension:refunds:refund_region"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "budgets",
+            "model_path": "many.malloy"
+          },
+          "sources": [
+            {
+              "source": "budgets",
+              "joins": []
+            }
+          ],
+          "covers": [
+            1
+          ],
+          "picks": {
+            "1": [
+              "dimension:budgets:budget_region"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "invoices",
+            "model_path": "many.malloy"
+          },
+          "sources": [
+            {
+              "source": "invoices",
+              "joins": []
+            }
+          ],
+          "covers": [
+            1
+          ],
+          "picks": {
+            "1": [
+              "dimension:invoices:billing_region"
             ]
           }
         }
@@ -251,6 +339,8 @@
           "clusters": [
             true,
             false,
+            true,
+            false,
             false
           ]
         },
@@ -258,7 +348,9 @@
           "target_index": 1,
           "search_text": "region",
           "clusters": [
-            false,
+            true,
+            true,
+            true,
             true,
             true
           ]

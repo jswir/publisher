@@ -59,7 +59,7 @@
                 {
                   "search_text": "total revenue zzname_order_count",
                   "relevance": 0.8757,
-                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -74,18 +74,9 @@
                 {
                   "search_text": "total revenue zzname_order_count",
                   "relevance": 0.9978,
-                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
                 }
               ]
-            },
-            {
-              "name": "order_count",
-              "entity_type": "measure",
-              "entity_id": "measure:order_items:order_count",
-              "description": "Distinct orders",
-              "data_type": "number",
-              "also_likely": true,
-              "also_likely_reason": "The judge's note names order_count, and no pick carries that name."
             }
           ],
           "relevance": 0.997802734375
@@ -157,7 +148,7 @@
                 {
                   "search_text": "total revenue zzname_order_count",
                   "relevance": 0.8569,
-                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -172,7 +163,7 @@
                 {
                   "search_text": "total revenue zzname_order_count",
                   "relevance": 0.9465,
-                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
                 }
               ]
             }
@@ -246,7 +237,7 @@
                 {
                   "search_text": "total revenue zzname_order_count",
                   "relevance": 0.8589,
-                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -261,7 +252,7 @@
                 {
                   "search_text": "total revenue zzname_order_count",
                   "relevance": 0.9474,
-                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                  "match_reason": "stand-in: 2 candidate(s) scored 2 or more"
                 }
               ]
             }
@@ -318,7 +309,10 @@
               "measure:overview:total_margin",
               "measure:overview:total_sales"
             ]
-          }
+          },
+          "caveats": [
+            "stand-in caveat: order_count may answer target 1 too."
+          ]
         },
         {
           "query_from": {
@@ -339,7 +333,10 @@
               "measure:scoped_orders:total_margin",
               "measure:scoped_orders:total_sales"
             ]
-          }
+          },
+          "caveats": [
+            "stand-in caveat: order_count may answer target 1 too."
+          ]
         }
       ],
       "coverage": [
@@ -372,79 +369,107 @@
     "embedded_texts": [
       "total revenue zzname_order_count"
     ],
-    "judge_calls": 1,
+    "judge_calls": 4,
     "judge": [
       {
-        "system_sha256": "9f5997fde3c4a50ca93d49e0090e8c6b85eab6867ed48888adaf95f6f77a40c2",
-        "prompt_sha256": "7b06dec95419abad5e7d3423bbbf4d359774c96fe637a6c7bc42d22a5acc2dda",
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "0e59fdb38368bee05f8c8def68799b095402f42f869a159a1e40daf94037217a",
         "prompt": [
-          "Sources with candidates:",
-          "- order_items - Order line items — the fact table, one row per product sold on an order.",
-          "  Its doc begins: \"Order line items — the fact table, one row per product sold on an order\"",
-          "  A query from order_items can also use: customers (through order_items.customers).",
-          "- overview - The overview report's tiles, each over the order lines its controls select.",
-          "  Its doc begins: \"The overview report's tiles, each over the order lines its controls select\"",
-          "  A query from overview can also use: customers (through overview.customers).",
-          "- scoped_orders - Order lines narrowed by the data app's control row.",
-          "  Its doc begins: \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
-          "  A query from scoped_orders can also use: customers (through scoped_orders.customers).",
-          "- customers - People who have placed orders — one row per customer, keyed by `customer_id`.",
-          "  Its doc begins: \"People who have placed orders — one row per customer, keyed by `customer_id`\"",
-          "  A query from customers can use none of the other listed sources.",
+          "Source: scoped_orders - Order lines narrowed by the data app's control row.",
+          "Its doc: \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
           "",
           "<targets>",
           "Target 1 (measure): \"total revenue zzname_order_count\"",
-          "  From order_items (its doc: \"Order line items — the fact table, one row per product sold on an order\"):",
-          "    [1] margin_rate (measure, number; source order_items): Gross margin as a share of revenue",
-          "    [2] total_sales (measure, number; source order_items): Total revenue",
-          "    [3] avg_order_value (measure, number; source order_items): Average order value",
-          "    [4] percent_of_sales (measure, number; source order_items): Share of total sales",
-          "    [5] order_count (measure, number; source order_items): Distinct orders",
-          "    [6] total_margin (measure, number; source order_items): Total gross margin (revenue minus cost of goods sold), summed per line",
-          "    [7] order_item_count (measure, number; source order_items): Line items sold",
-          "    [8] customer_count (measure, number; source order_items): Distinct customers",
-          "    [9] orders_per_customer (measure, number; source order_items): Average orders placed per customer",
-          "    [10] return_rate (measure, number; source order_items): Share of line items that were returned",
-          "  From overview (its doc: \"The overview report's tiles, each over the order lines its controls select\"):",
-          "    [11] margin_rate (measure, number; source overview): Gross margin as a share of revenue",
-          "    [12] total_sales (measure, number; source overview): Total revenue",
-          "    [13] avg_order_value (measure, number; source overview): Average order value",
-          "    [14] percent_of_sales (measure, number; source overview): Share of total sales",
-          "    [15] total_margin (measure, number; source overview): Total gross margin (revenue minus cost of goods sold), summed per line",
-          "    [16] order_count (measure, number; source overview): Distinct orders",
-          "    [17] order_item_count (measure, number; source overview): Line items sold",
-          "    [18] orders_per_customer (measure, number; source overview): Average orders placed per customer",
-          "    [19] customer_count (measure, number; source overview): Distinct customers",
-          "    [20] return_rate (measure, number; source overview): Share of line items that were returned",
-          "  From scoped_orders (its doc: \"Order lines narrowed by the data app's control row. Every tile queries this.\"):",
-          "    [21] total_sales (measure, number; source scoped_orders): Total revenue",
-          "    [22] margin_rate (measure, number; source scoped_orders): Gross margin as a share of revenue",
-          "    [23] avg_order_value (measure, number; source scoped_orders): Average order value",
-          "    [24] percent_of_sales (measure, number; source scoped_orders): Share of total sales",
-          "    [25] total_margin (measure, number; source scoped_orders): Total gross margin (revenue minus cost of goods sold), summed per line",
-          "    [26] order_count (measure, number; source scoped_orders): Distinct orders",
-          "    [27] order_item_count (measure, number; source scoped_orders): Line items sold",
-          "    [28] orders_per_customer (measure, number; source scoped_orders): Average orders placed per customer",
-          "    [29] customer_count (measure, number; source scoped_orders): Distinct customers",
-          "    [30] return_rate (measure, number; source scoped_orders): Share of line items that were returned",
-          "  From customers (its doc: \"People who have placed orders — one row per customer, keyed by `customer_id`\"):",
-          "    [31] customer_count (measure, number; source customers): Distinct customers",
-          "        [32] order_items.customers.customer_count (route from order_items through customers, join_one): only the customers rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
-          "        [33] overview.customers.customer_count (route from overview through customers, join_one): only the customers rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
-          "        [34] scoped_orders.customers.customer_count (route from scoped_orders through customers, join_one): only the customers rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "  [1] total_sales (measure, number; source scoped_orders): Total revenue",
+          "  [2] margin_rate (measure, number; source scoped_orders): Gross margin as a share of revenue",
+          "  [3] avg_order_value (measure, number; source scoped_orders): Average order value",
+          "  [4] percent_of_sales (measure, number; source scoped_orders): Share of total sales",
+          "  [5] total_margin (measure, number; source scoped_orders): Total gross margin (revenue minus cost of goods sold), summed per line",
+          "  [6] order_count (measure, number; source scoped_orders): Distinct orders",
+          "  [7] order_item_count (measure, number; source scoped_orders): Line items sold",
+          "  [8] orders_per_customer (measure, number; source scoped_orders): Average orders placed per customer",
+          "  [9] customer_count (measure, number; source scoped_orders): Distinct customers",
+          "  [10] return_rate (measure, number; source scoped_orders): Share of line items that were returned",
           "</targets>",
           "",
-          "Also in this group:",
-          "  [35] sale_price (dimension, number; source order_items): (no doc; name in words: sale price) | added because: total_sales is computed from it",
-          "  [36] top_products (view; source order_items): Top products by revenue | added because: uses total_sales, total_margin, order_item_count",
-          "  [37] category_performance (view; source order_items): Category performance: revenue, margin, and share of the total | added because: uses total_sales, total_margin, margin_rate, percent_of_sales",
-          "  [38] brand_performance (view; source order_items): Brand performance: revenue, margin, and share of the total | added because: uses total_sales, total_margin, margin_rate, percent_of_sales",
-          "  [39] top_customers (view; source order_items): Top customers by spend | added because: uses total_sales, order_count",
-          "  [40] key_figures (view; source order_items): Revenue, gross margin, orders, customers and average order value | added because: uses total_sales, total_margin, order_count, customer_count, avg_order_value",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                5,
+                1
+              ],
+              "reason": "stand-in: 2 candidate(s) scored 2 or more",
+              "best": 5
+            }
+          ],
+          "caveats": [
+            "stand-in caveat: order_count may answer target 1 too."
+          ]
+        }
+      },
+      {
+        "call": "order",
+        "system_sha256": "9f40894afb1ad7f2fe5efb8eaa1854a21d6f03ac890ad3069e37e040ac666185",
+        "prompt_sha256": "a9ab2d647d7790e9f962fbcf0837da6f5ffe1de2dc851be24e255f0c58234f46",
+        "prompt": [
+          "What the caller is looking for:",
+          "  measure: \"total revenue zzname_order_count\"",
+          "",
+          "<sources>",
+          "[1] order_items - \"Order line items — the fact table, one row per product sold on an order\"",
+          "  Fields search found here:",
+          "    for \"total revenue zzname_order_count\": margin_rate, total_sales, avg_order_value",
+          "[2] overview - \"The overview report's tiles, each over the order lines its controls select\"",
+          "  Fields search found here:",
+          "    for \"total revenue zzname_order_count\": margin_rate, total_sales, avg_order_value",
+          "[3] scoped_orders - \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
+          "  Fields search found here:",
+          "    for \"total revenue zzname_order_count\": total_sales, margin_rate, avg_order_value",
+          "</sources>",
           "",
           "Reply with one JSON object and nothing else:",
-          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
-          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+          "{\"sources\": [<every source number, best first>]}"
+        ],
+        "reply": {
+          "sources": [
+            1,
+            2,
+            3
+          ]
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "bbc1125e7dfae61480e79e7ef4e547e1710befc47278a5823ffd88497a1d97ae",
+        "prompt": [
+          "Source: order_items - Order line items — the fact table, one row per product sold on an order.",
+          "Its doc: \"Order line items — the fact table, one row per product sold on an order\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"total revenue zzname_order_count\"",
+          "  [1] margin_rate (measure, number; source order_items): Gross margin as a share of revenue",
+          "  [2] total_sales (measure, number; source order_items): Total revenue",
+          "  [3] avg_order_value (measure, number; source order_items): Average order value",
+          "  [4] percent_of_sales (measure, number; source order_items): Share of total sales",
+          "  [5] order_count (measure, number; source order_items): Distinct orders",
+          "  [6] total_margin (measure, number; source order_items): Total gross margin (revenue minus cost of goods sold), summed per line",
+          "  [7] order_item_count (measure, number; source order_items): Line items sold",
+          "  [8] customer_count (measure, number; source order_items): Distinct customers",
+          "  [9] orders_per_customer (measure, number; source order_items): Average orders placed per customer",
+          "  [10] return_rate (measure, number; source order_items): Share of line items that were returned",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
         ],
         "reply": {
           "picks": [
@@ -452,14 +477,53 @@
               "target": 1,
               "candidates": [
                 6,
-                15,
-                25,
-                2,
-                12,
-                21
+                2
               ],
-              "reason": "stand-in: 6 candidate(s) scored 2 or more",
+              "reason": "stand-in: 2 candidate(s) scored 2 or more",
               "best": 6
+            }
+          ],
+          "caveats": [
+            "stand-in caveat: order_count may answer target 1 too."
+          ]
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "f27823bbd3021376ebe9c5e2fbb7dda56ae9dc5fa002061cd589a74fc1e83b43",
+        "prompt": [
+          "Source: overview - The overview report's tiles, each over the order lines its controls select.",
+          "Its doc: \"The overview report's tiles, each over the order lines its controls select\"",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"total revenue zzname_order_count\"",
+          "  [1] margin_rate (measure, number; source overview): Gross margin as a share of revenue",
+          "  [2] total_sales (measure, number; source overview): Total revenue",
+          "  [3] avg_order_value (measure, number; source overview): Average order value",
+          "  [4] percent_of_sales (measure, number; source overview): Share of total sales",
+          "  [5] total_margin (measure, number; source overview): Total gross margin (revenue minus cost of goods sold), summed per line",
+          "  [6] order_count (measure, number; source overview): Distinct orders",
+          "  [7] order_item_count (measure, number; source overview): Line items sold",
+          "  [8] orders_per_customer (measure, number; source overview): Average orders placed per customer",
+          "  [9] customer_count (measure, number; source overview): Distinct customers",
+          "  [10] return_rate (measure, number; source overview): Share of line items that were returned",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                5,
+                2
+              ],
+              "reason": "stand-in: 2 candidate(s) scored 2 or more",
+              "best": 5
             }
           ],
           "caveats": [

@@ -358,6 +358,16 @@ beforeAll(async () => {
             },
          },
          report: withoutTimings(state.index.report),
+         // What publisher.json's retrieval block said at load: a key a
+         // release no longer reads loads with one warning naming it.
+         ...(() => {
+            const warnings = (pkg.getPackageMetadata().warnings ?? [])
+               .map((w) => w.message)
+               .filter((m): m is string => Boolean(m?.includes(" retrieval.")));
+            return warnings.length > 0
+               ? { retrieval_load_warnings: warnings.sort() }
+               : {};
+         })(),
          traffic: {
             embedding_calls: traffic.embeddingCalls,
             embedded_texts: texts.length,
@@ -479,6 +489,7 @@ function judgeRecord(c: ChatCall) {
       }
    }
    return {
+      call: c.kind === "order" ? "order" : "pick",
       system_sha256: sha256(c.system),
       prompt_sha256: sha256(c.prompt),
       prompt: c.prompt.split("\n"),
@@ -491,8 +502,10 @@ async function step(params: Record<string, unknown>) {
    traffic.reset();
    const { parsed, result } = await call(params);
    assertStandInsRead(traffic.chatCalls, "this request");
-   const judge = traffic.chatCalls.filter((c) => c.kind === "judge");
-   const other = traffic.chatCalls.filter((c) => c.kind !== "judge");
+   // Box 5's calls: one pick call per kept source, and the ordering call.
+   const isJudge = (c: ChatCall) => c.kind === "judge" || c.kind === "order";
+   const judge = traffic.chatCalls.filter(isJudge);
+   const other = traffic.chatCalls.filter((c) => !isJudge(c));
    // Calls sent together complete in any order: record them by content.
    const judged = judge
       .map(judgeRecord)

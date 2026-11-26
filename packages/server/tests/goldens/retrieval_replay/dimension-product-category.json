@@ -64,6 +64,23 @@
               ]
             },
             {
+              "name": "products.category",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:products.category",
+              "relevance": 0.9122767857142856,
+              "description": "Reached from order_items through products, a left join: a order_items row with no match keeps a null here, so grouping or counting by it follows order_items's rows.",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "products",
+              "matched_targets": [
+                {
+                  "search_text": "product category of the item sold",
+                  "relevance": 0.9123,
+                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
               "name": "product_id",
               "entity_type": "dimension",
               "entity_id": "dimension:order_items:product_id",
@@ -76,219 +93,67 @@
                   "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
                 }
               ]
-            }
-          ],
-          "relevance": 1
-        },
-        {
-          "source_info": {
-            "resource_id": {
-              "environment": "examples",
-              "package": "storefront",
-              "model_path": "overview.malloy",
-              "source": "overview"
             },
-            "one_line_summary": "The overview report's tiles, each over the order lines its controls select.",
-            "docs": "The overview report's tiles, each over the order lines its controls select",
-            "givens": [
-              {
-                "name": "CATEGORY",
-                "type": "filter<string>",
-                "default": "f''"
-              },
-              {
-                "name": "BRAND",
-                "type": "filter<string>",
-                "default": "f''"
-              },
-              {
-                "name": "REGION",
-                "type": "filter<string>",
-                "default": "f''"
-              },
-              {
-                "name": "SINCE",
-                "type": "date",
-                "default": "@2023-01-01"
-              },
-              {
-                "name": "MIN_SALE",
-                "type": "filter<number>",
-                "default": "f''"
-              }
-            ],
-            "joins": [
-              {
-                "name": "customers",
-                "relationship": "one",
-                "doc": "Customer who placed the order"
-              },
-              {
-                "name": "products",
-                "relationship": "one",
-                "doc": "Product sold on this line"
-              },
-              {
-                "name": "regions",
-                "relationship": "one",
-                "doc": "Sales region for the customer's home state"
-              }
-            ]
-          },
-          "entities": [
             {
-              "name": "category",
+              "name": "products.brand",
               "entity_type": "dimension",
-              "entity_id": "dimension:overview:category",
-              "relevance": 0.9838709677419354,
-              "description": "Product category of the item sold",
+              "entity_id": "dimension:order_items:products.brand",
+              "relevance": 0.7175976884975233,
+              "description": "Reached from order_items through products, a left join: a order_items row with no match keeps a null here, so grouping or counting by it follows order_items's rows.",
               "data_type": "string",
+              "relationship": "one",
+              "join_path": "products",
               "matched_targets": [
                 {
                   "search_text": "product category of the item sold",
-                  "relevance": 0.9839,
+                  "relevance": 0.7176,
                   "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
                 }
               ]
             },
             {
-              "name": "product_id",
+              "name": "products.cost",
               "entity_type": "dimension",
-              "entity_id": "dimension:overview:product_id",
-              "relevance": 0.8094988650253186,
+              "entity_id": "dimension:order_items:products.cost",
+              "relevance": 0.7092069892473118,
+              "description": "Reached from order_items through products, a left join: a order_items row with no match keeps a null here, so grouping or counting by it follows order_items's rows.",
               "data_type": "number",
+              "relationship": "one",
+              "join_path": "products",
               "matched_targets": [
                 {
                   "search_text": "product category of the item sold",
-                  "relevance": 0.8095,
+                  "relevance": 0.7092,
                   "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
                 }
               ]
-            }
-          ],
-          "relevance": 0.9838709677419354
-        },
-        {
-          "source_info": {
-            "resource_id": {
-              "environment": "examples",
-              "package": "storefront",
-              "model_path": "data_app.malloy",
-              "source": "scoped_orders"
             },
-            "one_line_summary": "Order lines narrowed by the data app's control row.",
-            "docs": "Order lines narrowed by the data app's control row. Every tile queries this.",
-            "givens": [
-              {
-                "name": "CATEGORY",
-                "type": "filter<string>",
-                "default": "f''"
-              },
-              {
-                "name": "BRAND",
-                "type": "filter<string>",
-                "default": "f''"
-              },
-              {
-                "name": "REGION",
-                "type": "filter<string>",
-                "default": "f''"
-              },
-              {
-                "name": "SINCE",
-                "type": "date",
-                "default": "@2023-01-01"
-              },
-              {
-                "name": "MIN_SALE",
-                "type": "filter<number>",
-                "default": "f''"
-              }
-            ],
-            "joins": [
-              {
-                "name": "customers",
-                "relationship": "one",
-                "doc": "Customer who placed the order"
-              },
-              {
-                "name": "products",
-                "relationship": "one",
-                "doc": "Product sold on this line"
-              },
-              {
-                "name": "regions",
-                "relationship": "one",
-                "doc": "Sales region for the customer's home state"
-              }
-            ]
-          },
-          "entities": [
             {
-              "name": "category",
+              "name": "products.name",
               "entity_type": "dimension",
-              "entity_id": "dimension:scoped_orders:category",
-              "relevance": 0.9682539682539681,
-              "description": "Product category of the item sold",
+              "entity_id": "dimension:order_items:products.name",
+              "relevance": 0.8061206746652756,
+              "description": "Reached from order_items through products, a left join: a order_items row with no match keeps a null here, so grouping or counting by it follows order_items's rows.",
               "data_type": "string",
+              "relationship": "one",
+              "join_path": "products",
               "matched_targets": [
                 {
                   "search_text": "product category of the item sold",
-                  "relevance": 0.9683,
+                  "relevance": 0.8061,
                   "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
                 }
               ]
             },
             {
-              "name": "product_id",
+              "name": "products.product_id",
               "entity_type": "dimension",
-              "entity_id": "dimension:scoped_orders:product_id",
-              "relevance": 0.7867063492063491,
-              "data_type": "number",
-              "matched_targets": [
-                {
-                  "search_text": "product category of the item sold",
-                  "relevance": 0.7867,
-                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
-                }
-              ]
-            }
-          ],
-          "relevance": 0.9682539682539681
-        },
-        {
-          "source_info": {
-            "resource_id": {
-              "environment": "examples",
-              "package": "storefront",
-              "model_path": "storefront.malloy",
-              "source": "products"
-            },
-            "one_line_summary": "Catalog of products, one row per product, with cost and retail price.",
-            "docs": "Catalog of products, one row per product, with cost and retail price",
-            "joins": []
-          },
-          "entities": [
-            {
-              "name": "category",
-              "entity_type": "dimension",
-              "entity_id": "dimension:products:category",
-              "relevance": 0.9122767857142856,
-              "data_type": "string",
-              "matched_targets": [
-                {
-                  "search_text": "product category of the item sold",
-                  "relevance": 0.9123,
-                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
-                }
-              ]
-            },
-            {
-              "name": "product_id",
-              "entity_type": "dimension",
-              "entity_id": "dimension:products:product_id",
+              "entity_id": "dimension:order_items:products.product_id",
               "relevance": 0.7820512820512819,
+              "description": "Reached from order_items through products, a left join: a order_items row with no match keeps a null here, so grouping or counting by it follows order_items's rows.",
               "data_type": "number",
+              "relationship": "one",
+              "join_path": "products",
               "matched_targets": [
                 {
                   "search_text": "product category of the item sold",
@@ -296,14 +161,31 @@
                   "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
                 }
               ]
+            },
+            {
+              "name": "products.retail_price",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:products.retail_price",
+              "relevance": 0.6831757093081134,
+              "description": "Reached from order_items through products, a left join: a order_items row with no match keeps a null here, so grouping or counting by it follows order_items's rows.",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "products",
+              "matched_targets": [
+                {
+                  "search_text": "product category of the item sold",
+                  "relevance": 0.6832,
+                  "match_reason": "stand-in: 8 candidate(s) scored 2 or more"
+                }
+              ]
             }
           ],
-          "relevance": 0.9122767857142856
+          "relevance": 1
         }
       ],
       "ranking": "relevance",
-      "total_available": 4,
-      "returned": 4,
+      "total_available": 1,
+      "returned": 1,
       "retrieval": "semantic",
       "engine": "fcj",
       "clusters": [
@@ -315,10 +197,6 @@
           "sources": [
             {
               "source": "order_items",
-              "joins": []
-            },
-            {
-              "source": "products",
               "joins": [
                 "products"
               ]
@@ -330,80 +208,15 @@
           "picks": {
             "0": [
               "dimension:order_items:category",
-              "dimension:products:category",
+              "dimension:order_items:products.category",
               "dimension:order_items:product_id",
-              "dimension:products:product_id"
+              "dimension:order_items:products.brand",
+              "dimension:order_items:products.cost",
+              "dimension:order_items:products.name",
+              "dimension:order_items:products.product_id",
+              "dimension:order_items:products.retail_price"
             ]
           }
-        },
-        {
-          "query_from": {
-            "source": "overview",
-            "model_path": "overview.malloy"
-          },
-          "sources": [
-            {
-              "source": "overview",
-              "joins": []
-            },
-            {
-              "source": "products",
-              "joins": [
-                "products"
-              ]
-            }
-          ],
-          "covers": [
-            0
-          ],
-          "picks": {
-            "0": [
-              "dimension:overview:category",
-              "dimension:products:category",
-              "dimension:overview:product_id",
-              "dimension:products:product_id"
-            ]
-          }
-        },
-        {
-          "query_from": {
-            "source": "scoped_orders",
-            "model_path": "data_app.malloy"
-          },
-          "sources": [
-            {
-              "source": "scoped_orders",
-              "joins": []
-            },
-            {
-              "source": "products",
-              "joins": [
-                "products"
-              ]
-            }
-          ],
-          "covers": [
-            0
-          ],
-          "picks": {
-            "0": [
-              "dimension:scoped_orders:category",
-              "dimension:products:category",
-              "dimension:products:product_id",
-              "dimension:scoped_orders:product_id"
-            ]
-          }
-        }
-      ],
-      "coverage": [
-        {
-          "target_index": 0,
-          "search_text": "product category of the item sold",
-          "clusters": [
-            true,
-            true,
-            true
-          ]
         }
       ],
       "unresolved_targets": [],
@@ -425,101 +238,37 @@
     "embedded_texts": [
       "product category of the item sold"
     ],
-    "judge_calls": 1,
+    "judge_calls": 6,
     "judge": [
       {
-        "system_sha256": "9f5997fde3c4a50ca93d49e0090e8c6b85eab6867ed48888adaf95f6f77a40c2",
-        "prompt_sha256": "e9fa04a224c6a022079762565934169b3b93dcb67387d2cb59c652c0442929b4",
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "1146c6ce4b49000e464c1570d9dae56633f36501299253db7ea7a7dc56422bf5",
         "prompt": [
-          "Sources with candidates:",
-          "- order_items - Order line items — the fact table, one row per product sold on an order.",
-          "  Its doc begins: \"Order line items — the fact table, one row per product sold on an order\"",
-          "  A query from order_items can also use: customers (through order_items.customers), products (through order_items.products).",
-          "- overview - The overview report's tiles, each over the order lines its controls select.",
-          "  Its doc begins: \"The overview report's tiles, each over the order lines its controls select\"",
-          "  A query from overview can also use: customers (through overview.customers), products (through overview.products).",
-          "- scoped_orders - Order lines narrowed by the data app's control row.",
-          "  Its doc begins: \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
-          "  A query from scoped_orders can also use: customers (through scoped_orders.customers), products (through scoped_orders.products).",
-          "- products - Catalog of products, one row per product, with cost and retail price.",
-          "  Its doc begins: \"Catalog of products, one row per product, with cost and retail price\"",
-          "  A query from products can use none of the other listed sources.",
-          "- brand_suggest - Distinct brands, for the Brand filter control's option list.",
-          "  Its doc begins: \"Distinct brands, for the Brand filter control's option list\"",
-          "  A query from brand_suggest can use none of the other listed sources.",
-          "- customers - People who have placed orders — one row per customer, keyed by `customer_id`.",
-          "  Its doc begins: \"People who have placed orders — one row per customer, keyed by `customer_id`\"",
-          "  A query from customers can use none of the other listed sources.",
+          "Source: scoped_orders - Order lines narrowed by the data app's control row.",
+          "Its doc: \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
           "",
           "<targets>",
           "Target 1 (dimension): \"product category of the item sold\"",
-          "  From order_items (its doc: \"Order line items — the fact table, one row per product sold on an order\"):",
-          "    [1] category (dimension, string; source order_items): Product category of the item sold",
-          "    [2] brand (dimension, string; source order_items): Brand of the item sold",
-          "    [3] product_id (dimension, number; source order_items): (no doc; name in words: product id)",
-          "    [4] id (dimension, number; source order_items): (no doc; name in words: id)",
-          "    [5] created_at (dimension, date; source order_items): (no doc; name in words: created at)",
-          "    [6] customer_id (dimension, number; source order_items): (no doc; name in words: customer id)",
-          "    [7] status (dimension, string; source order_items): (no doc; name in words: status)",
-          "    [8] sale_price (dimension, number; source order_items): (no doc; name in words: sale price)",
-          "    [9] order_id (dimension, number; source order_items): (no doc; name in words: order id)",
-          "    [10] region (dimension, string; source order_items): Sales region for the customer's home state",
-          "    [11] gross_margin (dimension, number; source order_items): Gross margin on this line (sale price minus product cost)",
-          "  From overview (its doc: \"The overview report's tiles, each over the order lines its controls select\"):",
-          "    [12] category (dimension, string; source overview): Product category of the item sold",
-          "    [13] brand (dimension, string; source overview): Brand of the item sold",
-          "    [14] product_id (dimension, number; source overview): (no doc; name in words: product id)",
-          "    [15] gross_margin (dimension, number; source overview): Gross margin on this line (sale price minus product cost)",
-          "    [16] created_at (dimension, date; source overview): (no doc; name in words: created at)",
-          "    [17] customer_id (dimension, number; source overview): (no doc; name in words: customer id)",
-          "    [18] id (dimension, number; source overview): (no doc; name in words: id)",
-          "    [19] order_id (dimension, number; source overview): (no doc; name in words: order id)",
-          "  From scoped_orders (its doc: \"Order lines narrowed by the data app's control row. Every tile queries this.\"):",
-          "    [20] category (dimension, string; source scoped_orders): Product category of the item sold",
-          "    [21] brand (dimension, string; source scoped_orders): Brand of the item sold",
-          "    [22] product_id (dimension, number; source scoped_orders): (no doc; name in words: product id)",
-          "    [23] gross_margin (dimension, number; source scoped_orders): Gross margin on this line (sale price minus product cost)",
-          "    [24] created_at (dimension, date; source scoped_orders): (no doc; name in words: created at)",
-          "    [25] customer_id (dimension, number; source scoped_orders): (no doc; name in words: customer id)",
-          "    [26] id (dimension, number; source scoped_orders): (no doc; name in words: id)",
-          "    [27] sale_price (dimension, number; source scoped_orders): (no doc; name in words: sale price)",
-          "  From products (its doc: \"Catalog of products, one row per product, with cost and retail price\"):",
-          "    [28] category (dimension, string; source products): (no doc; name in words: category)",
-          "        [29] order_items.products.category (route from order_items through products, join_one): only the products rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
-          "        [30] overview.products.category (route from overview through products, join_one): only the products rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
-          "        [31] scoped_orders.products.category (route from scoped_orders through products, join_one): only the products rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
-          "    [32] name (dimension, string; source products): (no doc; name in words: name)",
-          "        [33] order_items.products.name (route from order_items through products, join_one): only the products rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
-          "        [34] overview.products.name (route from overview through products, join_one): only the products rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
-          "        [35] scoped_orders.products.name (route from scoped_orders through products, join_one): only the products rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
-          "    [36] product_id (dimension, number; source products): (no doc; name in words: product id)",
-          "        [37] order_items.products.product_id (route from order_items through products, join_one): only the products rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
-          "        [38] overview.products.product_id (route from overview through products, join_one): only the products rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
-          "        [39] scoped_orders.products.product_id (route from scoped_orders through products, join_one): only the products rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
-          "    [40] brand (dimension, string; source products): (no doc; name in words: brand)",
-          "        [41] order_items.products.brand (route from order_items through products, join_one): only the products rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
-          "        [42] overview.products.brand (route from overview through products, join_one): only the products rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
-          "        [43] scoped_orders.products.brand (route from scoped_orders through products, join_one): only the products rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
-          "    [44] cost (dimension, number; source products): (no doc; name in words: cost)",
-          "        [45] order_items.products.cost (route from order_items through products, join_one): only the products rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
-          "        [46] overview.products.cost (route from overview through products, join_one): only the products rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
-          "        [47] scoped_orders.products.cost (route from scoped_orders through products, join_one): only the products rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
-          "    [48] retail_price (dimension, number; source products): (no doc; name in words: retail price)",
-          "        [49] order_items.products.retail_price (route from order_items through products, join_one): only the products rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
-          "        [50] overview.products.retail_price (route from overview through products, join_one): only the products rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
-          "        [51] scoped_orders.products.retail_price (route from scoped_orders through products, join_one): only the products rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
-          "  From brand_suggest (its doc: \"Distinct brands, for the Brand filter control's option list\"):",
-          "    [52] brand (dimension, string; source brand_suggest): Brand of the item sold",
-          "  From customers:",
-          "    [53] full_name (dimension, string; source customers): (no doc; name in words: full name)",
-          "        [54] order_items.customers.full_name (route from order_items through customers, join_one): only the customers rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
-          "        [55] overview.customers.full_name (route from overview through customers, join_one): only the customers rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
-          "        [56] scoped_orders.customers.full_name (route from scoped_orders through customers, join_one): only the customers rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "  [1] category (dimension, string; source scoped_orders): Product category of the item sold",
+          "  [2] products.category (dimension, string; source scoped_orders; through the join products): (no doc; name in words: products category)",
+          "  [3] brand (dimension, string; source scoped_orders): Brand of the item sold",
+          "  [4] products.name (dimension, string; source scoped_orders; through the join products): (no doc; name in words: products name)",
+          "  [5] product_id (dimension, number; source scoped_orders): (no doc; name in words: product id)",
+          "  [6] products.product_id (dimension, number; source scoped_orders; through the join products): (no doc; name in words: products product id)",
+          "  [7] products.brand (dimension, string; source scoped_orders; through the join products): (no doc; name in words: products brand)",
+          "  [8] products.cost (dimension, number; source scoped_orders; through the join products): (no doc; name in words: products cost)",
+          "  [9] products.retail_price (dimension, number; source scoped_orders; through the join products): (no doc; name in words: products retail price)",
+          "  [10] gross_margin (dimension, number; source scoped_orders): Gross margin on this line (sale price minus product cost)",
+          "  [11] created_at (dimension, date; source scoped_orders): (no doc; name in words: created at)",
+          "  [12] customer_id (dimension, number; source scoped_orders): (no doc; name in words: customer id)",
+          "  [13] id (dimension, number; source scoped_orders): (no doc; name in words: id)",
+          "  [14] sale_price (dimension, number; source scoped_orders): (no doc; name in words: sale price)",
           "</targets>",
           "",
           "Reply with one JSON object and nothing else:",
-          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
-          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
         ],
         "reply": {
           "picks": [
@@ -527,16 +276,221 @@
               "target": 1,
               "candidates": [
                 1,
-                12,
-                20,
-                28,
-                3,
-                14,
-                36,
-                22
+                2,
+                5,
+                7,
+                8,
+                4,
+                6,
+                9
               ],
               "reason": "stand-in: 8 candidate(s) scored 2 or more",
               "best": 1
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "order",
+        "system_sha256": "9f40894afb1ad7f2fe5efb8eaa1854a21d6f03ac890ad3069e37e040ac666185",
+        "prompt_sha256": "25c4084f5a9ca70027e2e35e2773b2fe4ab6a0c8efed7fd493c1e446d3fa1c1c",
+        "prompt": [
+          "What the caller is looking for:",
+          "  dimension: \"product category of the item sold\"",
+          "",
+          "<sources>",
+          "[1] order_items - \"Order line items — the fact table, one row per product sold on an order\"",
+          "  Fields search found here:",
+          "    for \"product category of the item sold\": category, brand, products.category",
+          "[2] overview - \"The overview report's tiles, each over the order lines its controls select\"",
+          "  Fields search found here:",
+          "    for \"product category of the item sold\": category, products.category, brand",
+          "[3] scoped_orders - \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
+          "  Fields search found here:",
+          "    for \"product category of the item sold\": category, products.category, brand",
+          "[4] products - \"Catalog of products, one row per product, with cost and retail price\"",
+          "  Fields search found here:",
+          "    for \"product category of the item sold\": category, name, product_id",
+          "[5] brand_suggest - \"Distinct brands, for the Brand filter control's option list\"",
+          "  Fields search found here:",
+          "    for \"product category of the item sold\": brand",
+          "</sources>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"sources\": [<every source number, best first>]}"
+        ],
+        "reply": {
+          "sources": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "785c0eff82b327a1566497b6420992afc37faf3a44a48320fd8f0b71244dbca9",
+        "prompt": [
+          "Source: order_items - Order line items — the fact table, one row per product sold on an order.",
+          "Its doc: \"Order line items — the fact table, one row per product sold on an order\"",
+          "",
+          "<targets>",
+          "Target 1 (dimension): \"product category of the item sold\"",
+          "  [1] category (dimension, string; source order_items): Product category of the item sold",
+          "  [2] brand (dimension, string; source order_items): Brand of the item sold",
+          "  [3] products.category (dimension, string; source order_items; through the join products): (no doc; name in words: products category)",
+          "  [4] product_id (dimension, number; source order_items): (no doc; name in words: product id)",
+          "  [5] id (dimension, number; source order_items): (no doc; name in words: id)",
+          "  [6] created_at (dimension, date; source order_items): (no doc; name in words: created at)",
+          "  [7] customer_id (dimension, number; source order_items): (no doc; name in words: customer id)",
+          "  [8] status (dimension, string; source order_items): (no doc; name in words: status)",
+          "  [9] sale_price (dimension, number; source order_items): (no doc; name in words: sale price)",
+          "  [10] order_id (dimension, number; source order_items): (no doc; name in words: order id)",
+          "  [11] products.name (dimension, string; source order_items; through the join products): (no doc; name in words: products name)",
+          "  [12] region (dimension, string; source order_items): Sales region for the customer's home state",
+          "  [13] products.product_id (dimension, number; source order_items; through the join products): (no doc; name in words: products product id)",
+          "  [14] gross_margin (dimension, number; source order_items): Gross margin on this line (sale price minus product cost)",
+          "  [15] products.brand (dimension, string; source order_items; through the join products): (no doc; name in words: products brand)",
+          "  [16] products.cost (dimension, number; source order_items; through the join products): (no doc; name in words: products cost)",
+          "  [17] products.retail_price (dimension, number; source order_items; through the join products): (no doc; name in words: products retail price)",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                1,
+                3,
+                4,
+                15,
+                16,
+                11,
+                13,
+                17
+              ],
+              "reason": "stand-in: 8 candidate(s) scored 2 or more",
+              "best": 1
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "c44f75715d1b856ec8cf5a5fec0f63958de65cd71d85f9833c8772281f5d474d",
+        "prompt": [
+          "Source: overview - The overview report's tiles, each over the order lines its controls select.",
+          "Its doc: \"The overview report's tiles, each over the order lines its controls select\"",
+          "",
+          "<targets>",
+          "Target 1 (dimension): \"product category of the item sold\"",
+          "  [1] category (dimension, string; source overview): Product category of the item sold",
+          "  [2] products.category (dimension, string; source overview; through the join products): (no doc; name in words: products category)",
+          "  [3] brand (dimension, string; source overview): Brand of the item sold",
+          "  [4] product_id (dimension, number; source overview): (no doc; name in words: product id)",
+          "  [5] products.name (dimension, string; source overview; through the join products): (no doc; name in words: products name)",
+          "  [6] products.product_id (dimension, number; source overview; through the join products): (no doc; name in words: products product id)",
+          "  [7] products.brand (dimension, string; source overview; through the join products): (no doc; name in words: products brand)",
+          "  [8] products.cost (dimension, number; source overview; through the join products): (no doc; name in words: products cost)",
+          "  [9] products.retail_price (dimension, number; source overview; through the join products): (no doc; name in words: products retail price)",
+          "  [10] gross_margin (dimension, number; source overview): Gross margin on this line (sale price minus product cost)",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                1,
+                2,
+                4,
+                7,
+                8,
+                5,
+                6,
+                9
+              ],
+              "reason": "stand-in: 8 candidate(s) scored 2 or more",
+              "best": 1
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "c72b71708ca15e8daa7842d04d8df6ff35a8f707b63aaf8b331122dc20ac4b3e",
+        "prompt": [
+          "Source: products - Catalog of products, one row per product, with cost and retail price.",
+          "Its doc: \"Catalog of products, one row per product, with cost and retail price\"",
+          "",
+          "<targets>",
+          "Target 1 (dimension): \"product category of the item sold\"",
+          "  [1] category (dimension, string; source products): (no doc; name in words: category)",
+          "  [2] name (dimension, string; source products): (no doc; name in words: name)",
+          "  [3] product_id (dimension, number; source products): (no doc; name in words: product id)",
+          "  [4] brand (dimension, string; source products): (no doc; name in words: brand)",
+          "  [5] cost (dimension, number; source products): (no doc; name in words: cost)",
+          "  [6] retail_price (dimension, number; source products): (no doc; name in words: retail price)",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                1,
+                3
+              ],
+              "reason": "stand-in: 2 candidate(s) scored 2 or more",
+              "best": 1
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "call": "pick",
+        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
+        "prompt_sha256": "f256c9b7df0a965b0ddbe6afae886090925ed624cad3e1eeb398eb015440a201",
+        "prompt": [
+          "Source: brand_suggest - Distinct brands, for the Brand filter control's option list.",
+          "Its doc: \"Distinct brands, for the Brand filter control's option list\"",
+          "",
+          "<targets>",
+          "Target 1 (dimension): \"product category of the item sold\"",
+          "  [1] brand (dimension, string; source brand_suggest): Brand of the item sold",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
             }
           ],
           "caveats": []
