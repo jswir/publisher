@@ -16,7 +16,9 @@
  * - Values matched in the value index ride under their dimension as
  *   `values[]`, cut to the ones the call named.
  * - `clusters` has one entry per card: the source to query from, the targets
- *   it answers, its picks and its call's caveats. `coverage` (target by
+ *   it answers, its picks and its call's caveats (a caveat, or a field's
+ *   reason, that names a field search offered and no card serves is
+ *   dropped: {@link servedCaveats}). `coverage` (target by
  *   entry) is there when there are two or more entries, and
  *   `unresolved_targets` names a target no card answers.
  *
@@ -107,20 +109,33 @@ export const PERIOD_FIELD_REASON =
    "A date or time field of this source, returned because the question names a period.";
 
 /**
- * The caveats of a source's call that name no field of the source its call
- * picked and the limits cut: a caveat never points at a field the response
- * does not carry.
+ * The caveats (or reasons) that name none of `unserved`: a caveat never
+ * points at a field the response does not carry. A name matches as a whole
+ * name, so `state` does not match inside `customers.state`.
  */
 export function servedCaveats(
    caveats: readonly string[],
-   cutNames: ReadonlySet<string>,
+   unserved: ReadonlySet<string>,
 ): string[] {
-   if (cutNames.size === 0) return [...caveats];
-   const named = (c: string, name: string) =>
-      new RegExp(
-         `(^|[^A-Za-z0-9_.])${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}($|[^A-Za-z0-9_])`,
-      ).test(c);
-   return caveats.filter((c) => ![...cutNames].some((n) => named(c, n)));
+   if (unserved.size === 0) return [...caveats];
+   return caveats.filter((c) => ![...unserved].some((n) => namesField(c, n)));
+}
+
+/** Whether `text` names the field `name` as a whole name. */
+function namesField(text: string, name: string): boolean {
+   return new RegExp(
+      `(^|[^A-Za-z0-9_.])${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}($|[^A-Za-z0-9_])`,
+   ).test(text);
+}
+
+/**
+ * The names a field goes by in a caveat or a reason: its name on the card
+ * and, for a field reached through a join, its own short name.
+ */
+function namesOf(field: Field): string[] {
+   return field.joined || field.joinPath
+      ? [field.name, field.node.name]
+      : [field.name];
 }
 
 /** A field path as the value lookup takes it: one name, or its segments. */
@@ -290,6 +305,8 @@ export async function format(args: FormatArgs): Promise<Formatted> {
 
    const clusters: unknown[] = [];
    const covers: number[][] = [];
+   /** Every name a served field goes by, on any card. */
+   const servedNames = new Set<string>();
    const answered = new Set<number>();
    const limited = limitPicks(
       ranked,
@@ -376,24 +393,47 @@ export async function format(args: FormatArgs): Promise<Formatted> {
          });
          order.push(rowKey);
       }
-      const served = new Set(Object.values(picks).flat());
-      const cutNames = new Set(
-         (ranked.find((x) => x.source === r.source)?.picks ?? [])
-            .flatMap((p) => p.keys)
-            .filter((k) => !periodKeys.includes(k))
-            .map((k) => fieldOf(index.catalog, k))
-            .filter((f): f is Field => f !== undefined && !served.has(f.id))
-            .map((f) => f.name),
-      );
-      const caveats = servedCaveats(r.caveats, cutNames);
+      for (const key of [...periodKeys, ...r.picks.flatMap((p) => p.keys)]) {
+         const field = fieldOf(index.catalog, key);
+         if (field) for (const n of namesOf(field)) servedNames.add(n);
+      }
       covers.push(covered);
       clusters.push({
          query_from: { source: source.name, model_path: mp },
          sources: [{ source: source.name, joins: [...joins].sort() }],
          covers: covered,
          picks,
-         ...(caveats.length > 0 ? { caveats } : {}),
+         ...(r.caveats.length > 0 ? { caveats: r.caveats } : {}),
       });
+   }
+
+   // A caveat or a reason that names a field search offered, or a call
+   // picked, that no card serves is dropped: it would point at a field the
+   // response does not carry.
+   const unserved = new Set<string>();
+   for (const key of [
+      ...grouped.sources.flatMap((g) => [
+         ...[...g.offers.values()].flat().map((o) => o.hit.key),
+         ...(g.periodDates ?? []),
+      ]),
+      ...ranked.flatMap((r) => r.picks.flatMap((p) => p.keys)),
+   ]) {
+      const field = fieldOf(index.catalog, key);
+      if (!field) continue;
+      for (const n of namesOf(field)) if (!servedNames.has(n)) unserved.add(n);
+   }
+   for (const c of clusters as Array<{ caveats?: string[] }>) {
+      if (!c.caveats) continue;
+      const kept = servedCaveats(c.caveats, unserved);
+      if (kept.length > 0) c.caveats = kept;
+      else delete c.caveats;
+   }
+   for (const row of rows.values()) {
+      for (const [target, reason] of row.targetReasons ?? []) {
+         if (servedCaveats([reason], unserved).length === 0) {
+            row.targetReasons!.delete(target);
+         }
+      }
    }
 
    // Every card is built under one model path per source.

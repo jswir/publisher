@@ -609,6 +609,89 @@ describe("format: joined fields, period fields and what the notes name", () => {
       ]);
    });
 
+   it("drops a caveat or a reason naming a candidate field no card serves, by its name or a joined field's short name", async () => {
+      const ARRIVAL = "dimension:flights@travel.malloy:arrival_code";
+      const ORIGIN = "dimension:flights@travel.malloy:origin_code";
+      const offer = (key: string, rank: number) => ({
+         hit: { key, score: 1, ranks: {} },
+         rank,
+      });
+      const out = await format({
+         ...base(),
+         grouped: {
+            sources: [
+               {
+                  source: "flights@travel.malloy",
+                  score: 1,
+                  offers: new Map([
+                     [0, [offer(FLIGHTS, 1)]],
+                     [
+                        1,
+                        [
+                           offer(ORIGIN, 1),
+                           offer(ARRIVAL, 2),
+                           {
+                              ...offer(
+                                 joinedKey(
+                                    "flights@travel.malloy",
+                                    ["origin"],
+                                    NAME,
+                                 ),
+                                 3,
+                              ),
+                              via: NAME,
+                           },
+                        ],
+                     ],
+                  ]),
+               },
+            ],
+            unresolved: [],
+         },
+         targets: [t(0, "measure", "count"), t(1, "dimension", "airport")],
+         ranked: [
+            {
+               source: "flights@travel.malloy",
+               picks: [
+                  { target: 0, keys: [FLIGHTS], reason: "counts flights" },
+                  {
+                     target: 1,
+                     keys: [ORIGIN],
+                     reason: "not arrival_code, which is the other end",
+                  },
+               ],
+               caveats: [
+                  "arrival_code may answer target 2 too.",
+                  "origin.airport_name is the name, not the code.",
+                  "airport_name is on airports.",
+                  "origin_code is the departure airport.",
+                  "flight_count counts legs.",
+               ],
+            },
+         ],
+      });
+      const [cluster] = out.clusters as Array<{ caveats?: string[] }>;
+      // arrival_code (offered, unpicked), origin.airport_name and its short
+      // name airport_name (offered through a join, unpicked) name no served
+      // field; origin_code and flight_count are served.
+      expect(cluster.caveats).toEqual([
+         "origin_code is the departure airport.",
+         "flight_count counts legs.",
+      ]);
+      const entities = (
+         out.sources as Array<{
+            entities: Array<{
+               name: string;
+               matched_targets: Array<{ match_reason?: string }>;
+            }>;
+         }>
+      )[0].entities;
+      const reason = (name: string) =>
+         entities.find((e) => e.name === name)!.matched_targets[0].match_reason;
+      expect(reason("flight_count")).toBe("counts flights");
+      expect(reason("origin_code")).toBeUndefined();
+   });
+
    it("drops a caveat naming a field the later-source limit cut", async () => {
       const out = await format({
          ...base(),

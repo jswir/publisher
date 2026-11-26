@@ -1,6 +1,6 @@
 {
   "case": "judge-caveat-names-unpicked-field",
-  "about": "A caveat naming a field the judge did not pick (zzname_order_count): the \"also likely\" rule returns it beside the picks.",
+  "about": "Each pick call's caveat names order_count (zzname_order_count), a field search offered that no call picked and no card serves: the caveat is dropped, so no caveat points at a field the response does not carry.",
   "request": {
     "search_targets": [
       {
@@ -285,10 +285,7 @@
               "measure:order_items:total_margin",
               "measure:order_items:total_sales"
             ]
-          },
-          "caveats": [
-            "stand-in caveat: order_count may answer target 1 too."
-          ]
+          }
         },
         {
           "query_from": {
@@ -309,10 +306,7 @@
               "measure:overview:total_margin",
               "measure:overview:total_sales"
             ]
-          },
-          "caveats": [
-            "stand-in caveat: order_count may answer target 1 too."
-          ]
+          }
         },
         {
           "query_from": {
@@ -333,10 +327,7 @@
               "measure:scoped_orders:total_margin",
               "measure:scoped_orders:total_sales"
             ]
-          },
-          "caveats": [
-            "stand-in caveat: order_count may answer target 1 too."
-          ]
+          }
         }
       ],
       "coverage": [

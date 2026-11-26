@@ -376,7 +376,7 @@ export const CASES: readonly ReplayCase[] = [
    },
    {
       id: "judge-caveat-names-unpicked-field",
-      about: `A caveat naming a field the judge did not pick (${MARKERS.name}order_count): the "also likely" rule returns it beside the picks.`,
+      about: `Each pick call's caveat names order_count (${MARKERS.name}order_count), a field search offered that no call picked and no card serves: the caveat is dropped, so no caveat points at a field the response does not carry.`,
       params: {
          search_targets: [
             {
