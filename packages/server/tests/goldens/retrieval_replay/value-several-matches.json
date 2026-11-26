@@ -1,0 +1,159 @@
+{
+  "case": "value-several-matches",
+  "about": "A value whose spelling matches several stored values of one field: the judge names the ones that hold the value as a word, and the one it passed over is dropped. The package has a gated source, whose values were not searched.",
+  "request": {
+    "search_targets": [
+      {
+        "target_type": "dimensional_value",
+        "search_text": "Springfield"
+      }
+    ],
+    "scopes": [
+      {
+        "environment": "examples",
+        "package": "replay-governed"
+      }
+    ]
+  },
+  "response": {
+    "is_error": false,
+    "payload": {
+      "sources": [
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-governed",
+              "model_path": "open.malloy",
+              "source": "shipments"
+            },
+            "one_line_summary": "Every shipment, open to every caller.",
+            "docs": "Every shipment, open to every caller.",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "delivery_city",
+              "entity_type": "dimension",
+              "entity_id": "dimension:shipments:delivery_city",
+              "relevance": 1,
+              "description": "City the shipment was delivered to.",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "Springfield",
+                  "relevance": 1,
+                  "match_reason": "stand-in: a stored value matched by spelling, or the one pinned field"
+                }
+              ],
+              "aliases": [
+                "city"
+              ],
+              "values": [
+                {
+                  "value": "West Springfield",
+                  "relevance": 0.9375,
+                  "search_text": "Springfield"
+                },
+                {
+                  "value": "North Springfield",
+                  "relevance": 0.9294,
+                  "search_text": "Springfield"
+                },
+                {
+                  "value": "Springfield Mills",
+                  "relevance": 0.9294,
+                  "search_text": "Springfield"
+                },
+                {
+                  "value": "Springfield Gardens",
+                  "relevance": 0.9158,
+                  "search_text": "Springfield"
+                }
+              ]
+            }
+          ],
+          "relevance": 1
+        }
+      ],
+      "ranking": "relevance",
+      "total_available": 1,
+      "returned": 1,
+      "retrieval": "semantic",
+      "engine": "fcj",
+      "clusters": [
+        {
+          "query_from": {
+            "source": "shipments",
+            "model_path": "open.malloy"
+          },
+          "sources": [
+            {
+              "source": "shipments",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "dimension:shipments:delivery_city"
+            ]
+          }
+        }
+      ],
+      "unresolved_targets": [],
+      "warnings": [
+        "The values of 2 source(s) with an access gate were not searched (payroll_ledger, tenant_orders). To search one, scope the target to its dimension (scopes[].source and entity_name) and send the givens its gate needs."
+      ]
+    }
+  },
+  "traffic": {
+    "embedding_calls": 1,
+    "embedded_texts": [
+      "Springfield"
+    ],
+    "judge_calls": 1,
+    "judge": [
+      {
+        "system_sha256": "4368758cabf61a9b4358877f4114ee9f7baf4d7ee4824634d8389e69be097d60",
+        "prompt_sha256": "f90be72e98031d3304d6d8e1863311330f88de8158ee115e2f5198affb33180e",
+        "prompt": [
+          "Sources with candidates:",
+          "- shipments - Every shipment, open to every caller.",
+          "  A query from shipments can use none of the other listed sources.",
+          "",
+          "<targets>",
+          "Target 1 (dimensional_value): \"Springfield\"",
+          "  From shipments:",
+          "    [1] delivery_city (dimension, string; source shipments): City the shipment was delivered to. | stored values matching the target: 1a \"West Springfield\" (words, 0.94), 1b \"North Springfield\" (words, 0.93), 1c \"Springfield Mills\" (words, 0.93), 1d \"Springfield Gardens\" (words, 0.92), 1e \"Springfeld Heights\" (words, 0.69)",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                1
+              ],
+              "reason": "stand-in: a stored value matched by spelling, or the one pinned field",
+              "values": [
+                "1a",
+                "1b",
+                "1c",
+                "1d"
+              ],
+              "best": 1
+            }
+          ],
+          "caveats": []
+        }
+      }
+    ]
+  }
+}

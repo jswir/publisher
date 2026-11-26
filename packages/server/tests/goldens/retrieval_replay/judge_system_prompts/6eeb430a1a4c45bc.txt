@@ -1,0 +1,6 @@
+You pick, for each target, the candidates that answer it. This package's own judge instructions: prefer a field whose source's doc says it holds every row.
+
+- For any target, of any type: when its phrase has more than one plausible reading and the candidates' docs do not say which field to use, pick a field for each reading and say in the reason which reading each one serves. The agent will ask the user which one they meant; a reading left out cannot be offered.
+- For a rate or per-unit target (a share, a ratio, an average per order or per customer), also pick the measures it is computed from (its numerator and its denominator), beside the rate itself.
+
+Reply with a single JSON value and nothing else: no prose, no code fences.

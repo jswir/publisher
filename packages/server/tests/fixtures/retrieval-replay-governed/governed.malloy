@@ -1,0 +1,66 @@
+// Copyright (c) Credible Data Inc.
+// SPDX-License-Identifier: MIT
+
+// Synthetic rows for the retrieval replay (tests/component/retrieval_replay):
+// what a search may see under access controls. Every source in this file
+// carries its secure givens, so all three are gated; open.malloy has the
+// ungated ones.
+//
+//   payroll_ledger  locked: #(authorize) on the secure given ROLE, so a caller
+//                   whose givens do not say finance does not see it at all.
+//   tenant_orders   gated: an #(access_filter) row gate on the secure given
+//                   TENANTS. Its #(index) values are never in the shared
+//                   index; a value search pinned to its field reads them with
+//                   the caller's givens, and its (deprecated) #(filter)
+//                   narrows that read by filter_params.
+//   cost_ledger     #(agent-hidden): it holds the best match for "freight
+//                   cost", and a search must never return it.
+##! experimental.givens
+
+#(secure)
+given: ROLE :: string
+
+#(secure)
+given: TENANTS :: string[]
+
+#(authorize) 'finance' = $ROLE
+#(doc) Payroll ledger: one row per salary payment. Finance only.
+source: payroll_ledger is duckdb.sql("""
+  select 1 as pay_id, 'Sales' as dept, 3000.0 as gross
+  union all select 2, 'Support', 4200.0
+""") extend {
+  primary_key: pay_id
+  #(doc) Department of the paid employee.
+  dimension: department is dept
+  #(doc) Gross payroll paid to staff.
+  measure: payroll_gross is gross.sum()
+}
+
+#(access_filter) tenant in $TENANTS
+#(filter) name=tenant dimension=tenant_name type=equal
+#(doc) Orders of every tenant; each caller reads only its own tenants' rows.
+source: tenant_orders is duckdb.sql("""
+  select 1 as order_id, 'acme' as tenant, 'Springfield' as city, 50.0 as total
+  union all select 2, 'acme', 'Springfield Gardens', 75.0
+  union all select 3, 'globex', 'Springfield', 20.0
+  union all select 4, 'globex', 'Capital City', 35.0
+""") extend {
+  primary_key: order_id
+  #(index)
+  #(doc) City the tenant's order ships to.
+  dimension: order_city is city
+  #(doc) The tenant the order belongs to.
+  dimension: tenant_name is tenant
+  #(doc) Sum of order totals.
+  measure: tenant_order_total is total.sum()
+}
+
+#(agent-hidden)
+#(doc) Freight cost ledger: the freight cost of every shipment, by carrier invoice.
+source: cost_ledger is duckdb.sql("""
+  select 1 as line_id, 9.5 as freight union all select 2, 11.0
+""") extend {
+  primary_key: line_id
+  #(doc) Total freight cost on carrier invoices.
+  measure: freight_cost_total is freight.sum()
+}

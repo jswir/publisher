@@ -2,35 +2,127 @@
 // SPDX-License-Identifier: MIT
 
 /**
- * The fixed corpus of get_context requests the retrieval replay sends, over
- * the bundled `storefront` example. Each case is one call; its snapshot is
+ * The fixed corpus of get_context requests the retrieval replay sends. Each
+ * case is one call, or a short sequence of calls that belong together (a
+ * page and the calls for the pages after it); its snapshot is
  * `tests/goldens/retrieval_replay/<id>.json`.
  *
  * Add a case at the end, run the replay with UPDATE_GOLDENS=1, and commit the
  * new snapshot. Never change a case's request in place: give the new request a
  * new id, so the diff shows a new snapshot rather than a rewritten one.
+ *
+ * A target's search_text may carry a reserved `zz...` word that asks the
+ * stand-in judge for a harder reply (stand_ins.ts, MARKERS;
+ * docs/retrieval-replay.md lists them).
  */
 
+import { MARKERS } from "./stand_ins";
+
 export const ENVIRONMENT = "examples";
-export const PACKAGE = "storefront";
+
 /**
- * A synthetic package (tests/fixtures/retrieval-replay-values) whose
- * dimensions are tagged #(index), for the stored-value cases that need an
- * index to match against: storefront tags none.
+ * The packages the replay loads, each from a committed fixture under
+ * `tests/fixtures/`. `manifest` replaces the fixture's publisher.json in the
+ * loaded copy, so one model serves under several retrieval settings.
  */
+export interface ReplayPackage {
+   /** The fixture directory, under tests/fixtures. */
+   fixture: string;
+   manifest?: Record<string, unknown>;
+   /** Files added to the loaded copy, by path. */
+   files?: Record<string, string>;
+   /**
+    * Built and searched with no embedding provider, as on a server with none
+    * configured: the lexical mode.
+    */
+   lexical?: boolean;
+}
+
+/** A frozen copy of examples/storefront (its README says from which commit). */
+export const PACKAGE = "storefront";
+/** Dimensions tagged #(index), for the stored-value cases. */
 export const VALUES_PACKAGE = "replay-values";
+/** Eleven sources sharing `amount` and `region`. */
+export const MANY_PACKAGE = "replay-many";
+/** The same model with the judge off. */
+export const JUDGE_OFF_PACKAGE = "replay-judge-off";
+/** The same model with its own judge instructions, and no embeddings. */
+export const CUSTOM_JUDGE_PACKAGE = "replay-custom-judge";
+/** `connect: "clusters"` and `twinRule` on: a star, a twin, four islands. */
+export const CLUSTERS_PACKAGE = "replay-clusters";
+/** A locked source, a row-gated source, an #(agent-hidden) one. */
+export const GOVERNED_PACKAGE = "replay-governed";
+/** Three sources, each with a dozen measures documented at length. */
+export const LONG_DOCS_PACKAGE = "replay-long-docs";
+
+const manyManifest = (name: string, retrieval: Record<string, unknown>) => ({
+   name,
+   version: "1.0.0",
+   description: `The replay-many model, served with ${JSON.stringify(retrieval)}.`,
+   retrieval,
+});
+
+export const PACKAGES: Record<string, ReplayPackage> = {
+   [PACKAGE]: { fixture: "retrieval-replay-storefront" },
+   [VALUES_PACKAGE]: { fixture: "retrieval-replay-values" },
+   [MANY_PACKAGE]: { fixture: "retrieval-replay-many" },
+   [JUDGE_OFF_PACKAGE]: {
+      fixture: "retrieval-replay-many",
+      manifest: manyManifest(JUDGE_OFF_PACKAGE, { fcj: { judge: false } }),
+   },
+   [CUSTOM_JUDGE_PACKAGE]: {
+      fixture: "retrieval-replay-many",
+      manifest: manyManifest(CUSTOM_JUDGE_PACKAGE, {
+         prompts: { judge: "prompts/judge.md" },
+      }),
+      files: {
+         "prompts/judge.md":
+            "You pick, for each target, the candidates that answer it. This package's own judge instructions: prefer a field whose source's doc says it holds every row.",
+      },
+      lexical: true,
+   },
+   [CLUSTERS_PACKAGE]: { fixture: "retrieval-replay-clusters" },
+   [GOVERNED_PACKAGE]: { fixture: "retrieval-replay-governed" },
+   [LONG_DOCS_PACKAGE]: { fixture: "retrieval-replay-long-docs" },
+};
+
+/**
+ * Packages a listing shows that are not loaded, with the description each
+ * one's publisher.json carried when this was written: listed, never searched.
+ */
+export const LISTED_ONLY: Record<string, Record<string, string>> = {
+   [ENVIRONMENT]: {
+      "html-data-app":
+         "In-package HTML data app demo — a SaaS subscriptions dashboard. Put your web files in a public/ directory next to your .malloy files and Publisher serves them at /environments/<env>/packages/<pkg>/<file>. Live reload, embeddable iframe, no build step.",
+   },
+   governed: {
+      "governed-analytics":
+         "Givens, authorization, row-level access, and discovery curation in one small package.",
+   },
+};
 
 const scope = { environment: ENVIRONMENT, package: PACKAGE };
 const valuesScope = { environment: ENVIRONMENT, package: VALUES_PACKAGE };
+const manyScope = { environment: ENVIRONMENT, package: MANY_PACKAGE };
+const clustersScope = { environment: ENVIRONMENT, package: CLUSTERS_PACKAGE };
+const governedScope = { environment: ENVIRONMENT, package: GOVERNED_PACKAGE };
 
 export interface ReplayCase {
    /** The snapshot's file name; kebab-case, never reused. */
    id: string;
    /** What the case covers. */
    about: string;
-   /** The get_context arguments, sent as written. */
-   params: Record<string, unknown>;
+   /** The get_context arguments, sent as written (through the tool's input schema). */
+   params?: Record<string, unknown>;
+   /** Several calls, in order, recorded together: a page and the pages after it. */
+   steps?: Array<Record<string, unknown>>;
 }
+
+/** The ranked request most cases on the many-sources fixture send. */
+const amountByRegion = [
+   { target_type: "measure", search_text: "total amount" },
+   { target_type: "dimension", search_text: "region" },
+];
 
 export const CASES: readonly ReplayCase[] = [
    {
@@ -150,7 +242,7 @@ export const CASES: readonly ReplayCase[] = [
    },
    {
       id: "user-prompt-orders-per-customer",
-      about: "A measure target with user_prompt, which the ranking step reads.",
+      about: "A measure target with user_prompt, which is recorded and must not change matching.",
       params: {
          search_targets: [
             {
@@ -199,115 +291,384 @@ export const CASES: readonly ReplayCase[] = [
          ],
       },
    },
+
+   // The many-sources fixture: more sources than a judge call may keep.
    {
-      id: "many-sources-keep-seven",
-      about: "Targets whose hits span more sources than box 4 keeps (seven at most).",
+      id: "many-sources-shared-field",
+      about: "A measure and a dimension that eleven sources share by name or by word: some extend one base, some are unrelated, one reaches another's field through a join.",
+      params: { search_targets: amountByRegion, scopes: [manyScope] },
+   },
+   {
+      id: "many-sources-paging",
+      about: "One source per page: the first page holds the result; offset 1 is served from the held result, as is offset 99, past its end, and a page of another size (limit is not part of the held result's key); a request that differs (include_code) with an offset runs the search again, and says so.",
+      steps: [
+         { search_targets: amountByRegion, scopes: [manyScope], limit: 1 },
+         {
+            search_targets: amountByRegion,
+            scopes: [manyScope],
+            limit: 1,
+            offset: 1,
+         },
+         {
+            search_targets: amountByRegion,
+            scopes: [manyScope],
+            limit: 1,
+            offset: 99,
+         },
+         {
+            search_targets: amountByRegion,
+            scopes: [manyScope],
+            limit: 2,
+            offset: 2,
+         },
+         {
+            search_targets: amountByRegion,
+            scopes: [manyScope],
+            include_code: true,
+            limit: 1,
+            offset: 1,
+         },
+      ],
+   },
+   {
+      id: "judge-off-unjudged-picks",
+      about: "retrieval.fcj.judge false: no judge call; every target keeps its first few listed candidates.",
       params: {
-         search_targets: [
-            { target_type: "measure", search_text: "number of rows" },
-            { target_type: "dimension", search_text: "name" },
-            { target_type: "dimension", search_text: "identifier" },
-            { target_type: "view", search_text: "summary overview" },
-         ],
-         scopes: [scope],
+         search_targets: amountByRegion,
+         scopes: [{ environment: ENVIRONMENT, package: JUDGE_OFF_PACKAGE }],
       },
    },
    {
-      id: "user-prompt-both-calls",
-      about: "Targets on several sources with user_prompt: the pick calls and the ordering call all quote it.",
+      id: "custom-judge-prompt-lexical",
+      about: "retrieval.prompts.judge replaces the judge's instructions; the package is built and searched with no embedding provider (lexical).",
       params: {
-         search_targets: [
-            { target_type: "measure", search_text: "total revenue" },
-            { target_type: "dimension", search_text: "customer state" },
-         ],
-         scopes: [scope],
-         user_prompt: "Which states bring in the most revenue?",
+         search_targets: amountByRegion,
+         scopes: [{ environment: ENVIRONMENT, package: CUSTOM_JUDGE_PACKAGE }],
       },
    },
+
+   // Harder judge replies, asked for by MARKERS in the target text.
    {
-      id: "pick-call-fails-for-one-source",
-      about: "One kept source's pick call fails (stand-in directive): that source is left out, the others serve.",
-      params: {
-         search_targets: [
-            { target_type: "measure", search_text: "total revenue" },
-            { target_type: "dimension", search_text: "customer state" },
-         ],
-         scopes: [scope],
-         user_prompt: "Revenue by state [replay: fail pick order_items]",
-      },
-   },
-   {
-      id: "every-pick-call-fails",
-      about: "Every pick call fails: the search's ranked fields are served with a warning, not an error.",
-      params: {
-         search_targets: [
-            { target_type: "measure", search_text: "total revenue" },
-            { target_type: "dimension", search_text: "customer state" },
-         ],
-         scopes: [scope],
-         user_prompt: "Revenue by state [replay: fail every pick]",
-      },
-   },
-   {
-      id: "order-call-invalid",
-      about: "The ordering call names no kept source: the sources keep box 4's order.",
-      params: {
-         search_targets: [
-            { target_type: "measure", search_text: "total revenue" },
-            { target_type: "dimension", search_text: "customer state" },
-         ],
-         scopes: [scope],
-         user_prompt: "Revenue by state [replay: order invalid]",
-      },
-   },
-   {
-      id: "order-call-late",
-      about: "The ordering call does not answer before the grace after the picks: box 4's order.",
-      params: {
-         search_targets: [
-            { target_type: "measure", search_text: "total revenue" },
-            { target_type: "dimension", search_text: "customer state" },
-         ],
-         scopes: [scope],
-         user_prompt: "Revenue by state [replay: order late]",
-      },
-   },
-   {
-      id: "scoped-to-one-source",
-      about: "A call scoped to one source: one pick call and no ordering call.",
-      params: {
-         search_targets: [
-            { target_type: "dimension", search_text: "customer state" },
-            { target_type: "measure", search_text: "number of customers" },
-         ],
-         scopes: [{ ...scope, source: "customers" }],
-         user_prompt: "How many customers are in each state?",
-      },
-   },
-   {
-      id: "paged-last-source-moves-first",
-      about: "limit 1 on a result of several sources: the first page holds the first source, the rest page on.",
-      params: {
-         search_targets: [
-            { target_type: "measure", search_text: "total revenue" },
-            { target_type: "dimension", search_text: "customer state" },
-         ],
-         scopes: [scope],
-         limit: 1,
-      },
-   },
-   {
-      id: "field-limit-after-first-source",
-      about: "A dimension target many sources answer: the first source keeps every pick, the others at most two per pick.",
+      id: "judge-best-not-first",
+      about: `The judge's best is its second candidate (${MARKERS.best2}): the engine lists it first.`,
       params: {
          search_targets: [
             {
-               target_type: "dimension",
-               search_text:
-                  "date or time the order was created, shipped or delivered",
+               target_type: "measure",
+               search_text: `total revenue ${MARKERS.best2}`,
             },
          ],
          scopes: [scope],
       },
+   },
+   {
+      id: "judge-caveat-list",
+      about: `A reply with a caveat naming a field (${MARKERS.caveat}), in a list: it rides on the first query group.`,
+      params: {
+         search_targets: [
+            {
+               target_type: "measure",
+               search_text: `total revenue ${MARKERS.caveat}`,
+            },
+         ],
+         scopes: [scope],
+      },
+   },
+   {
+      id: "judge-caveat-names-unpicked-field",
+      about: `A caveat naming a field the judge did not pick (${MARKERS.name}order_count): the "also likely" rule returns it beside the picks.`,
+      params: {
+         search_targets: [
+            {
+               target_type: "measure",
+               search_text: `total revenue ${MARKERS.name}order_count`,
+            },
+         ],
+         scopes: [scope],
+      },
+   },
+   {
+      id: "judge-repair",
+      about: `The first reply names a candidate that was not offered (${MARKERS.badPick}); the re-ask, which quotes the rejection, gets a valid one.`,
+      params: {
+         search_targets: [
+            {
+               target_type: "measure",
+               search_text: `total revenue ${MARKERS.badPick}`,
+            },
+         ],
+         scopes: [scope],
+      },
+   },
+   {
+      id: "judge-fails",
+      about: `Every judge reply is not JSON (${MARKERS.fail}): the request answers with the judge-step error.`,
+      params: {
+         search_targets: [
+            {
+               target_type: "measure",
+               search_text: `total revenue ${MARKERS.fail}`,
+            },
+         ],
+         scopes: [scope],
+      },
+   },
+   {
+      id: "route-products-that-were-ordered",
+      about: "A measure reached through a join, the target naming the joining source: the judge picks the route (order_items through products), not the field on its own source.",
+      params: {
+         search_targets: [
+            {
+               target_type: "measure",
+               search_text: "number of products that were ordered",
+            },
+         ],
+         scopes: [scope],
+      },
+   },
+   {
+      id: "judge-routes-beside-fields",
+      about: `The judge picks every route shown beside each field it picks (${MARKERS.routes}): past dropRoutesAt, the routes are dropped and the fields kept.`,
+      params: {
+         search_targets: [
+            {
+               target_type: "dimension",
+               search_text: `state and city ${MARKERS.routes}`,
+            },
+         ],
+         scopes: [scope],
+      },
+   },
+   {
+      id: "judge-routes-beside-one-field",
+      about: `The judge picks one field and the three routes shown beside it (${MARKERS.routes}): fewer than dropRoutesAt, so they are all kept.`,
+      params: {
+         search_targets: [
+            {
+               target_type: "dimension",
+               search_text: `city ${MARKERS.routes}`,
+            },
+         ],
+         scopes: [scope],
+      },
+   },
+   {
+      id: "join-target",
+      about: "A join target.",
+      params: {
+         search_targets: [
+            {
+               target_type: "join",
+               search_text: "the customer who placed the order",
+            },
+         ],
+         scopes: [scope],
+      },
+   },
+   {
+      id: "model-path-scope",
+      about: "A ranked search narrowed to one model file (scopes[].model_path).",
+      params: {
+         search_targets: [
+            { target_type: "measure", search_text: "total revenue" },
+         ],
+         scopes: [{ ...scope, model_path: "data_app.malloy" }],
+      },
+   },
+   {
+      id: "include-code-ranked",
+      about: "A ranked search with include_code: each entity carries its definition.",
+      params: {
+         search_targets: [
+            { target_type: "measure", search_text: "gross margin" },
+         ],
+         scopes: [scope],
+         include_code: true,
+      },
+   },
+
+   // connect: "clusters", twinRule on.
+   {
+      id: "clusters-four-islands",
+      about: "Four targets that four separate sources each answer alone: more than maxClusters, so one is left unresolved.",
+      params: {
+         search_targets: [
+            { target_type: "measure", search_text: "freight cost" },
+            { target_type: "dimension", search_text: "warehouse zone" },
+            { target_type: "measure", search_text: "payroll gross" },
+            { target_type: "dimension", search_text: "advertising medium" },
+         ],
+         scopes: [clustersScope],
+      },
+   },
+   {
+      id: "clusters-order-total-twins",
+      about: "One measure that a source and its twin (same fields, another name) both hold, among more measures than a cluster keeps per target; twinRule keeps one of the twins.",
+      params: {
+         search_targets: [
+            { target_type: "measure", search_text: "order total" },
+         ],
+         scopes: [clustersScope],
+      },
+   },
+   {
+      id: "clusters-twins-readings-caveat",
+      about: `The judge marks readings (${MARKERS.readings}), so twinRule keeps both twins, and names a caveat (${MARKERS.caveat}) that rides on the cluster.`,
+      params: {
+         search_targets: [
+            {
+               target_type: "measure",
+               search_text: `order total ${MARKERS.readings} ${MARKERS.caveat}`,
+            },
+         ],
+         scopes: [clustersScope],
+      },
+   },
+   {
+      id: "clusters-joined-dimension",
+      about: "A measure on the home and a dimension one join away: the joined field is on the home's card, its score discounted per hop.",
+      params: {
+         search_targets: [
+            { target_type: "measure", search_text: "order total" },
+            { target_type: "dimension", search_text: "customer segment" },
+         ],
+         scopes: [clustersScope],
+      },
+   },
+
+   {
+      id: "clusters-three-joins-away",
+      about: "A measure on the home and a dimension three joins away (orders, customer, city, state): the home covers it only at hopDiscount cubed, against coverFraction.",
+      params: {
+         search_targets: [
+            { target_type: "measure", search_text: "order total" },
+            { target_type: "dimension", search_text: "census region name" },
+         ],
+         scopes: [clustersScope],
+      },
+   },
+
+   // Access controls and hidden sources.
+   {
+      id: "givens-locked-source-no-givens",
+      about: "A source behind an #(authorize) lock on a secure given, with no givens sent: nothing is omitted.",
+      params: {
+         search_targets: [
+            { target_type: "measure", search_text: "payroll gross" },
+         ],
+         scopes: [governedScope],
+      },
+   },
+   {
+      id: "givens-locked-source-other-role",
+      about: "The same search with givens the lock cannot admit: the locked source is omitted.",
+      params: {
+         search_targets: [
+            { target_type: "measure", search_text: "payroll gross" },
+         ],
+         scopes: [governedScope],
+         givens: { ROLE: "sales" },
+      },
+   },
+   {
+      id: "givens-locked-source-unlocked",
+      about: "The same search with the givens that unlock the source.",
+      params: {
+         search_targets: [
+            { target_type: "measure", search_text: "payroll gross" },
+         ],
+         scopes: [governedScope],
+         givens: { ROLE: "finance" },
+      },
+   },
+   {
+      id: "value-gated-pinned-no-givens",
+      about: "A stored-value target pinned to a row-gated source's field, with no givens: its values are not read.",
+      params: {
+         search_targets: [
+            { target_type: "dimensional_value", search_text: "Springfield" },
+         ],
+         scopes: [
+            {
+               ...governedScope,
+               source: "tenant_orders",
+               entity_name: "order_city",
+            },
+         ],
+      },
+   },
+   {
+      id: "value-gated-pinned-with-givens",
+      about: "The same pinned value search with the givens the row gate reads: the caller's rows' values are read through the query path.",
+      params: {
+         search_targets: [
+            { target_type: "dimensional_value", search_text: "Springfield" },
+         ],
+         scopes: [
+            {
+               ...governedScope,
+               source: "tenant_orders",
+               entity_name: "order_city",
+            },
+         ],
+         givens: { TENANTS: ["acme"] },
+      },
+   },
+   {
+      id: "value-several-matches",
+      about: "A value whose spelling matches several stored values of one field: the judge names the ones that hold the value as a word, and the one it passed over is dropped. The package has a gated source, whose values were not searched.",
+      params: {
+         search_targets: [
+            { target_type: "dimensional_value", search_text: "Springfield" },
+         ],
+         scopes: [governedScope],
+      },
+   },
+   {
+      id: "agent-hidden-best-match",
+      about: "The best-matching field is on an #(agent-hidden) source, which never appears.",
+      params: {
+         search_targets: [
+            { target_type: "measure", search_text: "freight cost total" },
+         ],
+         scopes: [governedScope],
+      },
+   },
+   {
+      id: "filter-params-gated-value",
+      about: "filter_params beside givens on a pinned value search of a row-gated source that declares a (deprecated) #(filter): the values read are the filtered rows' only.",
+      params: {
+         search_targets: [
+            { target_type: "dimensional_value", search_text: "Springfield" },
+         ],
+         scopes: [
+            {
+               ...governedScope,
+               source: "tenant_orders",
+               entity_name: "order_city",
+            },
+         ],
+         givens: { TENANTS: ["acme", "globex"] },
+         filter_params: { tenant: "globex" },
+      },
+   },
+   {
+      id: "page-over-35000-chars",
+      about: "Three cards of about 12,000 characters each (a dozen measures with long docs): the answer is over the 35,000-character page, so the first page ends early by size, and the call with its next_offset is served from the held result.",
+      steps: [
+         {
+            search_targets: [
+               { target_type: "measure", search_text: "total amount" },
+            ],
+            scopes: [{ environment: ENVIRONMENT, package: LONG_DOCS_PACKAGE }],
+         },
+         {
+            search_targets: [
+               { target_type: "measure", search_text: "total amount" },
+            ],
+            scopes: [{ environment: ENVIRONMENT, package: LONG_DOCS_PACKAGE }],
+            offset: 2,
+         },
+      ],
    },
 ];

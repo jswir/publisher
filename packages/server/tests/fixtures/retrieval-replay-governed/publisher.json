@@ -1,0 +1,5 @@
+{
+   "name": "replay-governed",
+   "version": "1.0.0",
+   "description": "Synthetic fixture for the retrieval replay: a source behind an #(authorize) lock on a secure given, a source with an #(access_filter) row gate whose values are indexed, and an #(agent-hidden) source that holds the best match for a target."
+}

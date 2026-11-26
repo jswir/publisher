@@ -1,0 +1,121 @@
+// Copyright (c) Credible Data Inc.
+// SPDX-License-Identifier: MIT
+
+// Synthetic rows for the retrieval replay (tests/component/retrieval_replay),
+// searched with `connect: "clusters"`, `collapseCopies` and `twinRule`: an
+// orders star whose fact has more measures than a cluster keeps per target
+// (and reaches a state's census region three joins away),
+// two extensions of it that hold other rows under the same fields (twins),
+// and four islands that each answer only one target, one more than the
+// clusters a search keeps.
+
+#(doc) One row per US state.
+source: states is duckdb.sql("""
+  select 'CO' as state_code, 'Mountain' as region_name
+""") extend {
+  primary_key: state_code
+  #(doc) Census region name of the state.
+  dimension: census_region_name is region_name
+}
+
+#(doc) One row per city.
+source: cities is duckdb.sql("""
+  select 'Denver' as city_name, 'CO' as state_code
+  union all select 'Boulder', 'CO'
+""") extend {
+  primary_key: city_name
+  #(doc) The state the city is in.
+  join_one: state_row is states on state_code = state_row.state_code
+}
+
+#(doc) One row per customer account.
+source: customers is duckdb.sql("""
+  select 1 as customer_id, 'retail' as segment, 'Denver' as city
+  union all select 2, 'wholesale', 'Boulder'
+""") extend {
+  primary_key: customer_id
+  #(doc) The city the customer is billed in.
+  join_one: city_row is cities on city = city_row.city_name
+  #(doc) Market segment of the customer: retail or wholesale.
+  dimension: customer_segment is segment
+  #(doc) City the customer is billed in.
+  dimension: billing_city is city
+}
+
+#(doc) Every order, every channel: the source analysts query.
+source: orders is duckdb.sql("""
+  select 1 as order_id, 1 as customer_id, 'web' as channel, 40.0 as total, 4.0 as tax, 6.0 as shipping, 2.0 as discount
+  union all select 2, 2, 'store', 90.0, 9.0, 0.0, 0.0
+""") extend {
+  primary_key: order_id
+  #(doc) The customer who placed the order.
+  join_one: customer is customers on customer_id = customer.customer_id
+  #(doc) Channel the order came through: web or store.
+  dimension: order_channel is channel
+  #(doc) Number of orders.
+  measure: order_count is count()
+  #(doc) Sum of order totals, in US dollars.
+  measure: order_total is total.sum()
+  #(doc) Average order total per order.
+  measure: avg_order_total is total.avg()
+  #(doc) Largest order total.
+  measure: max_order_total is total.max()
+  #(doc) Smallest order total.
+  measure: min_order_total is total.min()
+  #(doc) Order total of web orders only.
+  measure: web_order_total is total.sum() { where: channel = 'web' }
+  #(doc) Order total of store orders only.
+  measure: store_order_total is total.sum() { where: channel = 'store' }
+  #(doc) Order total after discounts.
+  measure: net_order_total is sum(total - discount)
+  #(doc) Tax collected on orders.
+  measure: order_tax_total is tax.sum()
+  #(doc) Shipping charged on orders.
+  measure: order_shipping_total is shipping.sum()
+  #(doc) Discounts given on orders.
+  measure: order_discount_total is discount.sum()
+  #(doc) Order total of orders with a discount.
+  measure: discounted_order_total is total.sum() { where: discount > 0 }
+}
+
+#(doc) Web orders only: the rows of orders whose channel is web, with the same fields.
+source: web_orders is orders extend { where: channel = 'web' }
+
+#(doc) Store orders only: the rows of orders whose channel is store, with the same fields.
+source: store_orders is orders extend { where: channel = 'store' }
+
+#(doc) One row per freight shipment from a carrier.
+source: freight is duckdb.sql("""
+  select 1 as shipment_id, 12.5 as cost union all select 2, 30.0
+""") extend {
+  primary_key: shipment_id
+  #(doc) Freight cost paid to carriers.
+  measure: freight_cost is cost.sum()
+}
+
+#(doc) One row per warehouse bin.
+source: warehouses is duckdb.sql("""
+  select 1 as bin_id, 'cold' as zone union all select 2, 'dry'
+""") extend {
+  primary_key: bin_id
+  #(doc) Storage zone of the warehouse bin: cold or dry.
+  dimension: warehouse_zone is zone
+}
+
+#(doc) One row per salary payment.
+source: payroll is duckdb.sql("""
+  select 1 as pay_id, 3000.0 as gross union all select 2, 4200.0
+""") extend {
+  primary_key: pay_id
+  #(doc) Gross payroll paid to staff.
+  measure: payroll_gross is gross.sum()
+}
+
+#(doc) One row per marketing campaign.
+source: campaigns is duckdb.sql("""
+  select 1 as campaign_id, 'email' as medium union all select 2, 'radio'
+""") extend {
+  primary_key: campaign_id
+  #(doc) Advertising medium of the campaign: email or radio.
+  dimension: advertising_medium is medium
+}

@@ -1,0 +1,163 @@
+{
+  "case": "givens-locked-source-no-givens",
+  "about": "A source behind an #(authorize) lock on a secure given, with no givens sent: nothing is omitted.",
+  "request": {
+    "search_targets": [
+      {
+        "target_type": "measure",
+        "search_text": "payroll gross"
+      }
+    ],
+    "scopes": [
+      {
+        "environment": "examples",
+        "package": "replay-governed"
+      }
+    ]
+  },
+  "response": {
+    "is_error": false,
+    "payload": {
+      "sources": [
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-governed",
+              "model_path": "governed.malloy",
+              "source": "payroll_ledger"
+            },
+            "one_line_summary": "Payroll ledger: one row per salary payment.",
+            "docs": "Payroll ledger: one row per salary payment. Finance only.",
+            "givens": [
+              {
+                "name": "ROLE",
+                "type": "string",
+                "annotations": [
+                  "#(secure)\n"
+                ]
+              },
+              {
+                "name": "TENANTS",
+                "type": "string[]",
+                "annotations": [
+                  "#(secure)\n"
+                ]
+              }
+            ],
+            "authorize": [
+              {
+                "expression": "'finance' = $ROLE",
+                "given_names": [
+                  "ROLE"
+                ]
+              }
+            ],
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "payroll_gross",
+              "entity_type": "measure",
+              "entity_id": "measure:payroll_ledger:payroll_gross",
+              "relevance": 1,
+              "description": "Gross payroll paid to staff.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "payroll gross",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 1 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 1
+        }
+      ],
+      "ranking": "relevance",
+      "total_available": 1,
+      "returned": 1,
+      "retrieval": "semantic",
+      "engine": "fcj",
+      "clusters": [
+        {
+          "query_from": {
+            "source": "payroll_ledger",
+            "model_path": "governed.malloy"
+          },
+          "sources": [
+            {
+              "source": "payroll_ledger",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "measure:payroll_ledger:payroll_gross"
+            ]
+          }
+        }
+      ],
+      "unresolved_targets": []
+    }
+  },
+  "traffic": {
+    "embedding_calls": 1,
+    "embedded_texts": [
+      "payroll gross"
+    ],
+    "judge_calls": 1,
+    "judge": [
+      {
+        "system_sha256": "9f5997fde3c4a50ca93d49e0090e8c6b85eab6867ed48888adaf95f6f77a40c2",
+        "prompt_sha256": "64603f384a778d8c9f2d059c8c1a1df13944e7f08aa44809b6dd77bbc426cd2c",
+        "prompt": [
+          "Sources with candidates:",
+          "- payroll_ledger - Payroll ledger: one row per salary payment.",
+          "  Its doc begins: \"Payroll ledger: one row per salary payment. Finance only.\"",
+          "  A query from payroll_ledger can use none of the other listed sources.",
+          "- shipments - Every shipment, open to every caller.",
+          "  A query from shipments can use none of the other listed sources.",
+          "- tenant_orders - Orders of every tenant; each caller reads only its own tenants' rows.",
+          "  A query from tenant_orders can use none of the other listed sources.",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"payroll gross\"",
+          "  From payroll_ledger:",
+          "    [1] payroll_gross (measure, number; source payroll_ledger): Gross payroll paid to staff.",
+          "  From shipments:",
+          "    [2] carrier_charge (measure, number; source shipments): Carrier charge for the shipments, in US dollars.",
+          "  From tenant_orders:",
+          "    [3] tenant_order_total (measure, number; source tenant_orders): Sum of order totals.",
+          "</targets>",
+          "",
+          "Also in this group:",
+          "  [4] gross (dimension, number; source payroll_ledger): (no doc; name in words: gross) | added because: payroll_gross is computed from it",
+          "  [5] charge (dimension, number; source shipments): (no doc; name in words: charge) | added because: carrier_charge is computed from it",
+          "  [6] total (dimension, number; source tenant_orders): (no doc; name in words: total) | added because: tenant_order_total is computed from it",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                1
+              ],
+              "reason": "stand-in: 1 candidate(s) scored 2 or more",
+              "best": 1
+            }
+          ],
+          "caveats": []
+        }
+      }
+    ]
+  }
+}

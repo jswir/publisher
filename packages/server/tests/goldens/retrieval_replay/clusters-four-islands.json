@@ -1,0 +1,410 @@
+{
+  "case": "clusters-four-islands",
+  "about": "Four targets that four separate sources each answer alone: more than maxClusters, so one is left unresolved.",
+  "request": {
+    "search_targets": [
+      {
+        "target_type": "measure",
+        "search_text": "freight cost"
+      },
+      {
+        "target_type": "dimension",
+        "search_text": "warehouse zone"
+      },
+      {
+        "target_type": "measure",
+        "search_text": "payroll gross"
+      },
+      {
+        "target_type": "dimension",
+        "search_text": "advertising medium"
+      }
+    ],
+    "scopes": [
+      {
+        "environment": "examples",
+        "package": "replay-clusters"
+      }
+    ]
+  },
+  "response": {
+    "is_error": false,
+    "payload": {
+      "sources": [
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-clusters",
+              "model_path": "clusters.malloy",
+              "source": "freight"
+            },
+            "one_line_summary": "One row per freight shipment from a carrier.",
+            "docs": "One row per freight shipment from a carrier.",
+            "joins": []
+          },
+          "relevance": 1,
+          "entities": [
+            {
+              "name": "freight_cost",
+              "entity_type": "measure",
+              "entity_id": "measure:freight:freight_cost",
+              "relevance": 1,
+              "description": "Freight cost paid to carriers.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "freight cost",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 1 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-clusters",
+              "model_path": "clusters.malloy",
+              "source": "payroll"
+            },
+            "one_line_summary": "One row per salary payment.",
+            "docs": "One row per salary payment.",
+            "joins": []
+          },
+          "relevance": 1,
+          "entities": [
+            {
+              "name": "payroll_gross",
+              "entity_type": "measure",
+              "entity_id": "measure:payroll:payroll_gross",
+              "relevance": 1,
+              "description": "Gross payroll paid to staff.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "payroll gross",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 1 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-clusters",
+              "model_path": "clusters.malloy",
+              "source": "campaigns"
+            },
+            "one_line_summary": "One row per marketing campaign.",
+            "docs": "One row per marketing campaign.",
+            "joins": []
+          },
+          "relevance": 1,
+          "entities": [
+            {
+              "name": "advertising_medium",
+              "entity_type": "dimension",
+              "entity_id": "dimension:campaigns:advertising_medium",
+              "relevance": 1,
+              "description": "Advertising medium of the campaign: email or radio.",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "advertising medium",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 1 candidate(s) scored 2 or more"
+                }
+              ],
+              "aliases": [
+                "medium"
+              ]
+            }
+          ]
+        }
+      ],
+      "ranking": "relevance",
+      "total_available": 3,
+      "returned": 3,
+      "retrieval": "semantic",
+      "engine": "fcj",
+      "clusters": [
+        {
+          "home": {
+            "source": "freight",
+            "model_path": "clusters.malloy"
+          },
+          "reach": [],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "measure:freight:freight_cost"
+            ]
+          }
+        },
+        {
+          "home": {
+            "source": "payroll",
+            "model_path": "clusters.malloy"
+          },
+          "reach": [],
+          "covers": [
+            2
+          ],
+          "picks": {
+            "2": [
+              "measure:payroll:payroll_gross"
+            ]
+          }
+        },
+        {
+          "home": {
+            "source": "campaigns",
+            "model_path": "clusters.malloy"
+          },
+          "reach": [],
+          "covers": [
+            3
+          ],
+          "picks": {
+            "3": [
+              "dimension:campaigns:advertising_medium"
+            ]
+          }
+        }
+      ],
+      "coverage": [
+        {
+          "target_index": 0,
+          "search_text": "freight cost",
+          "clusters": [
+            true,
+            false,
+            false
+          ]
+        },
+        {
+          "target_index": 1,
+          "search_text": "warehouse zone",
+          "clusters": [
+            false,
+            false,
+            false
+          ]
+        },
+        {
+          "target_index": 2,
+          "search_text": "payroll gross",
+          "clusters": [
+            false,
+            true,
+            false
+          ]
+        },
+        {
+          "target_index": 3,
+          "search_text": "advertising medium",
+          "clusters": [
+            false,
+            false,
+            true
+          ]
+        }
+      ],
+      "unresolved_targets": [
+        {
+          "target_index": 1,
+          "target_type": "dimension",
+          "search_text": "warehouse zone"
+        }
+      ],
+      "warnings": [
+        "No source in this package answered 1 target(s); see unresolved_targets. Rephrase them, ask the user, or answer without them."
+      ]
+    }
+  },
+  "traffic": {
+    "embedding_calls": 1,
+    "embedded_texts": [
+      "advertising medium",
+      "freight cost",
+      "payroll gross",
+      "warehouse zone"
+    ],
+    "judge_calls": 3,
+    "judge": [
+      {
+        "system_sha256": "96ec55a0079d6c38dce4bc7e8b4110adfbe3b6a82827f3df398765ade991c146",
+        "prompt_sha256": "6f420c0682adecf29ab8cf0a747b8e861f9c4e1bc912fb733f26f3508e5ad557",
+        "prompt": [
+          "Home source: payroll - One row per salary payment.",
+          "",
+          "<targets>",
+          "Target 1 (measure; this group matched it weakly): \"freight cost\"",
+          "  [1] payroll_gross (measure, number; source payroll; own field): Gross payroll paid to staff.",
+          "Target 2 (dimension; this group matched it weakly): \"warehouse zone\"",
+          "  [2] gross (dimension, number; source payroll; own field): (no doc; name in words: gross)",
+          "  [3] pay_id (dimension, number; source payroll; own field): (no doc; name in words: pay id)",
+          "Target 3 (measure): \"payroll gross\"",
+          "  [1] payroll_gross (measure, number; source payroll; own field): Gross payroll paid to staff.",
+          "Target 4 (dimension; this group matched it weakly): \"advertising medium\"",
+          "  [2] gross (dimension, number; source payroll; own field): (no doc; name in words: gross)",
+          "  [3] pay_id (dimension, number; source payroll; own field): (no doc; name in words: pay id)",
+          "</targets>",
+          "",
+          "Also in this group:",
+          "  [4] payroll (source; source payroll; own field): One row per salary payment. | added because: the home source",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            },
+            {
+              "target": 2,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            },
+            {
+              "target": 3,
+              "candidates": [
+                1
+              ],
+              "reason": "stand-in: 1 candidate(s) scored 2 or more",
+              "best": 1
+            },
+            {
+              "target": 4,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "system_sha256": "96ec55a0079d6c38dce4bc7e8b4110adfbe3b6a82827f3df398765ade991c146",
+        "prompt_sha256": "9381c343d84243061e620176538842b2837faa4a933d81834c425b62e201b14b",
+        "prompt": [
+          "Home source: freight - One row per freight shipment from a carrier.",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"freight cost\"",
+          "  [1] freight_cost (measure, number; source freight; own field): Freight cost paid to carriers.",
+          "Target 2 (dimension; this group matched it weakly): \"warehouse zone\"",
+          "  [2] cost (dimension, number; source freight; own field): (no doc; name in words: cost)",
+          "  [3] shipment_id (dimension, number; source freight; own field): (no doc; name in words: shipment id)",
+          "Target 3 (measure; this group matched it weakly): \"payroll gross\"",
+          "  [1] freight_cost (measure, number; source freight; own field): Freight cost paid to carriers.",
+          "Target 4 (dimension; this group matched it weakly): \"advertising medium\"",
+          "  [2] cost (dimension, number; source freight; own field): (no doc; name in words: cost)",
+          "  [3] shipment_id (dimension, number; source freight; own field): (no doc; name in words: shipment id)",
+          "</targets>",
+          "",
+          "Also in this group:",
+          "  [4] freight (source; source freight; own field): One row per freight shipment from a carrier. | added because: the home source",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                1
+              ],
+              "reason": "stand-in: 1 candidate(s) scored 2 or more",
+              "best": 1
+            },
+            {
+              "target": 2,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            },
+            {
+              "target": 3,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            },
+            {
+              "target": 4,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            }
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "system_sha256": "96ec55a0079d6c38dce4bc7e8b4110adfbe3b6a82827f3df398765ade991c146",
+        "prompt_sha256": "fa19529c060516a0c1872963b66acb07e05f6ff48db3c3b59fd9e0ce2310b6d8",
+        "prompt": [
+          "Home source: campaigns - One row per marketing campaign.",
+          "",
+          "<targets>",
+          "Target 1 (measure; this group matched it weakly): \"freight cost\"",
+          "  (no candidates in this group)",
+          "Target 2 (dimension; this group matched it weakly): \"warehouse zone\"",
+          "  [1] advertising_medium (dimension, string; source campaigns; own field): Advertising medium of the campaign: email or radio.",
+          "  [2] campaign_id (dimension, number; source campaigns; own field): (no doc; name in words: campaign id)",
+          "Target 3 (measure; this group matched it weakly): \"payroll gross\"",
+          "  (no candidates in this group)",
+          "Target 4 (dimension): \"advertising medium\"",
+          "  [1] advertising_medium (dimension, string; source campaigns; own field): Advertising medium of the campaign: email or radio.",
+          "  [2] campaign_id (dimension, number; source campaigns; own field): (no doc; name in words: campaign id)",
+          "</targets>",
+          "",
+          "Also in this group:",
+          "  [3] campaigns (source; source campaigns; own field): One row per marketing campaign. | added because: the home source",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            },
+            {
+              "target": 2,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            },
+            {
+              "target": 3,
+              "candidates": [],
+              "reason": "stand-in: no candidate scored high enough"
+            },
+            {
+              "target": 4,
+              "candidates": [
+                1
+              ],
+              "reason": "stand-in: 1 candidate(s) scored 2 or more",
+              "best": 1
+            }
+          ],
+          "caveats": []
+        }
+      }
+    ]
+  }
+}

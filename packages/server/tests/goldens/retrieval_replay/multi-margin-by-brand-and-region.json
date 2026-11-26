@@ -32,6 +32,126 @@
             "resource_id": {
               "environment": "examples",
               "package": "storefront",
+              "model_path": "storefront.malloy",
+              "source": "order_items"
+            },
+            "one_line_summary": "Order line items — the fact table, one row per product sold on an order.",
+            "docs": "Order line items — the fact table, one row per product sold on an order",
+            "joins": [
+              {
+                "name": "customers",
+                "relationship": "one",
+                "doc": "Customer who placed the order"
+              },
+              {
+                "name": "products",
+                "relationship": "one",
+                "doc": "Product sold on this line"
+              },
+              {
+                "name": "regions",
+                "relationship": "one",
+                "doc": "Sales region for the customer's home state"
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "margin_rate",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:margin_rate",
+              "relevance": 0.9921280165182604,
+              "description": "Gross margin as a share of revenue",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "gross margin as a share of revenue",
+                  "relevance": 0.9921,
+                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "total_margin",
+              "entity_type": "measure",
+              "entity_id": "measure:order_items:total_margin",
+              "relevance": 0.9248031829029281,
+              "description": "Total gross margin (revenue minus cost of goods sold), summed per line",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "gross margin as a share of revenue",
+                  "relevance": 0.9248,
+                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "brand",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:brand",
+              "relevance": 1,
+              "description": "Brand of the item sold",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "brand of the item sold",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 5 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "region",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:region",
+              "relevance": 0.9921280165182604,
+              "description": "Sales region for the customer's home state",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "sales region for the customer's home state",
+                  "relevance": 0.9921,
+                  "match_reason": "stand-in: 13 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customer_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:customer_id",
+              "relevance": 0.8055546274640828,
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "sales region for the customer's home state",
+                  "relevance": 0.8056,
+                  "match_reason": "stand-in: 13 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "sale_price",
+              "entity_type": "dimension",
+              "entity_id": "dimension:order_items:sale_price",
+              "relevance": 0.6998003083214568,
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "sales region for the customer's home state",
+                  "relevance": 0.6998,
+                  "match_reason": "stand-in: 13 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 1
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
               "model_path": "overview.malloy",
               "source": "overview"
             },
@@ -94,7 +214,7 @@
                 {
                   "search_text": "gross margin as a share of revenue",
                   "relevance": 1,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -109,7 +229,7 @@
                 {
                   "search_text": "gross margin as a share of revenue",
                   "relevance": 0.9463,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -124,36 +244,7 @@
                 {
                   "search_text": "brand of the item sold",
                   "relevance": 0.9761,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
-                }
-              ]
-            },
-            {
-              "name": "category",
-              "entity_type": "dimension",
-              "entity_id": "dimension:overview:category",
-              "relevance": 0.9248031829029281,
-              "description": "Product category of the item sold",
-              "data_type": "string",
-              "matched_targets": [
-                {
-                  "search_text": "brand of the item sold",
-                  "relevance": 0.9248,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
-                }
-              ]
-            },
-            {
-              "name": "customer_id",
-              "entity_type": "dimension",
-              "entity_id": "dimension:overview:customer_id",
-              "relevance": 0.9111008801044989,
-              "data_type": "number",
-              "matched_targets": [
-                {
-                  "search_text": "sales region for the customer's home state",
-                  "relevance": 0.9111,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                  "match_reason": "stand-in: 5 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -168,7 +259,21 @@
                 {
                   "search_text": "sales region for the customer's home state",
                   "relevance": 1,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                  "match_reason": "stand-in: 13 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customer_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:overview:customer_id",
+              "relevance": 0.9111008801044989,
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "sales region for the customer's home state",
+                  "relevance": 0.9111,
+                  "match_reason": "stand-in: 13 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -182,159 +287,7 @@
                 {
                   "search_text": "sales region for the customer's home state",
                   "relevance": 0.8255,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
-                }
-              ]
-            }
-          ],
-          "relevance": 1
-        },
-        {
-          "source_info": {
-            "resource_id": {
-              "environment": "examples",
-              "package": "storefront",
-              "model_path": "storefront.malloy",
-              "source": "brand_suggest"
-            },
-            "one_line_summary": "Distinct brands, for the Brand filter control's option list.",
-            "docs": "Distinct brands, for the Brand filter control's option list",
-            "joins": []
-          },
-          "entities": [
-            {
-              "name": "brand",
-              "entity_type": "dimension",
-              "entity_id": "dimension:brand_suggest:brand",
-              "relevance": 1,
-              "description": "Brand of the item sold",
-              "data_type": "string",
-              "matched_targets": [
-                {
-                  "search_text": "brand of the item sold",
-                  "relevance": 1,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
-                }
-              ]
-            }
-          ],
-          "relevance": 1
-        },
-        {
-          "source_info": {
-            "resource_id": {
-              "environment": "examples",
-              "package": "storefront",
-              "model_path": "storefront.malloy",
-              "source": "order_items"
-            },
-            "one_line_summary": "Order line items — the fact table, one row per product sold on an order.",
-            "docs": "Order line items — the fact table, one row per product sold on an order",
-            "joins": [
-              {
-                "name": "customers",
-                "relationship": "one",
-                "doc": "Customer who placed the order"
-              },
-              {
-                "name": "products",
-                "relationship": "one",
-                "doc": "Product sold on this line"
-              },
-              {
-                "name": "regions",
-                "relationship": "one",
-                "doc": "Sales region for the customer's home state"
-              }
-            ]
-          },
-          "entities": [
-            {
-              "name": "margin_rate",
-              "entity_type": "measure",
-              "entity_id": "measure:order_items:margin_rate",
-              "relevance": 0.9921280165182604,
-              "description": "Gross margin as a share of revenue",
-              "data_type": "number",
-              "matched_targets": [
-                {
-                  "search_text": "gross margin as a share of revenue",
-                  "relevance": 0.9921,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
-                }
-              ]
-            },
-            {
-              "name": "total_margin",
-              "entity_type": "measure",
-              "entity_id": "measure:order_items:total_margin",
-              "relevance": 0.9248031829029281,
-              "description": "Total gross margin (revenue minus cost of goods sold), summed per line",
-              "data_type": "number",
-              "matched_targets": [
-                {
-                  "search_text": "gross margin as a share of revenue",
-                  "relevance": 0.9248,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
-                }
-              ]
-            },
-            {
-              "name": "brand",
-              "entity_type": "dimension",
-              "entity_id": "dimension:order_items:brand",
-              "relevance": 1,
-              "description": "Brand of the item sold",
-              "data_type": "string",
-              "matched_targets": [
-                {
-                  "search_text": "brand of the item sold",
-                  "relevance": 1,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
-                }
-              ]
-            },
-            {
-              "name": "category",
-              "entity_type": "dimension",
-              "entity_id": "dimension:order_items:category",
-              "relevance": 0.9389239486800461,
-              "description": "Product category of the item sold",
-              "data_type": "string",
-              "matched_targets": [
-                {
-                  "search_text": "brand of the item sold",
-                  "relevance": 0.9389,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
-                }
-              ]
-            },
-            {
-              "name": "customer_id",
-              "entity_type": "dimension",
-              "entity_id": "dimension:order_items:customer_id",
-              "relevance": 0.8055546274640828,
-              "data_type": "number",
-              "matched_targets": [
-                {
-                  "search_text": "sales region for the customer's home state",
-                  "relevance": 0.8056,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
-                }
-              ]
-            },
-            {
-              "name": "region",
-              "entity_type": "dimension",
-              "entity_id": "dimension:order_items:region",
-              "relevance": 0.9921280165182604,
-              "description": "Sales region for the customer's home state",
-              "data_type": "string",
-              "matched_targets": [
-                {
-                  "search_text": "sales region for the customer's home state",
-                  "relevance": 0.9921,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                  "match_reason": "stand-in: 13 candidate(s) scored 2 or more"
                 }
               ]
             }
@@ -408,7 +361,7 @@
                 {
                   "search_text": "gross margin as a share of revenue",
                   "relevance": 0.984,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -423,7 +376,7 @@
                 {
                   "search_text": "gross margin as a share of revenue",
                   "relevance": 0.9535,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                  "match_reason": "stand-in: 6 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -438,22 +391,7 @@
                 {
                   "search_text": "brand of the item sold",
                   "relevance": 0.9609,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
-                }
-              ]
-            },
-            {
-              "name": "category",
-              "entity_type": "dimension",
-              "entity_id": "dimension:scoped_orders:category",
-              "relevance": 0.9111008801044989,
-              "description": "Product category of the item sold",
-              "data_type": "string",
-              "matched_targets": [
-                {
-                  "search_text": "brand of the item sold",
-                  "relevance": 0.9111,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                  "match_reason": "stand-in: 5 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -468,7 +406,7 @@
                 {
                   "search_text": "sales region for the customer's home state",
                   "relevance": 0.984,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                  "match_reason": "stand-in: 13 candidate(s) scored 2 or more"
                 }
               ]
             },
@@ -482,7 +420,21 @@
                 {
                   "search_text": "sales region for the customer's home state",
                   "relevance": 0.8414,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                  "match_reason": "stand-in: 13 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "sale_price",
+              "entity_type": "dimension",
+              "entity_id": "dimension:scoped_orders:sale_price",
+              "relevance": 0.7441899375515494,
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "sales region for the customer's home state",
+                  "relevance": 0.7442,
+                  "match_reason": "stand-in: 13 candidate(s) scored 2 or more"
                 }
               ]
             }
@@ -495,29 +447,30 @@
               "environment": "examples",
               "package": "storefront",
               "model_path": "storefront.malloy",
-              "source": "regions"
+              "source": "brand_suggest"
             },
-            "one_line_summary": "Sales region for each US state, one row per state, keyed by `state`.",
-            "docs": "Sales region for each US state, one row per state, keyed by `state`",
+            "one_line_summary": "Distinct brands, for the Brand filter control's option list.",
+            "docs": "Distinct brands, for the Brand filter control's option list",
             "joins": []
           },
           "entities": [
             {
-              "name": "state",
+              "name": "brand",
               "entity_type": "dimension",
-              "entity_id": "dimension:regions:state",
-              "relevance": 0.953482645403377,
+              "entity_id": "dimension:brand_suggest:brand",
+              "relevance": 1,
+              "description": "Brand of the item sold",
               "data_type": "string",
               "matched_targets": [
                 {
-                  "search_text": "sales region for the customer's home state",
-                  "relevance": 0.9535,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                  "search_text": "brand of the item sold",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 5 candidate(s) scored 2 or more"
                 }
               ]
             }
           ],
-          "relevance": 0.953482645403377
+          "relevance": 1
         },
         {
           "source_info": {
@@ -542,17 +495,105 @@
                 {
                   "search_text": "brand of the item sold",
                   "relevance": 0.848,
-                  "match_reason": "stand-in: listed candidates sharing a word with the target"
+                  "match_reason": "stand-in: 5 candidate(s) scored 2 or more"
                 }
               ]
             }
           ],
           "relevance": 0.8480208667002241
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "storefront.malloy",
+              "source": "customers"
+            },
+            "one_line_summary": "People who have placed orders — one row per customer, keyed by `customer_id`.",
+            "docs": "People who have placed orders — one row per customer, keyed by `customer_id`",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "customer_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:customers:customer_id",
+              "relevance": 0.8116699489976266,
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "sales region for the customer's home state",
+                  "relevance": 0.8117,
+                  "match_reason": "stand-in: 13 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "state",
+              "entity_type": "dimension",
+              "entity_id": "dimension:customers:state",
+              "relevance": 0.836335734660742,
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "sales region for the customer's home state",
+                  "relevance": 0.8363,
+                  "match_reason": "stand-in: 13 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 0.836335734660742
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "storefront.malloy",
+              "source": "regions"
+            },
+            "one_line_summary": "Sales region for each US state, one row per state, keyed by `state`.",
+            "docs": "Sales region for each US state, one row per state, keyed by `state`",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "region",
+              "entity_type": "dimension",
+              "entity_id": "dimension:regions:region",
+              "relevance": 0.953482645403377,
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "sales region for the customer's home state",
+                  "relevance": 0.9535,
+                  "match_reason": "stand-in: 13 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "state",
+              "entity_type": "dimension",
+              "entity_id": "dimension:regions:state",
+              "relevance": 0.953482645403377,
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "sales region for the customer's home state",
+                  "relevance": 0.9535,
+                  "match_reason": "stand-in: 13 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 0.953482645403377
         }
       ],
       "ranking": "relevance",
-      "total_available": 6,
-      "returned": 6,
+      "total_available": 7,
+      "returned": 7,
       "retrieval": "semantic",
       "engine": "fcj",
       "clusters": [
@@ -565,6 +606,24 @@
             {
               "source": "overview",
               "joins": []
+            },
+            {
+              "source": "customers",
+              "joins": [
+                "customers"
+              ]
+            },
+            {
+              "source": "products",
+              "joins": [
+                "products"
+              ]
+            },
+            {
+              "source": "regions",
+              "joins": [
+                "regions"
+              ]
             }
           ],
           "covers": [
@@ -579,12 +638,124 @@
             ],
             "1": [
               "dimension:overview:brand",
-              "dimension:overview:category"
+              "dimension:products:brand"
             ],
             "2": [
-              "dimension:overview:customer_id",
               "dimension:overview:region",
-              "dimension:overview:sale_price"
+              "dimension:customers:customer_id",
+              "dimension:overview:customer_id",
+              "dimension:regions:region",
+              "dimension:overview:sale_price",
+              "dimension:customers:state",
+              "dimension:regions:state"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "order_items",
+            "model_path": "storefront.malloy"
+          },
+          "sources": [
+            {
+              "source": "order_items",
+              "joins": []
+            },
+            {
+              "source": "customers",
+              "joins": [
+                "customers"
+              ]
+            },
+            {
+              "source": "products",
+              "joins": [
+                "products"
+              ]
+            },
+            {
+              "source": "regions",
+              "joins": [
+                "regions"
+              ]
+            }
+          ],
+          "covers": [
+            0,
+            1,
+            2
+          ],
+          "picks": {
+            "0": [
+              "measure:order_items:margin_rate",
+              "measure:order_items:total_margin"
+            ],
+            "1": [
+              "dimension:order_items:brand",
+              "dimension:products:brand"
+            ],
+            "2": [
+              "dimension:order_items:region",
+              "dimension:customers:customer_id",
+              "dimension:order_items:customer_id",
+              "dimension:regions:region",
+              "dimension:order_items:sale_price",
+              "dimension:customers:state",
+              "dimension:regions:state"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "scoped_orders",
+            "model_path": "data_app.malloy"
+          },
+          "sources": [
+            {
+              "source": "scoped_orders",
+              "joins": []
+            },
+            {
+              "source": "customers",
+              "joins": [
+                "customers"
+              ]
+            },
+            {
+              "source": "products",
+              "joins": [
+                "products"
+              ]
+            },
+            {
+              "source": "regions",
+              "joins": [
+                "regions"
+              ]
+            }
+          ],
+          "covers": [
+            0,
+            1,
+            2
+          ],
+          "picks": {
+            "0": [
+              "measure:scoped_orders:margin_rate",
+              "measure:scoped_orders:total_margin"
+            ],
+            "1": [
+              "dimension:scoped_orders:brand",
+              "dimension:products:brand"
+            ],
+            "2": [
+              "dimension:scoped_orders:region",
+              "dimension:customers:customer_id",
+              "dimension:scoped_orders:customer_id",
+              "dimension:regions:region",
+              "dimension:scoped_orders:sale_price",
+              "dimension:customers:state",
+              "dimension:regions:state"
             ]
           }
         },
@@ -607,108 +778,6 @@
               "dimension:brand_suggest:brand"
             ]
           }
-        },
-        {
-          "query_from": {
-            "source": "order_items",
-            "model_path": "storefront.malloy"
-          },
-          "sources": [
-            {
-              "source": "order_items",
-              "joins": []
-            }
-          ],
-          "covers": [
-            0,
-            1,
-            2
-          ],
-          "picks": {
-            "0": [
-              "measure:order_items:margin_rate",
-              "measure:order_items:total_margin"
-            ],
-            "1": [
-              "dimension:order_items:brand",
-              "dimension:order_items:category"
-            ],
-            "2": [
-              "dimension:order_items:customer_id",
-              "dimension:order_items:region"
-            ]
-          }
-        },
-        {
-          "query_from": {
-            "source": "scoped_orders",
-            "model_path": "data_app.malloy"
-          },
-          "sources": [
-            {
-              "source": "scoped_orders",
-              "joins": []
-            }
-          ],
-          "covers": [
-            0,
-            1,
-            2
-          ],
-          "picks": {
-            "0": [
-              "measure:scoped_orders:margin_rate",
-              "measure:scoped_orders:total_margin"
-            ],
-            "1": [
-              "dimension:scoped_orders:brand",
-              "dimension:scoped_orders:category"
-            ],
-            "2": [
-              "dimension:scoped_orders:region",
-              "dimension:scoped_orders:customer_id"
-            ]
-          }
-        },
-        {
-          "query_from": {
-            "source": "regions",
-            "model_path": "storefront.malloy"
-          },
-          "sources": [
-            {
-              "source": "regions",
-              "joins": []
-            }
-          ],
-          "covers": [
-            2
-          ],
-          "picks": {
-            "2": [
-              "dimension:regions:state"
-            ]
-          }
-        },
-        {
-          "query_from": {
-            "source": "products",
-            "model_path": "storefront.malloy"
-          },
-          "sources": [
-            {
-              "source": "products",
-              "joins": []
-            }
-          ],
-          "covers": [
-            1
-          ],
-          "picks": {
-            "1": [
-              "dimension:products:brand"
-            ]
-          }
         }
       ],
       "coverage": [
@@ -717,10 +786,8 @@
           "search_text": "gross margin as a share of revenue",
           "clusters": [
             true,
-            false,
             true,
             true,
-            false,
             false
           ]
         },
@@ -731,8 +798,6 @@
             true,
             true,
             true,
-            true,
-            false,
             true
           ]
         },
@@ -740,8 +805,6 @@
           "target_index": 2,
           "search_text": "sales region for the customer's home state",
           "clusters": [
-            true,
-            false,
             true,
             true,
             true,
@@ -766,462 +829,260 @@
   "traffic": {
     "embedding_calls": 1,
     "embedded_texts": [
-      "gross margin as a share of revenue",
       "brand of the item sold",
+      "gross margin as a share of revenue",
       "sales region for the customer's home state"
     ],
-    "judge_calls": 8,
+    "judge_calls": 1,
     "judge": [
       {
-        "call": "order",
-        "system_sha256": "e2d31836e8ecc1e49bb1125d394c21e95f7b72362a372abdeb3f4b5762fb06ec",
-        "prompt_sha256": "aa3271cd712501067555379c8a9cdd4af52243f6e0f1793d4900fbae479cfab4",
+        "system_sha256": "9f5997fde3c4a50ca93d49e0090e8c6b85eab6867ed48888adaf95f6f77a40c2",
+        "prompt_sha256": "e2961097b4a87a86db488146c800c9a363cabb06b64f9c9fb4c7d9c1edd7f3cf",
         "prompt": [
-          "What the caller is looking for:",
-          "  measure: \"gross margin as a share of revenue\"",
-          "  dimension: \"brand of the item sold\"",
-          "  dimension: \"sales region for the customer's home state\"",
-          "",
-          "<sources>",
-          "[1] overview - \"The overview report's tiles, each over the order lines its controls select\"",
-          "  Fields search found here:",
-          "    for \"gross margin as a share of revenue\": margin_rate, total_margin, percent_of_sales",
-          "    for \"brand of the item sold\": brand, category, created_at",
-          "    for \"sales region for the customer's home state\": region, customer_id, sale_price",
-          "[2] brand_suggest - \"Distinct brands, for the Brand filter control's option list\"",
-          "  Fields search found here:",
-          "    for \"gross margin as a share of revenue\": (nothing found)",
-          "    for \"brand of the item sold\": brand",
-          "    for \"sales region for the customer's home state\": brand",
-          "[3] order_items - \"Order line items — the fact table, one row per product sold on an order\"",
-          "  Fields search found here:",
-          "    for \"gross margin as a share of revenue\": margin_rate, total_margin, percent_of_sales",
-          "    for \"brand of the item sold\": brand, category, id",
-          "    for \"sales region for the customer's home state\": region, customer_id, gross_margin",
-          "[4] scoped_orders - \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
-          "  Fields search found here:",
-          "    for \"gross margin as a share of revenue\": margin_rate, total_margin, percent_of_sales",
-          "    for \"brand of the item sold\": brand, category, region",
-          "    for \"sales region for the customer's home state\": region, customer_id, brand",
-          "[5] regions - \"Sales region for each US state, one row per state, keyed by `state`\"",
-          "  Fields search found here:",
-          "    for \"gross margin as a share of revenue\": (nothing found)",
-          "    for \"brand of the item sold\": state, region",
-          "    for \"sales region for the customer's home state\": region, state",
-          "[6] customers - \"People who have placed orders — one row per customer, keyed by `customer_id`\"",
-          "  Fields search found here:",
-          "    for \"gross margin as a share of revenue\": customer_count",
-          "    for \"brand of the item sold\": (nothing found)",
-          "    for \"sales region for the customer's home state\": state, city, customer_id",
-          "[7] products - \"Catalog of products, one row per product, with cost and retail price\"",
-          "  Fields search found here:",
-          "    for \"gross margin as a share of revenue\": product_count",
-          "    for \"brand of the item sold\": brand, name",
-          "    for \"sales region for the customer's home state\": (nothing found)",
-          "</sources>",
-          "",
-          "Reply with one JSON object and nothing else:",
-          "{\"sources\": [<every source number, best first>]}"
-        ],
-        "reply": {
-          "sources": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7
-          ]
-        }
-      },
-      {
-        "call": "pick",
-        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
-        "prompt_sha256": "1a986e6eddc8a2ec6a25ccbb173eb3640e1623f21e13fecdd6d44cd726ca4708",
-        "prompt": [
-          "Source: overview - The overview report's tiles, each over the order lines its controls select.",
-          "Its doc: \"The overview report's tiles, each over the order lines its controls select\"",
+          "Sources with candidates:",
+          "- overview - The overview report's tiles, each over the order lines its controls select.",
+          "  Its doc begins: \"The overview report's tiles, each over the order lines its controls select\"",
+          "  A query from overview can also use: customers (through overview.customers), products (through overview.products), regions (through overview.regions).",
+          "- order_items - Order line items — the fact table, one row per product sold on an order.",
+          "  Its doc begins: \"Order line items — the fact table, one row per product sold on an order\"",
+          "  A query from order_items can also use: customers (through order_items.customers), products (through order_items.products), regions (through order_items.regions).",
+          "- scoped_orders - Order lines narrowed by the data app's control row.",
+          "  Its doc begins: \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
+          "  A query from scoped_orders can also use: customers (through scoped_orders.customers), products (through scoped_orders.products), regions (through scoped_orders.regions).",
+          "- products - Catalog of products, one row per product, with cost and retail price.",
+          "  Its doc begins: \"Catalog of products, one row per product, with cost and retail price\"",
+          "  A query from products can use none of the other listed sources.",
+          "- customers - People who have placed orders — one row per customer, keyed by `customer_id`.",
+          "  Its doc begins: \"People who have placed orders — one row per customer, keyed by `customer_id`\"",
+          "  A query from customers can use none of the other listed sources.",
+          "- brand_suggest - Distinct brands, for the Brand filter control's option list.",
+          "  Its doc begins: \"Distinct brands, for the Brand filter control's option list\"",
+          "  A query from brand_suggest can use none of the other listed sources.",
+          "- regions - Sales region for each US state, one row per state, keyed by `state`.",
+          "  Its doc begins: \"Sales region for each US state, one row per state, keyed by `state`\"",
+          "  A query from regions can use none of the other listed sources.",
           "",
           "<targets>",
           "Target 1 (measure): \"gross margin as a share of revenue\"",
-          "  [1] margin_rate (measure, number): Gross margin as a share of revenue",
-          "  [2] total_margin (measure, number): Total gross margin (revenue minus cost of goods sold), summed per line",
-          "  [3] percent_of_sales (measure, number): Share of total sales",
-          "  [4] return_rate (measure, number): Share of line items that were returned",
-          "  [5] total_sales (measure, number): Total revenue",
-          "  [6] avg_order_value (measure, number): Average order value",
-          "  [7] orders_per_customer (measure, number): Average orders placed per customer",
-          "  [8] order_count (measure, number): Distinct orders",
-          "  [9] customer_count (measure, number): Distinct customers",
+          "  From overview (its doc: \"The overview report's tiles, each over the order lines its controls select\"):",
+          "    [1] margin_rate (measure, number; source overview): Gross margin as a share of revenue",
+          "    [2] total_margin (measure, number; source overview): Total gross margin (revenue minus cost of goods sold), summed per line",
+          "    [3] percent_of_sales (measure, number; source overview): Share of total sales",
+          "    [4] return_rate (measure, number; source overview): Share of line items that were returned",
+          "    [5] total_sales (measure, number; source overview): Total revenue",
+          "    [6] avg_order_value (measure, number; source overview): Average order value",
+          "    [7] orders_per_customer (measure, number; source overview): Average orders placed per customer",
+          "    [8] order_count (measure, number; source overview): Distinct orders",
+          "    [9] customer_count (measure, number; source overview): Distinct customers",
+          "  From order_items (its doc: \"Order line items — the fact table, one row per product sold on an order\"):",
+          "    [10] margin_rate (measure, number; source order_items): Gross margin as a share of revenue",
+          "    [11] total_margin (measure, number; source order_items): Total gross margin (revenue minus cost of goods sold), summed per line",
+          "    [12] percent_of_sales (measure, number; source order_items): Share of total sales",
+          "    [13] return_rate (measure, number; source order_items): Share of line items that were returned",
+          "    [14] avg_order_value (measure, number; source order_items): Average order value",
+          "    [15] total_sales (measure, number; source order_items): Total revenue",
+          "    [16] orders_per_customer (measure, number; source order_items): Average orders placed per customer",
+          "    [17] order_count (measure, number; source order_items): Distinct orders",
+          "    [18] customer_count (measure, number; source order_items): Distinct customers",
+          "  From scoped_orders (its doc: \"Order lines narrowed by the data app's control row. Every tile queries this.\"):",
+          "    [19] margin_rate (measure, number; source scoped_orders): Gross margin as a share of revenue",
+          "    [20] total_margin (measure, number; source scoped_orders): Total gross margin (revenue minus cost of goods sold), summed per line",
+          "    [21] percent_of_sales (measure, number; source scoped_orders): Share of total sales",
+          "    [22] return_rate (measure, number; source scoped_orders): Share of line items that were returned",
+          "    [23] total_sales (measure, number; source scoped_orders): Total revenue",
+          "    [24] avg_order_value (measure, number; source scoped_orders): Average order value",
+          "    [25] orders_per_customer (measure, number; source scoped_orders): Average orders placed per customer",
+          "    [26] order_count (measure, number; source scoped_orders): Distinct orders",
+          "    [27] customer_count (measure, number; source scoped_orders): Distinct customers",
+          "    [28] order_item_count (measure, number; source scoped_orders): Line items sold",
+          "  From products:",
+          "    [29] product_count (measure, number; source products): Distinct products",
+          "        [30] order_items.products.product_count (route from order_items through products, join_one): only the products rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [31] overview.products.product_count (route from overview through products, join_one): only the products rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [32] scoped_orders.products.product_count (route from scoped_orders through products, join_one): only the products rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "  From customers (its doc: \"People who have placed orders — one row per customer, keyed by `customer_id`\"):",
+          "    [33] customer_count (measure, number; source customers): Distinct customers",
+          "        [34] order_items.customers.customer_count (route from order_items through customers, join_one): only the customers rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [35] overview.customers.customer_count (route from overview through customers, join_one): only the customers rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [36] scoped_orders.customers.customer_count (route from scoped_orders through customers, join_one): only the customers rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
           "Target 2 (dimension): \"brand of the item sold\"",
-          "  [10] brand (dimension, string): Brand of the item sold",
-          "  [11] category (dimension, string): Product category of the item sold",
-          "  [12] created_at (dimension, date): (no doc; name in words: created at)",
-          "  [13] customer_id (dimension, number): (no doc; name in words: customer id)",
-          "  [14] id (dimension, number): (no doc; name in words: id)",
-          "  [15] order_id (dimension, number): (no doc; name in words: order id)",
-          "  [16] product_id (dimension, number): (no doc; name in words: product id)",
-          "  [17] region (dimension, string): Sales region for the customer's home state",
-          "  [18] sale_price (dimension, number): (no doc; name in words: sale price)",
-          "  [19] status (dimension, string): (no doc; name in words: status)",
+          "  From brand_suggest (its doc: \"Distinct brands, for the Brand filter control's option list\"):",
+          "    [37] brand (dimension, string; source brand_suggest): Brand of the item sold",
+          "  From order_items (its doc: \"Order line items — the fact table, one row per product sold on an order\"):",
+          "    [38] brand (dimension, string; source order_items): Brand of the item sold",
+          "    [39] category (dimension, string; source order_items): Product category of the item sold",
+          "    [40] id (dimension, number; source order_items): (no doc; name in words: id)",
+          "    [41] customer_id (dimension, number; source order_items): (no doc; name in words: customer id)",
+          "    [42] region (dimension, string; source order_items): Sales region for the customer's home state",
+          "    [43] status (dimension, string; source order_items): (no doc; name in words: status)",
+          "    [44] sale_price (dimension, number; source order_items): (no doc; name in words: sale price)",
+          "    [45] created_at (dimension, date; source order_items): (no doc; name in words: created at)",
+          "    [46] product_id (dimension, number; source order_items): (no doc; name in words: product id)",
+          "    [47] order_id (dimension, number; source order_items): (no doc; name in words: order id)",
+          "    [48] gross_margin (dimension, number; source order_items): Gross margin on this line (sale price minus product cost)",
+          "  From overview (its doc: \"The overview report's tiles, each over the order lines its controls select\"):",
+          "    [49] brand (dimension, string; source overview): Brand of the item sold",
+          "    [50] category (dimension, string; source overview): Product category of the item sold",
+          "    [51] created_at (dimension, date; source overview): (no doc; name in words: created at)",
+          "    [52] customer_id (dimension, number; source overview): (no doc; name in words: customer id)",
+          "    [53] id (dimension, number; source overview): (no doc; name in words: id)",
+          "    [54] order_id (dimension, number; source overview): (no doc; name in words: order id)",
+          "    [55] product_id (dimension, number; source overview): (no doc; name in words: product id)",
+          "    [56] region (dimension, string; source overview): Sales region for the customer's home state",
+          "    [57] sale_price (dimension, number; source overview): (no doc; name in words: sale price)",
+          "    [58] status (dimension, string; source overview): (no doc; name in words: status)",
+          "  From scoped_orders (its doc: \"Order lines narrowed by the data app's control row. Every tile queries this.\"):",
+          "    [59] brand (dimension, string; source scoped_orders): Brand of the item sold",
+          "    [60] category (dimension, string; source scoped_orders): Product category of the item sold",
+          "    [61] region (dimension, string; source scoped_orders): Sales region for the customer's home state",
+          "    [62] created_at (dimension, date; source scoped_orders): (no doc; name in words: created at)",
+          "    [63] customer_id (dimension, number; source scoped_orders): (no doc; name in words: customer id)",
+          "  From products (its doc: \"Catalog of products, one row per product, with cost and retail price\"):",
+          "    [64] brand (dimension, string; source products): (no doc; name in words: brand)",
+          "        [65] order_items.products.brand (route from order_items through products, join_one): only the products rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [66] overview.products.brand (route from overview through products, join_one): only the products rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [67] scoped_orders.products.brand (route from scoped_orders through products, join_one): only the products rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "    [68] name (dimension, string; source products): (no doc; name in words: name)",
+          "        [69] order_items.products.name (route from order_items through products, join_one): only the products rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [70] overview.products.name (route from overview through products, join_one): only the products rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [71] scoped_orders.products.name (route from scoped_orders through products, join_one): only the products rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "  From regions (its doc: \"Sales region for each US state, one row per state, keyed by `state`\"):",
+          "    [72] state (dimension, string; source regions): (no doc; name in words: state)",
+          "        [73] order_items.regions.state (route from order_items through regions, join_one): only the regions rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [74] overview.regions.state (route from overview through regions, join_one): only the regions rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [75] scoped_orders.regions.state (route from scoped_orders through regions, join_one): only the regions rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "    [76] region (dimension, string; source regions): (no doc; name in words: region)",
+          "        [77] order_items.regions.region (route from order_items through regions, join_one): only the regions rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [78] overview.regions.region (route from overview through regions, join_one): only the regions rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [79] scoped_orders.regions.region (route from scoped_orders through regions, join_one): only the regions rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
           "Target 3 (dimension): \"sales region for the customer's home state\"",
-          "  [10] brand (dimension, string): Brand of the item sold",
-          "  [11] category (dimension, string): Product category of the item sold",
-          "  [12] created_at (dimension, date): (no doc; name in words: created at)",
-          "  [13] customer_id (dimension, number): (no doc; name in words: customer id)",
-          "  [14] id (dimension, number): (no doc; name in words: id)",
-          "  [15] order_id (dimension, number): (no doc; name in words: order id)",
-          "  [16] product_id (dimension, number): (no doc; name in words: product id)",
-          "  [17] region (dimension, string): Sales region for the customer's home state",
-          "  [18] sale_price (dimension, number): (no doc; name in words: sale price)",
-          "  [19] status (dimension, string): (no doc; name in words: status)",
-          "  [20] gross_margin (dimension, number): Gross margin on this line (sale price minus product cost)",
+          "  From overview (its doc: \"The overview report's tiles, each over the order lines its controls select\"):",
+          "    [56] region (dimension, string; source overview): Sales region for the customer's home state",
+          "    [52] customer_id (dimension, number; source overview): (no doc; name in words: customer id)",
+          "    [57] sale_price (dimension, number; source overview): (no doc; name in words: sale price)",
+          "    [53] id (dimension, number; source overview): (no doc; name in words: id)",
+          "    [51] created_at (dimension, date; source overview): (no doc; name in words: created at)",
+          "    [58] status (dimension, string; source overview): (no doc; name in words: status)",
+          "    [80] gross_margin (dimension, number; source overview): Gross margin on this line (sale price minus product cost)",
+          "    [49] brand (dimension, string; source overview): Brand of the item sold",
+          "    [55] product_id (dimension, number; source overview): (no doc; name in words: product id)",
+          "    [54] order_id (dimension, number; source overview): (no doc; name in words: order id)",
+          "    [50] category (dimension, string; source overview): Product category of the item sold",
+          "  From order_items (its doc: \"Order line items — the fact table, one row per product sold on an order\"):",
+          "    [42] region (dimension, string; source order_items): Sales region for the customer's home state",
+          "    [41] customer_id (dimension, number; source order_items): (no doc; name in words: customer id)",
+          "    [48] gross_margin (dimension, number; source order_items): Gross margin on this line (sale price minus product cost)",
+          "    [44] sale_price (dimension, number; source order_items): (no doc; name in words: sale price)",
+          "    [38] brand (dimension, string; source order_items): Brand of the item sold",
+          "    [39] category (dimension, string; source order_items): Product category of the item sold",
+          "  From scoped_orders (its doc: \"Order lines narrowed by the data app's control row. Every tile queries this.\"):",
+          "    [61] region (dimension, string; source scoped_orders): Sales region for the customer's home state",
+          "    [63] customer_id (dimension, number; source scoped_orders): (no doc; name in words: customer id)",
+          "    [59] brand (dimension, string; source scoped_orders): Brand of the item sold",
+          "    [81] sale_price (dimension, number; source scoped_orders): (no doc; name in words: sale price)",
+          "    [82] gross_margin (dimension, number; source scoped_orders): Gross margin on this line (sale price minus product cost)",
+          "    [62] created_at (dimension, date; source scoped_orders): (no doc; name in words: created at)",
+          "    [83] id (dimension, number; source scoped_orders): (no doc; name in words: id)",
+          "    [60] category (dimension, string; source scoped_orders): Product category of the item sold",
+          "    [84] order_id (dimension, number; source scoped_orders): (no doc; name in words: order id)",
+          "    [85] status (dimension, string; source scoped_orders): (no doc; name in words: status)",
+          "    [86] product_id (dimension, number; source scoped_orders): (no doc; name in words: product id)",
+          "  From regions (its doc: \"Sales region for each US state, one row per state, keyed by `state`\"):",
+          "    [76] region (dimension, string; source regions): (no doc; name in words: region)",
+          "        [77] order_items.regions.region (route from order_items through regions, join_one): only the regions rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [78] overview.regions.region (route from overview through regions, join_one): only the regions rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [79] scoped_orders.regions.region (route from scoped_orders through regions, join_one): only the regions rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "    [72] state (dimension, string; source regions): (no doc; name in words: state)",
+          "        [73] order_items.regions.state (route from order_items through regions, join_one): only the regions rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [74] overview.regions.state (route from overview through regions, join_one): only the regions rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [75] scoped_orders.regions.state (route from scoped_orders through regions, join_one): only the regions rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "  From customers (its doc: \"People who have placed orders — one row per customer, keyed by `customer_id`\"):",
+          "    [87] state (dimension, string; source customers): (no doc; name in words: state)",
+          "        [88] order_items.customers.state (route from order_items through customers, join_one): only the customers rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [89] overview.customers.state (route from overview through customers, join_one): only the customers rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [90] scoped_orders.customers.state (route from scoped_orders through customers, join_one): only the customers rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "    [91] city (dimension, string; source customers): (no doc; name in words: city)",
+          "        [92] order_items.customers.city (route from order_items through customers, join_one): only the customers rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [93] overview.customers.city (route from overview through customers, join_one): only the customers rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [94] scoped_orders.customers.city (route from scoped_orders through customers, join_one): only the customers rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "    [95] customer_id (dimension, number; source customers): (no doc; name in words: customer id)",
+          "        [96] order_items.customers.customer_id (route from order_items through customers, join_one): only the customers rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [97] overview.customers.customer_id (route from overview through customers, join_one): only the customers rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [98] scoped_orders.customers.customer_id (route from scoped_orders through customers, join_one): only the customers rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "    [99] signup_date (dimension, date; source customers): (no doc; name in words: signup date)",
+          "        [100] order_items.customers.signup_date (route from order_items through customers, join_one): only the customers rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [101] overview.customers.signup_date (route from overview through customers, join_one): only the customers rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [102] scoped_orders.customers.signup_date (route from scoped_orders through customers, join_one): only the customers rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "    [103] full_name (dimension, string; source customers): (no doc; name in words: full name)",
+          "        [104] order_items.customers.full_name (route from order_items through customers, join_one): only the customers rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [105] overview.customers.full_name (route from overview through customers, join_one): only the customers rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [106] scoped_orders.customers.full_name (route from scoped_orders through customers, join_one): only the customers rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "  From brand_suggest (its doc: \"Distinct brands, for the Brand filter control's option list\"):",
+          "    [37] brand (dimension, string; source brand_suggest): Brand of the item sold",
+          "  From products (its doc: \"Catalog of products, one row per product, with cost and retail price\"):",
+          "    [64] brand (dimension, string; source products): (no doc; name in words: brand)",
+          "        [65] order_items.products.brand (route from order_items through products, join_one): only the products rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [66] overview.products.brand (route from overview through products, join_one): only the products rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [67] scoped_orders.products.brand (route from scoped_orders through products, join_one): only the products rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
           "</targets>",
           "",
+          "Also in this group:",
+          "  [107] top_products (view; source overview): Top products by revenue | added because: uses total_sales, total_margin",
+          "  [108] by_category (view; source overview): Revenue by product category | added because: uses category, total_sales",
+          "  [109] category_performance (view; source overview): Category performance: revenue, margin, and share of the total | added because: uses category, total_sales, total_margin, margin_rate, percent_of_sales",
+          "  [110] margin_by_category (view; source overview): Gross margin by product category | added because: uses category, total_margin",
+          "  [111] top_brands (view; source overview): Top brands by revenue | added because: uses brand, total_sales",
+          "",
           "Reply with one JSON object and nothing else:",
-          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
-          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
         ],
         "reply": {
           "picks": [
             {
               "target": 1,
-              "candidates": [
-                1,
-                2
-              ],
-              "best": 1,
-              "reason": "stand-in: listed candidates sharing a word with the target"
-            },
-            {
-              "target": 2,
               "candidates": [
                 10,
-                11
-              ],
-              "best": 10,
-              "reason": "stand-in: listed candidates sharing a word with the target"
-            },
-            {
-              "target": 3,
-              "candidates": [
-                13,
-                17,
-                18
-              ],
-              "best": 13,
-              "reason": "stand-in: listed candidates sharing a word with the target"
-            }
-          ],
-          "caveats": []
-        }
-      },
-      {
-        "call": "pick",
-        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
-        "prompt_sha256": "4c7f13b13de7fcf0b426cf9d86e39f0876cbc1b572365329588ed5a2c55f0453",
-        "prompt": [
-          "Source: brand_suggest - Distinct brands, for the Brand filter control's option list.",
-          "Its doc: \"Distinct brands, for the Brand filter control's option list\"",
-          "",
-          "<targets>",
-          "Target 1 (dimension): \"brand of the item sold\"",
-          "  [1] brand (dimension, string): Brand of the item sold",
-          "Target 2 (dimension): \"sales region for the customer's home state\"",
-          "  [1] brand (dimension, string): Brand of the item sold",
-          "</targets>",
-          "",
-          "Reply with one JSON object and nothing else:",
-          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
-          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
-        ],
-        "reply": {
-          "picks": [
-            {
-              "target": 1,
-              "candidates": [
-                1
-              ],
-              "best": 1,
-              "reason": "stand-in: listed candidates sharing a word with the target"
-            },
-            {
-              "target": 2,
-              "candidates": [],
-              "reason": "stand-in: no listed candidate shares a word with the target"
-            }
-          ],
-          "caveats": []
-        }
-      },
-      {
-        "call": "pick",
-        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
-        "prompt_sha256": "029aa6b839ba816c87a1257e8bfe1ccb4844346b91c43afea90f120ccbbe884a",
-        "prompt": [
-          "Source: order_items - Order line items — the fact table, one row per product sold on an order.",
-          "Its doc: \"Order line items — the fact table, one row per product sold on an order\"",
-          "",
-          "<targets>",
-          "Target 1 (measure): \"gross margin as a share of revenue\"",
-          "  [1] margin_rate (measure, number): Gross margin as a share of revenue",
-          "  [2] total_margin (measure, number): Total gross margin (revenue minus cost of goods sold), summed per line",
-          "  [3] percent_of_sales (measure, number): Share of total sales",
-          "  [4] return_rate (measure, number): Share of line items that were returned",
-          "  [5] avg_order_value (measure, number): Average order value",
-          "  [6] total_sales (measure, number): Total revenue",
-          "  [7] orders_per_customer (measure, number): Average orders placed per customer",
-          "  [8] order_count (measure, number): Distinct orders",
-          "  [9] customer_count (measure, number): Distinct customers",
-          "Target 2 (dimension): \"brand of the item sold\"",
-          "  [10] brand (dimension, string): Brand of the item sold",
-          "  [11] category (dimension, string): Product category of the item sold",
-          "  [12] id (dimension, number): (no doc; name in words: id)",
-          "  [13] customer_id (dimension, number): (no doc; name in words: customer id)",
-          "  [14] region (dimension, string): Sales region for the customer's home state",
-          "  [15] status (dimension, string): (no doc; name in words: status)",
-          "  [16] sale_price (dimension, number): (no doc; name in words: sale price)",
-          "  [17] created_at (dimension, date): (no doc; name in words: created at)",
-          "  [18] product_id (dimension, number): (no doc; name in words: product id)",
-          "  [19] order_id (dimension, number): (no doc; name in words: order id)",
-          "  [20] gross_margin (dimension, number): Gross margin on this line (sale price minus product cost)",
-          "Target 3 (dimension): \"sales region for the customer's home state\"",
-          "  [13] customer_id (dimension, number): (no doc; name in words: customer id)",
-          "  [14] region (dimension, string): Sales region for the customer's home state",
-          "  [16] sale_price (dimension, number): (no doc; name in words: sale price)",
-          "  [20] gross_margin (dimension, number): Gross margin on this line (sale price minus product cost)",
-          "</targets>",
-          "",
-          "Reply with one JSON object and nothing else:",
-          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
-          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
-        ],
-        "reply": {
-          "picks": [
-            {
-              "target": 1,
-              "candidates": [
                 1,
-                2
-              ],
-              "best": 1,
-              "reason": "stand-in: listed candidates sharing a word with the target"
-            },
-            {
-              "target": 2,
-              "candidates": [
-                10,
-                11
-              ],
-              "best": 10,
-              "reason": "stand-in: listed candidates sharing a word with the target"
-            },
-            {
-              "target": 3,
-              "candidates": [
-                13,
-                14,
-                16
-              ],
-              "best": 13,
-              "reason": "stand-in: listed candidates sharing a word with the target"
-            }
-          ],
-          "caveats": []
-        }
-      },
-      {
-        "call": "pick",
-        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
-        "prompt_sha256": "782a9aa2e1ed777005e98148c74899a49fdebf00641feba952dd0c6283a3ebca",
-        "prompt": [
-          "Source: scoped_orders - Order lines narrowed by the data app's control row.",
-          "Its doc: \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
-          "",
-          "<targets>",
-          "Target 1 (measure): \"gross margin as a share of revenue\"",
-          "  [1] margin_rate (measure, number): Gross margin as a share of revenue",
-          "  [2] total_margin (measure, number): Total gross margin (revenue minus cost of goods sold), summed per line",
-          "  [3] percent_of_sales (measure, number): Share of total sales",
-          "  [4] return_rate (measure, number): Share of line items that were returned",
-          "  [5] total_sales (measure, number): Total revenue",
-          "  [6] avg_order_value (measure, number): Average order value",
-          "  [7] orders_per_customer (measure, number): Average orders placed per customer",
-          "  [8] order_count (measure, number): Distinct orders",
-          "  [9] customer_count (measure, number): Distinct customers",
-          "  [10] order_item_count (measure, number): Line items sold",
-          "Target 2 (dimension): \"brand of the item sold\"",
-          "  [11] brand (dimension, string): Brand of the item sold",
-          "  [12] category (dimension, string): Product category of the item sold",
-          "  [13] region (dimension, string): Sales region for the customer's home state",
-          "  [14] created_at (dimension, date): (no doc; name in words: created at)",
-          "Target 3 (dimension): \"sales region for the customer's home state\"",
-          "  [11] brand (dimension, string): Brand of the item sold",
-          "  [13] region (dimension, string): Sales region for the customer's home state",
-          "  [14] created_at (dimension, date): (no doc; name in words: created at)",
-          "  [15] customer_id (dimension, number): (no doc; name in words: customer id)",
-          "  [16] sale_price (dimension, number): (no doc; name in words: sale price)",
-          "  [17] gross_margin (dimension, number): Gross margin on this line (sale price minus product cost)",
-          "  [18] id (dimension, number): (no doc; name in words: id)",
-          "</targets>",
-          "",
-          "Reply with one JSON object and nothing else:",
-          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
-          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
-        ],
-        "reply": {
-          "picks": [
-            {
-              "target": 1,
-              "candidates": [
-                1,
-                2
-              ],
-              "best": 1,
-              "reason": "stand-in: listed candidates sharing a word with the target"
-            },
-            {
-              "target": 2,
-              "candidates": [
+                19,
                 11,
-                12
+                2,
+                20
               ],
-              "best": 11,
-              "reason": "stand-in: listed candidates sharing a word with the target"
+              "reason": "stand-in: 6 candidate(s) scored 2 or more",
+              "best": 10
+            },
+            {
+              "target": 2,
+              "candidates": [
+                37,
+                38,
+                49,
+                59,
+                64
+              ],
+              "reason": "stand-in: 5 candidate(s) scored 2 or more",
+              "best": 37
             },
             {
               "target": 3,
               "candidates": [
-                13,
-                15,
-                16
+                42,
+                56,
+                61,
+                95,
+                41,
+                52,
+                63,
+                76,
+                44,
+                57,
+                81,
+                87,
+                72
               ],
-              "best": 13,
-              "reason": "stand-in: listed candidates sharing a word with the target"
-            }
-          ],
-          "caveats": []
-        }
-      },
-      {
-        "call": "pick",
-        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
-        "prompt_sha256": "133ced92b2569e2e9442153a02f89f3be4ca490791e9e63ee0f16e343b5e5559",
-        "prompt": [
-          "Source: regions - Sales region for each US state, one row per state, keyed by `state`.",
-          "Its doc: \"Sales region for each US state, one row per state, keyed by `state`\"",
-          "",
-          "<targets>",
-          "Target 1 (dimension): \"brand of the item sold\"",
-          "  [1] state (dimension, string): (no doc; name in words: state)",
-          "  [2] region (dimension, string): (no doc; name in words: region)",
-          "Target 2 (dimension): \"sales region for the customer's home state\"",
-          "  [1] state (dimension, string): (no doc; name in words: state)",
-          "  [2] region (dimension, string): (no doc; name in words: region)",
-          "</targets>",
-          "",
-          "Reply with one JSON object and nothing else:",
-          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
-          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
-        ],
-        "reply": {
-          "picks": [
-            {
-              "target": 1,
-              "candidates": [],
-              "reason": "stand-in: no listed candidate shares a word with the target"
-            },
-            {
-              "target": 2,
-              "candidates": [
-                1,
-                2
-              ],
-              "best": 1,
-              "reason": "stand-in: listed candidates sharing a word with the target"
-            }
-          ],
-          "caveats": []
-        }
-      },
-      {
-        "call": "pick",
-        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
-        "prompt_sha256": "af4ec7d9b3d8f8fc90bef9d6f9f19fcda71d3d36e6a32163b1522d922fdba3da",
-        "prompt": [
-          "Source: customers - People who have placed orders — one row per customer, keyed by `customer_id`.",
-          "Its doc: \"People who have placed orders — one row per customer, keyed by `customer_id`\"",
-          "",
-          "<targets>",
-          "Target 1 (measure): \"gross margin as a share of revenue\"",
-          "  [1] customer_count (measure, number): Distinct customers",
-          "Target 2 (dimension): \"sales region for the customer's home state\"",
-          "  [2] state (dimension, string): (no doc; name in words: state)",
-          "  [3] city (dimension, string): (no doc; name in words: city)",
-          "  [4] customer_id (dimension, number): (no doc; name in words: customer id)",
-          "  [5] signup_date (dimension, date): (no doc; name in words: signup date)",
-          "  [6] full_name (dimension, string): (no doc; name in words: full name)",
-          "</targets>",
-          "",
-          "Reply with one JSON object and nothing else:",
-          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
-          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
-        ],
-        "reply": {
-          "picks": [
-            {
-              "target": 1,
-              "candidates": [],
-              "reason": "stand-in: no listed candidate shares a word with the target"
-            },
-            {
-              "target": 2,
-              "candidates": [
-                2,
-                4
-              ],
-              "best": 2,
-              "reason": "stand-in: listed candidates sharing a word with the target"
-            }
-          ],
-          "caveats": []
-        }
-      },
-      {
-        "call": "pick",
-        "system_sha256": "a3942d7ab83b38df8940e8bcb6975f64eaed6c94c3f7089cb3cee7f38d5653d0",
-        "prompt_sha256": "d5fcde4772b4ccefe6ba21eb728071f0fa06e705fc0010abae40745457e8de9d",
-        "prompt": [
-          "Source: products - Catalog of products, one row per product, with cost and retail price.",
-          "Its doc: \"Catalog of products, one row per product, with cost and retail price\"",
-          "",
-          "<targets>",
-          "Target 1 (measure): \"gross margin as a share of revenue\"",
-          "  [1] product_count (measure, number): Distinct products",
-          "Target 2 (dimension): \"brand of the item sold\"",
-          "  [2] brand (dimension, string): (no doc; name in words: brand)",
-          "  [3] name (dimension, string): (no doc; name in words: name)",
-          "</targets>",
-          "",
-          "Reply with one JSON object and nothing else:",
-          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\"}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
-          "Give one element per target, with an empty \"candidates\" list for a target this source cannot answer. Use only the candidate numbers listed under that target. List \"candidates\" best first; \"best\" is one of them."
-        ],
-        "reply": {
-          "picks": [
-            {
-              "target": 1,
-              "candidates": [],
-              "reason": "stand-in: no listed candidate shares a word with the target"
-            },
-            {
-              "target": 2,
-              "candidates": [
-                2
-              ],
-              "best": 2,
-              "reason": "stand-in: listed candidates sharing a word with the target"
+              "reason": "stand-in: 13 candidate(s) scored 2 or more",
+              "best": 42
             }
           ],
           "caveats": []

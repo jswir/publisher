@@ -1,0 +1,1198 @@
+{
+  "case": "many-sources-shared-field",
+  "about": "A measure and a dimension that eleven sources share by name or by word: some extend one base, some are unrelated, one reaches another's field through a join.",
+  "request": {
+    "search_targets": [
+      {
+        "target_type": "measure",
+        "search_text": "total amount"
+      },
+      {
+        "target_type": "dimension",
+        "search_text": "region"
+      }
+    ],
+    "scopes": [
+      {
+        "environment": "examples",
+        "package": "replay-many"
+      }
+    ]
+  },
+  "response": {
+    "is_error": false,
+    "payload": {
+      "sources": [
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-many",
+              "model_path": "many.malloy",
+              "source": "partner_sales"
+            },
+            "one_line_summary": "Partner sales only: sales made by resellers, the rows of sales_base whose channel is partner.",
+            "docs": "Partner sales only: sales made by resellers, the rows of sales_base whose channel is partner.",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "total_amount",
+              "entity_type": "measure",
+              "entity_id": "measure:partner_sales:total_amount",
+              "relevance": 0.9507673279822302,
+              "description": "Total amount of the sales in scope, in US dollars before tax.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "total amount",
+                  "relevance": 0.9508,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "avg_amount",
+              "entity_type": "measure",
+              "entity_id": "measure:partner_sales:avg_amount",
+              "relevance": 0.850648691744582,
+              "description": "Average amount per sale, in US dollars before tax.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "total amount",
+                  "relevance": 0.8506,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "region_code",
+              "entity_type": "dimension",
+              "entity_id": "dimension:partner_sales:region_code",
+              "relevance": 0.93279915860561,
+              "description": "Sales region of the selling team, one of North, East or West.",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "region",
+                  "relevance": 0.9328,
+                  "match_reason": "stand-in: 14 candidate(s) scored 2 or more"
+                }
+              ],
+              "aliases": [
+                "region"
+              ]
+            },
+            {
+              "name": "sales_region_name",
+              "entity_type": "dimension",
+              "entity_id": "dimension:partner_sales:sales_region_name",
+              "relevance": 0.8742868167911578,
+              "description": "Long name of the sales region of the selling team.",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "region",
+                  "relevance": 0.8743,
+                  "match_reason": "stand-in: 14 candidate(s) scored 2 or more"
+                }
+              ],
+              "aliases": [
+                "region_name"
+              ]
+            }
+          ],
+          "relevance": 0.9507673279822302
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-many",
+              "model_path": "many.malloy",
+              "source": "sales_base"
+            },
+            "one_line_summary": "One row per sale, every channel combined: store, web and partner sales together.",
+            "docs": "One row per sale, every channel combined: store, web and partner sales together. The amount is the sale's value in US dollars before tax; the region is the sales region of the selling team.",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "total_amount",
+              "entity_type": "measure",
+              "entity_id": "measure:sales_base:total_amount",
+              "relevance": 0.9609187109187108,
+              "description": "Total amount of the sales in scope, in US dollars before tax.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "total amount",
+                  "relevance": 0.9609,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "avg_amount",
+              "entity_type": "measure",
+              "entity_id": "measure:sales_base:avg_amount",
+              "relevance": 0.8949221076086747,
+              "description": "Average amount per sale, in US dollars before tax.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "total amount",
+                  "relevance": 0.8949,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "region_code",
+              "entity_type": "dimension",
+              "entity_id": "dimension:sales_base:region_code",
+              "relevance": 0.9468954248366012,
+              "description": "Sales region of the selling team, one of North, East or West.",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "region",
+                  "relevance": 0.9469,
+                  "match_reason": "stand-in: 14 candidate(s) scored 2 or more"
+                }
+              ],
+              "aliases": [
+                "region"
+              ]
+            },
+            {
+              "name": "sales_region_name",
+              "entity_type": "dimension",
+              "entity_id": "dimension:sales_base:sales_region_name",
+              "relevance": 0.9067345152544156,
+              "description": "Long name of the sales region of the selling team.",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "region",
+                  "relevance": 0.9067,
+                  "match_reason": "stand-in: 14 candidate(s) scored 2 or more"
+                }
+              ],
+              "aliases": [
+                "region_name"
+              ]
+            }
+          ],
+          "relevance": 0.9609187109187108
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-many",
+              "model_path": "many.malloy",
+              "source": "store_sales"
+            },
+            "one_line_summary": "In-store sales only: the rows of sales_base whose channel is store.",
+            "docs": "In-store sales only: the rows of sales_base whose channel is store. Use it for per-store questions; for all channels use sales_base.",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "total_amount",
+              "entity_type": "measure",
+              "entity_id": "measure:store_sales:total_amount",
+              "relevance": 0.9395601675013439,
+              "description": "Total amount of the sales in scope, in US dollars before tax.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "total amount",
+                  "relevance": 0.9396,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "store_amount",
+              "entity_type": "measure",
+              "entity_id": "measure:store_sales:store_amount",
+              "relevance": 0.9121233034276511,
+              "description": "Total amount of in-store sales.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "total amount",
+                  "relevance": 0.9121,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "avg_amount",
+              "entity_type": "measure",
+              "entity_id": "measure:store_sales:avg_amount",
+              "relevance": 0.8566358024691357,
+              "description": "Average amount per sale, in US dollars before tax.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "total amount",
+                  "relevance": 0.8566,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "region_code",
+              "entity_type": "dimension",
+              "entity_id": "dimension:store_sales:region_code",
+              "relevance": 0.9263382120524976,
+              "description": "Sales region of the selling team, one of North, East or West.",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "region",
+                  "relevance": 0.9263,
+                  "match_reason": "stand-in: 14 candidate(s) scored 2 or more"
+                }
+              ],
+              "aliases": [
+                "region"
+              ]
+            },
+            {
+              "name": "sales_region_name",
+              "entity_type": "dimension",
+              "entity_id": "dimension:store_sales:sales_region_name",
+              "relevance": 0.8871336238816881,
+              "description": "Long name of the sales region of the selling team.",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "region",
+                  "relevance": 0.8871,
+                  "match_reason": "stand-in: 14 candidate(s) scored 2 or more"
+                }
+              ],
+              "aliases": [
+                "region_name"
+              ]
+            }
+          ],
+          "relevance": 0.9395601675013439
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-many",
+              "model_path": "many.malloy",
+              "source": "web_sales"
+            },
+            "one_line_summary": "Web sales only: the rows of sales_base whose channel is web.",
+            "docs": "Web sales only: the rows of sales_base whose channel is web.",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "total_amount",
+              "entity_type": "measure",
+              "entity_id": "measure:web_sales:total_amount",
+              "relevance": 0.9192219176227703,
+              "description": "Total amount of the sales in scope, in US dollars before tax.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "total amount",
+                  "relevance": 0.9192,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "avg_amount",
+              "entity_type": "measure",
+              "entity_id": "measure:web_sales:avg_amount",
+              "relevance": 0.845127945434362,
+              "description": "Average amount per sale, in US dollars before tax.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "total amount",
+                  "relevance": 0.8451,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "region_code",
+              "entity_type": "dimension",
+              "entity_id": "dimension:web_sales:region_code",
+              "relevance": 0.9067345152544156,
+              "description": "Sales region of the selling team, one of North, East or West.",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "region",
+                  "relevance": 0.9067,
+                  "match_reason": "stand-in: 14 candidate(s) scored 2 or more"
+                }
+              ],
+              "aliases": [
+                "region"
+              ]
+            },
+            {
+              "name": "sales_region_name",
+              "entity_type": "dimension",
+              "entity_id": "dimension:web_sales:sales_region_name",
+              "relevance": 0.8684615198699706,
+              "description": "Long name of the sales region of the selling team.",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "region",
+                  "relevance": 0.8685,
+                  "match_reason": "stand-in: 14 candidate(s) scored 2 or more"
+                }
+              ],
+              "aliases": [
+                "region_name"
+              ]
+            }
+          ],
+          "relevance": 0.9192219176227703
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-many",
+              "model_path": "many.malloy",
+              "source": "budgets"
+            },
+            "one_line_summary": "One row per planned budget line of a region, for the finance plan.",
+            "docs": "One row per planned budget line of a region, for the finance plan. Amounts are planned, not actual.",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "total_budget_amount",
+              "entity_type": "measure",
+              "entity_id": "measure:budgets:total_budget_amount",
+              "relevance": 0.9786414565826329,
+              "description": "Total planned budget amount.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "total amount",
+                  "relevance": 0.9786,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "budget_region",
+              "entity_type": "dimension",
+              "entity_id": "dimension:budgets:budget_region",
+              "relevance": 0.9786414565826329,
+              "description": "Region the budget line is planned for.",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "region",
+                  "relevance": 0.9786,
+                  "match_reason": "stand-in: 14 candidate(s) scored 2 or more"
+                }
+              ],
+              "aliases": [
+                "region"
+              ]
+            }
+          ],
+          "relevance": 0.9786414565826329
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-many",
+              "model_path": "many.malloy",
+              "source": "commissions"
+            },
+            "one_line_summary": "One row per commission paid to a sales rep.",
+            "docs": "One row per commission paid to a sales rep.",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "total_commission_amount",
+              "entity_type": "measure",
+              "entity_id": "measure:commissions:total_commission_amount",
+              "relevance": 0.8511150561589156,
+              "description": "Total commission paid to reps.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "total amount",
+                  "relevance": 0.8511,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "rep_region",
+              "entity_type": "dimension",
+              "entity_id": "dimension:commissions:rep_region",
+              "relevance": 1,
+              "description": "Region of the sales rep paid.",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "region",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 14 candidate(s) scored 2 or more"
+                }
+              ],
+              "aliases": [
+                "region"
+              ]
+            }
+          ],
+          "relevance": 1
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-many",
+              "model_path": "many.malloy",
+              "source": "shipments"
+            },
+            "one_line_summary": "One row per parcel shipped from a warehouse.",
+            "docs": "One row per parcel shipped from a warehouse. The amount is the freight charge.",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "total_freight_amount",
+              "entity_type": "measure",
+              "entity_id": "measure:shipments:total_freight_amount",
+              "relevance": 0.8684615198699706,
+              "description": "Total freight charged for the parcels.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "total amount",
+                  "relevance": 0.8685,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "destination_region",
+              "entity_type": "dimension",
+              "entity_id": "dimension:shipments:destination_region",
+              "relevance": 0.9570989686197057,
+              "description": "Region the parcel was shipped to.",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "region",
+                  "relevance": 0.9571,
+                  "match_reason": "stand-in: 14 candidate(s) scored 2 or more"
+                }
+              ],
+              "aliases": [
+                "region"
+              ]
+            }
+          ],
+          "relevance": 0.9570989686197057
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-many",
+              "model_path": "many.malloy",
+              "source": "payments"
+            },
+            "one_line_summary": "One row per payment received against an invoice.",
+            "docs": "One row per payment received against an invoice. Reach the invoice's billing region through the invoice join.",
+            "joins": [
+              {
+                "name": "invoice",
+                "relationship": "one",
+                "doc": "The invoice the payment settles."
+              }
+            ]
+          },
+          "entities": [
+            {
+              "name": "total_paid_amount",
+              "entity_type": "measure",
+              "entity_id": "measure:payments:total_paid_amount",
+              "relevance": 0.991187562988158,
+              "description": "Total amount received in payments, in US dollars.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "total amount",
+                  "relevance": 0.9912,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 0.991187562988158
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-many",
+              "model_path": "many.malloy",
+              "source": "quotes"
+            },
+            "one_line_summary": "One row per price quote given to a prospect; a quote is not a sale.",
+            "docs": "One row per price quote given to a prospect; a quote is not a sale.",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "total_quoted_amount",
+              "entity_type": "measure",
+              "entity_id": "measure:quotes:total_quoted_amount",
+              "relevance": 1,
+              "description": "Total amount quoted to prospects.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "total amount",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "quote_region",
+              "entity_type": "dimension",
+              "entity_id": "dimension:quotes:quote_region",
+              "relevance": 0.9762878215259166,
+              "description": "Sales region of the prospect.",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "region",
+                  "relevance": 0.9763,
+                  "match_reason": "stand-in: 14 candidate(s) scored 2 or more"
+                }
+              ],
+              "aliases": [
+                "region"
+              ]
+            }
+          ],
+          "relevance": 1
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-many",
+              "model_path": "many.malloy",
+              "source": "refunds"
+            },
+            "one_line_summary": "One row per refund paid back to a customer.",
+            "docs": "One row per refund paid back to a customer. The amount is the refunded amount.",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "total_refund_amount",
+              "entity_type": "measure",
+              "entity_id": "measure:refunds:total_refund_amount",
+              "relevance": 0.999243951612903,
+              "description": "Total amount refunded to customers.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "total amount",
+                  "relevance": 0.9992,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "refund_region",
+              "entity_type": "dimension",
+              "entity_id": "dimension:refunds:refund_region",
+              "relevance": 0.991187562988158,
+              "description": "Region of the store that paid the refund.",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "region",
+                  "relevance": 0.9912,
+                  "match_reason": "stand-in: 14 candidate(s) scored 2 or more"
+                }
+              ],
+              "aliases": [
+                "region"
+              ]
+            }
+          ],
+          "relevance": 0.999243951612903
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-many",
+              "model_path": "many.malloy",
+              "source": "invoices"
+            },
+            "one_line_summary": "One row per invoice sent to a customer.",
+            "docs": "One row per invoice sent to a customer. The amount is the invoiced amount; the region is the billing region of the customer.",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "invoiced_amount",
+              "entity_type": "measure",
+              "entity_id": "measure:invoices:invoiced_amount",
+              "relevance": 0.9490425799949607,
+              "description": "Total invoiced amount, in US dollars.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "total amount",
+                  "relevance": 0.949,
+                  "match_reason": "stand-in: 16 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "billing_region",
+              "entity_type": "dimension",
+              "entity_id": "dimension:invoices:billing_region",
+              "relevance": 0.9477531199677938,
+              "description": "Billing region of the invoiced customer.",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "region",
+                  "relevance": 0.9478,
+                  "match_reason": "stand-in: 14 candidate(s) scored 2 or more"
+                }
+              ],
+              "aliases": [
+                "region"
+              ]
+            }
+          ],
+          "relevance": 0.9490425799949607
+        }
+      ],
+      "ranking": "relevance",
+      "total_available": 11,
+      "returned": 11,
+      "retrieval": "semantic",
+      "engine": "fcj",
+      "clusters": [
+        {
+          "query_from": {
+            "source": "payments",
+            "model_path": "many.malloy"
+          },
+          "sources": [
+            {
+              "source": "payments",
+              "joins": []
+            },
+            {
+              "source": "invoices",
+              "joins": [
+                "invoice"
+              ]
+            }
+          ],
+          "covers": [
+            0,
+            1
+          ],
+          "picks": {
+            "0": [
+              "measure:payments:total_paid_amount",
+              "measure:invoices:invoiced_amount"
+            ],
+            "1": [
+              "dimension:invoices:billing_region"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "quotes",
+            "model_path": "many.malloy"
+          },
+          "sources": [
+            {
+              "source": "quotes",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0,
+            1
+          ],
+          "picks": {
+            "0": [
+              "measure:quotes:total_quoted_amount"
+            ],
+            "1": [
+              "dimension:quotes:quote_region"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "refunds",
+            "model_path": "many.malloy"
+          },
+          "sources": [
+            {
+              "source": "refunds",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0,
+            1
+          ],
+          "picks": {
+            "0": [
+              "measure:refunds:total_refund_amount"
+            ],
+            "1": [
+              "dimension:refunds:refund_region"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "budgets",
+            "model_path": "many.malloy"
+          },
+          "sources": [
+            {
+              "source": "budgets",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0,
+            1
+          ],
+          "picks": {
+            "0": [
+              "measure:budgets:total_budget_amount"
+            ],
+            "1": [
+              "dimension:budgets:budget_region"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "sales_base",
+            "model_path": "many.malloy"
+          },
+          "sources": [
+            {
+              "source": "sales_base",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0,
+            1
+          ],
+          "picks": {
+            "0": [
+              "measure:sales_base:total_amount",
+              "measure:sales_base:avg_amount"
+            ],
+            "1": [
+              "dimension:sales_base:region_code",
+              "dimension:sales_base:sales_region_name"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "partner_sales",
+            "model_path": "many.malloy"
+          },
+          "sources": [
+            {
+              "source": "partner_sales",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0,
+            1
+          ],
+          "picks": {
+            "0": [
+              "measure:partner_sales:total_amount",
+              "measure:partner_sales:avg_amount"
+            ],
+            "1": [
+              "dimension:partner_sales:region_code",
+              "dimension:partner_sales:sales_region_name"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "store_sales",
+            "model_path": "many.malloy"
+          },
+          "sources": [
+            {
+              "source": "store_sales",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0,
+            1
+          ],
+          "picks": {
+            "0": [
+              "measure:store_sales:total_amount",
+              "measure:store_sales:store_amount",
+              "measure:store_sales:avg_amount"
+            ],
+            "1": [
+              "dimension:store_sales:region_code",
+              "dimension:store_sales:sales_region_name"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "web_sales",
+            "model_path": "many.malloy"
+          },
+          "sources": [
+            {
+              "source": "web_sales",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0,
+            1
+          ],
+          "picks": {
+            "0": [
+              "measure:web_sales:total_amount",
+              "measure:web_sales:avg_amount"
+            ],
+            "1": [
+              "dimension:web_sales:region_code",
+              "dimension:web_sales:sales_region_name"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "shipments",
+            "model_path": "many.malloy"
+          },
+          "sources": [
+            {
+              "source": "shipments",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0,
+            1
+          ],
+          "picks": {
+            "0": [
+              "measure:shipments:total_freight_amount"
+            ],
+            "1": [
+              "dimension:shipments:destination_region"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "commissions",
+            "model_path": "many.malloy"
+          },
+          "sources": [
+            {
+              "source": "commissions",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0,
+            1
+          ],
+          "picks": {
+            "0": [
+              "measure:commissions:total_commission_amount"
+            ],
+            "1": [
+              "dimension:commissions:rep_region"
+            ]
+          }
+        }
+      ],
+      "coverage": [
+        {
+          "target_index": 0,
+          "search_text": "total amount",
+          "clusters": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "target_index": 1,
+          "search_text": "region",
+          "clusters": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        }
+      ],
+      "unresolved_targets": []
+    }
+  },
+  "traffic": {
+    "embedding_calls": 1,
+    "embedded_texts": [
+      "region",
+      "total amount"
+    ],
+    "judge_calls": 1,
+    "judge": [
+      {
+        "system_sha256": "9f5997fde3c4a50ca93d49e0090e8c6b85eab6867ed48888adaf95f6f77a40c2",
+        "prompt_sha256": "6bda5b9f6e9caa80158be16c3f960a56fcdc358d486aaa609d4be637ec5e700c",
+        "prompt": [
+          "Sources with candidates:",
+          "- quotes - One row per price quote given to a prospect; a quote is not a sale.",
+          "  A query from quotes can use none of the other listed sources.",
+          "- refunds - One row per refund paid back to a customer.",
+          "  Its doc begins: \"One row per refund paid back to a customer. The amount is the refunded amount.\"",
+          "  A query from refunds can use none of the other listed sources.",
+          "- payments - One row per payment received against an invoice.",
+          "  Its doc begins: \"One row per payment received against an invoice. Reach the invoice's billing region through the invoice join.\"",
+          "  A query from payments can also use: invoices (through payments.invoice).",
+          "- budgets - One row per planned budget line of a region, for the finance plan.",
+          "  Its doc begins: \"One row per planned budget line of a region, for the finance plan. Amounts are planned, not actual.\"",
+          "  A query from budgets can use none of the other listed sources.",
+          "- sales_base - One row per sale, every channel combined: store, web and partner sales together.",
+          "  Its doc begins: \"One row per sale, every channel combined: store, web and partner sales together. The amount is the sale's value in US dollars before tax; the region is the sales region of the selling team.\"",
+          "  A query from sales_base can use none of the other listed sources.",
+          "- partner_sales - Partner sales only: sales made by resellers, the rows of sales_base whose channel is partner.",
+          "  A query from partner_sales can use none of the other listed sources.",
+          "- invoices - One row per invoice sent to a customer.",
+          "  Its doc begins: \"One row per invoice sent to a customer. The amount is the invoiced amount; the region is the billing region of the customer.\"",
+          "  A query from invoices can use none of the other listed sources.",
+          "- store_sales - In-store sales only: the rows of sales_base whose channel is store.",
+          "  Its doc begins: \"In-store sales only: the rows of sales_base whose channel is store. Use it for per-store questions; for all channels use sales_base.\"",
+          "  A query from store_sales can use none of the other listed sources.",
+          "- web_sales - Web sales only: the rows of sales_base whose channel is web.",
+          "  A query from web_sales can use none of the other listed sources.",
+          "- shipments - One row per parcel shipped from a warehouse.",
+          "  Its doc begins: \"One row per parcel shipped from a warehouse. The amount is the freight charge.\"",
+          "  A query from shipments can use none of the other listed sources.",
+          "- commissions - One row per commission paid to a sales rep.",
+          "  A query from commissions can use none of the other listed sources.",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"total amount\"",
+          "  From quotes:",
+          "    [1] total_quoted_amount (measure, number; source quotes): Total amount quoted to prospects.",
+          "    [2] quote_count (measure, number; source quotes): Number of quotes.",
+          "  From refunds:",
+          "    [3] total_refund_amount (measure, number; source refunds): Total amount refunded to customers.",
+          "    [4] refund_count (measure, number; source refunds): Number of refunds.",
+          "  From payments:",
+          "    [5] total_paid_amount (measure, number; source payments): Total amount received in payments, in US dollars.",
+          "    [6] payment_count (measure, number; source payments): Number of payments.",
+          "  From budgets:",
+          "    [7] total_budget_amount (measure, number; source budgets): Total planned budget amount.",
+          "    [8] budget_lines (measure, number; source budgets): Number of budget lines.",
+          "  From sales_base (its doc: \"One row per sale, every channel combined: store, web and partner sales together. The amount is the sale's value in US dollars before tax; the region is the sales region of the selling team.\"):",
+          "    [9] total_amount (measure, number; source sales_base): Total amount of the sales in scope, in US dollars before tax.",
+          "    [10] avg_amount (measure, number; source sales_base): Average amount per sale, in US dollars before tax.",
+          "    [11] sale_count (measure, number; source sales_base): Number of sales.",
+          "  From partner_sales (its doc: \"Partner sales only: sales made by resellers, the rows of sales_base whose channel is partner.\"):",
+          "    [12] total_amount (measure, number; source partner_sales): Total amount of the sales in scope, in US dollars before tax.",
+          "    [13] avg_amount (measure, number; source partner_sales): Average amount per sale, in US dollars before tax.",
+          "    [14] sale_count (measure, number; source partner_sales): Number of sales.",
+          "  From invoices:",
+          "    [15] invoiced_amount (measure, number; source invoices): Total invoiced amount, in US dollars.",
+          "        [16] payments.invoice.invoiced_amount (route from payments through invoice, join_one): only the invoices rows payments reaches (payments: \"One row per payment received against an invoice.\")",
+          "    [17] invoice_count (measure, number; source invoices): Number of invoices.",
+          "        [18] payments.invoice.invoice_count (route from payments through invoice, join_one): only the invoices rows payments reaches (payments: \"One row per payment received against an invoice.\")",
+          "  From store_sales (its doc: \"In-store sales only: the rows of sales_base whose channel is store. Use it for per-store questions; for all channels use sales_base.\"):",
+          "    [19] total_amount (measure, number; source store_sales): Total amount of the sales in scope, in US dollars before tax.",
+          "    [20] store_amount (measure, number; source store_sales): Total amount of in-store sales.",
+          "    [21] avg_amount (measure, number; source store_sales): Average amount per sale, in US dollars before tax.",
+          "    [22] sale_count (measure, number; source store_sales): Number of sales.",
+          "  From web_sales (its doc: \"Web sales only: the rows of sales_base whose channel is web.\"):",
+          "    [23] total_amount (measure, number; source web_sales): Total amount of the sales in scope, in US dollars before tax.",
+          "    [24] avg_amount (measure, number; source web_sales): Average amount per sale, in US dollars before tax.",
+          "    [25] sale_count (measure, number; source web_sales): Number of sales.",
+          "  From shipments:",
+          "    [26] total_freight_amount (measure, number; source shipments): Total freight charged for the parcels.",
+          "    [27] shipment_count (measure, number; source shipments): Number of parcels shipped.",
+          "  From commissions:",
+          "    [28] total_commission_amount (measure, number; source commissions): Total commission paid to reps.",
+          "    [29] commission_count (measure, number; source commissions): Number of commission payments.",
+          "Target 2 (dimension): \"region\"",
+          "  From commissions (its doc: \"One row per commission paid to a sales rep.\"):",
+          "    [30] rep_region (dimension, string; source commissions): Region of the sales rep paid.",
+          "    [31] amount (dimension, number; source commissions): (no doc; name in words: amount)",
+          "    [32] commission_id (dimension, number; source commissions): (no doc; name in words: commission id)",
+          "    [33] status (dimension, string; source commissions): (no doc; name in words: status)",
+          "  From refunds:",
+          "    [34] refund_region (dimension, string; source refunds): Region of the store that paid the refund.",
+          "  From budgets (its doc: \"One row per planned budget line of a region, for the finance plan. Amounts are planned, not actual.\"):",
+          "    [35] budget_region (dimension, string; source budgets): Region the budget line is planned for.",
+          "    [36] amount (dimension, number; source budgets): (no doc; name in words: amount)",
+          "    [37] status (dimension, string; source budgets): (no doc; name in words: status)",
+          "    [38] budget_id (dimension, number; source budgets): (no doc; name in words: budget id)",
+          "  From quotes:",
+          "    [39] quote_region (dimension, string; source quotes): Sales region of the prospect.",
+          "  From shipments:",
+          "    [40] destination_region (dimension, string; source shipments): Region the parcel was shipped to.",
+          "  From invoices (its doc: \"One row per invoice sent to a customer. The amount is the invoiced amount; the region is the billing region of the customer.\"):",
+          "    [41] billing_region (dimension, string; source invoices): Billing region of the invoiced customer.",
+          "        [42] payments.invoice.billing_region (route from payments through invoice, join_one): only the invoices rows payments reaches (payments: \"One row per payment received against an invoice.\")",
+          "    [43] amount (dimension, number; source invoices): (no doc; name in words: amount)",
+          "        [44] payments.invoice.amount (route from payments through invoice, join_one): only the invoices rows payments reaches (payments: \"One row per payment received against an invoice.\")",
+          "    [45] invoice_id (dimension, number; source invoices): (no doc; name in words: invoice id)",
+          "        [46] payments.invoice.invoice_id (route from payments through invoice, join_one): only the invoices rows payments reaches (payments: \"One row per payment received against an invoice.\")",
+          "    [47] invoice_status (dimension, string; source invoices): Whether the invoice is open or closed.",
+          "        [48] payments.invoice.invoice_status (route from payments through invoice, join_one): only the invoices rows payments reaches (payments: \"One row per payment received against an invoice.\")",
+          "  From sales_base (its doc: \"One row per sale, every channel combined: store, web and partner sales together. The amount is the sale's value in US dollars before tax; the region is the sales region of the selling team.\"):",
+          "    [49] region_code (dimension, string; source sales_base): Sales region of the selling team, one of North, East or West.",
+          "    [50] sales_region_name (dimension, string; source sales_base): Long name of the sales region of the selling team.",
+          "  From partner_sales (its doc: \"Partner sales only: sales made by resellers, the rows of sales_base whose channel is partner.\"):",
+          "    [51] region_code (dimension, string; source partner_sales): Sales region of the selling team, one of North, East or West.",
+          "    [52] sales_region_name (dimension, string; source partner_sales): Long name of the sales region of the selling team.",
+          "    [53] amount (dimension, number; source partner_sales): (no doc; name in words: amount)",
+          "    [54] partner_commission (dimension, number; source partner_sales): Commission owed to the partner on the sale, in US dollars.",
+          "    [55] sale_channel (dimension, string; source partner_sales): Channel the sale came through: store, web or partner.",
+          "    [56] sale_date (dimension, date; source partner_sales): (no doc; name in words: sale date)",
+          "    [57] sale_id (dimension, number; source partner_sales): (no doc; name in words: sale id)",
+          "  From store_sales (its doc: \"In-store sales only: the rows of sales_base whose channel is store. Use it for per-store questions; for all channels use sales_base.\"):",
+          "    [58] region_code (dimension, string; source store_sales): Sales region of the selling team, one of North, East or West.",
+          "    [59] sales_region_name (dimension, string; source store_sales): Long name of the sales region of the selling team.",
+          "  From web_sales (its doc: \"Web sales only: the rows of sales_base whose channel is web.\"):",
+          "    [60] region_code (dimension, string; source web_sales): Sales region of the selling team, one of North, East or West.",
+          "    [61] sales_region_name (dimension, string; source web_sales): Long name of the sales region of the selling team.",
+          "  From payments (its doc: \"One row per payment received against an invoice. Reach the invoice's billing region through the invoice join.\"):",
+          "    [62] amount (dimension, number; source payments): (no doc; name in words: amount)",
+          "    [63] invoice_id (dimension, number; source payments): (no doc; name in words: invoice id)",
+          "</targets>",
+          "",
+          "Also in this group:",
+          "  [64] amount (dimension, number; source quotes): (no doc; name in words: amount) | added because: total_quoted_amount is computed from it",
+          "  [65] amount (dimension, number; source refunds): (no doc; name in words: amount) | added because: total_refund_amount is computed from it",
+          "  [66] amount_by_region (view; source sales_base): Total amount by sales region. | added because: uses region_code, total_amount",
+          "  [67] amount_by_region (view; source partner_sales): Total amount by sales region. | added because: uses region_code, total_amount",
+          "  [68] amount_by_region (view; source store_sales): Total amount by sales region. | added because: uses region_code, total_amount",
+          "  [69] amount_by_region (view; source web_sales): Total amount by sales region. | added because: uses region_code, total_amount",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                12,
+                9,
+                19,
+                23,
+                7,
+                28,
+                26,
+                5,
+                1,
+                3,
+                15,
+                20,
+                13,
+                10,
+                21,
+                24
+              ],
+              "reason": "stand-in: 16 candidate(s) scored 2 or more",
+              "best": 12
+            },
+            {
+              "target": 2,
+              "candidates": [
+                41,
+                35,
+                40,
+                39,
+                34,
+                51,
+                49,
+                58,
+                60,
+                30,
+                52,
+                50,
+                59,
+                61
+              ],
+              "reason": "stand-in: 14 candidate(s) scored 2 or more",
+              "best": 41
+            }
+          ],
+          "caveats": []
+        }
+      }
+    ]
+  }
+}

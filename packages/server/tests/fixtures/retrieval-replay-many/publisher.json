@@ -1,0 +1,5 @@
+{
+   "name": "replay-many",
+   "version": "1.0.0",
+   "description": "Synthetic fixture for the retrieval replay: eleven sources that share fields such as amount and region, some extending one base, some unrelated, so a search spreads over many sources."
+}

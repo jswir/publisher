@@ -1,0 +1,279 @@
+{
+  "case": "judge-off-unjudged-picks",
+  "about": "retrieval.fcj.judge false: no judge call; every target keeps its first few listed candidates.",
+  "request": {
+    "search_targets": [
+      {
+        "target_type": "measure",
+        "search_text": "total amount"
+      },
+      {
+        "target_type": "dimension",
+        "search_text": "region"
+      }
+    ],
+    "scopes": [
+      {
+        "environment": "examples",
+        "package": "replay-judge-off"
+      }
+    ]
+  },
+  "response": {
+    "is_error": false,
+    "payload": {
+      "sources": [
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-judge-off",
+              "model_path": "many.malloy",
+              "source": "quotes"
+            },
+            "one_line_summary": "One row per price quote given to a prospect; a quote is not a sale.",
+            "docs": "One row per price quote given to a prospect; a quote is not a sale.",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "total_quoted_amount",
+              "entity_type": "measure",
+              "entity_id": "measure:quotes:total_quoted_amount",
+              "relevance": 1,
+              "description": "Total amount quoted to prospects.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "total amount",
+                  "relevance": 1
+                }
+              ]
+            },
+            {
+              "name": "quote_count",
+              "entity_type": "measure",
+              "entity_id": "measure:quotes:quote_count",
+              "relevance": 0.38375919473480447,
+              "description": "Number of quotes.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "total amount",
+                  "relevance": 0.3838
+                }
+              ]
+            }
+          ],
+          "relevance": 1
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-judge-off",
+              "model_path": "many.malloy",
+              "source": "commissions"
+            },
+            "one_line_summary": "One row per commission paid to a sales rep.",
+            "docs": "One row per commission paid to a sales rep.",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "rep_region",
+              "entity_type": "dimension",
+              "entity_id": "dimension:commissions:rep_region",
+              "relevance": 1,
+              "description": "Region of the sales rep paid.",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "region",
+                  "relevance": 1
+                }
+              ],
+              "aliases": [
+                "region"
+              ]
+            },
+            {
+              "name": "amount",
+              "entity_type": "dimension",
+              "entity_id": "dimension:commissions:amount",
+              "relevance": 0.4034391534391534,
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "region",
+                  "relevance": 0.4034
+                }
+              ]
+            },
+            {
+              "name": "commission_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:commissions:commission_id",
+              "relevance": 0.39833232871207547,
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "region",
+                  "relevance": 0.3983
+                }
+              ]
+            },
+            {
+              "name": "status",
+              "entity_type": "dimension",
+              "entity_id": "dimension:commissions:status",
+              "relevance": 0.39335317460317454,
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "region",
+                  "relevance": 0.3934
+                }
+              ]
+            }
+          ],
+          "relevance": 1
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-judge-off",
+              "model_path": "many.malloy",
+              "source": "refunds"
+            },
+            "one_line_summary": "One row per refund paid back to a customer.",
+            "docs": "One row per refund paid back to a customer. The amount is the refunded amount.",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "refund_region",
+              "entity_type": "dimension",
+              "entity_id": "dimension:refunds:refund_region",
+              "relevance": 0.991187562988158,
+              "description": "Region of the store that paid the refund.",
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "region",
+                  "relevance": 0.9912
+                }
+              ],
+              "aliases": [
+                "region"
+              ]
+            }
+          ],
+          "relevance": 0.991187562988158
+        }
+      ],
+      "ranking": "relevance",
+      "total_available": 3,
+      "returned": 3,
+      "retrieval": "semantic",
+      "engine": "fcj",
+      "clusters": [
+        {
+          "query_from": {
+            "source": "quotes",
+            "model_path": "many.malloy"
+          },
+          "sources": [
+            {
+              "source": "quotes",
+              "joins": []
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "measure:quotes:total_quoted_amount",
+              "measure:quotes:quote_count"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "refunds",
+            "model_path": "many.malloy"
+          },
+          "sources": [
+            {
+              "source": "refunds",
+              "joins": []
+            }
+          ],
+          "covers": [
+            1
+          ],
+          "picks": {
+            "1": [
+              "dimension:refunds:refund_region"
+            ]
+          }
+        },
+        {
+          "query_from": {
+            "source": "commissions",
+            "model_path": "many.malloy"
+          },
+          "sources": [
+            {
+              "source": "commissions",
+              "joins": []
+            }
+          ],
+          "covers": [
+            1
+          ],
+          "picks": {
+            "1": [
+              "dimension:commissions:rep_region",
+              "dimension:commissions:amount",
+              "dimension:commissions:commission_id",
+              "dimension:commissions:status"
+            ]
+          }
+        }
+      ],
+      "coverage": [
+        {
+          "target_index": 0,
+          "search_text": "total amount",
+          "clusters": [
+            true,
+            false,
+            false
+          ]
+        },
+        {
+          "target_index": 1,
+          "search_text": "region",
+          "clusters": [
+            false,
+            true,
+            true
+          ]
+        }
+      ],
+      "unresolved_targets": []
+    }
+  },
+  "traffic": {
+    "embedding_calls": 1,
+    "embedded_texts": [
+      "region",
+      "total amount"
+    ],
+    "judge_calls": 0,
+    "judge": []
+  }
+}

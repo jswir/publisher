@@ -17,6 +17,36 @@
         },
         {
           "environment": "examples",
+          "package": "replay-clusters",
+          "one_line_summary": "Synthetic fixture for the retrieval replay, searched with connect: clusters, collapseCopies and twinRule on: a joined…"
+        },
+        {
+          "environment": "examples",
+          "package": "replay-custom-judge",
+          "one_line_summary": "The replay-many model, served with {\"prompts\":{\"judge\":\"prompts/judge.md\"}}."
+        },
+        {
+          "environment": "examples",
+          "package": "replay-governed",
+          "one_line_summary": "Synthetic fixture for the retrieval replay: a source behind an #(authorize) lock on a secure given, a source with an…"
+        },
+        {
+          "environment": "examples",
+          "package": "replay-judge-off",
+          "one_line_summary": "The replay-many model, served with {\"fcj\":{\"judge\":false}}."
+        },
+        {
+          "environment": "examples",
+          "package": "replay-long-docs",
+          "one_line_summary": "Synthetic fixture for the retrieval replay: three ledgers with a dozen long-documented measures each, so the cards of…"
+        },
+        {
+          "environment": "examples",
+          "package": "replay-many",
+          "one_line_summary": "Synthetic fixture for the retrieval replay: eleven sources that share fields such as amount and region, some extending…"
+        },
+        {
+          "environment": "examples",
           "package": "replay-values",
           "one_line_summary": "Synthetic fixture for the retrieval replay: dimensions tagged #(index), so a stored-value target has values to match."
         },
@@ -26,8 +56,8 @@
           "one_line_summary": "A small but complete ecommerce semantic model — joins, measures, and reports over local DuckDB data."
         }
       ],
-      "total_available": 3,
-      "returned": 3
+      "total_available": 9,
+      "returned": 9
     }
   },
   "traffic": {

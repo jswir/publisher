@@ -1,0 +1,25 @@
+// Copyright (c) Credible Data Inc.
+// SPDX-License-Identifier: MIT
+
+// The ungated half of the replay-governed fixture: no givens, so its
+// #(index) values are in the shared value index. Kept apart from
+// governed.malloy, whose secure givens every source there carries.
+
+#(doc) Every shipment, open to every caller.
+source: shipments is duckdb.sql("""
+  select 1 as shipment_id, 'West' as region, 'Springfield Gardens' as city, 12.0 as charge
+  union all select 2, 'East', 'West Springfield', 20.0
+  union all select 3, 'East', 'Springfeld Heights', 8.0
+  union all select 4, 'West', 'Shelbyville', 15.0
+  union all select 5, 'North', 'North Springfield', 9.0
+  union all select 6, 'North', 'Springfield Mills', 11.0
+""") extend {
+  primary_key: shipment_id
+  #(index)
+  #(doc) City the shipment was delivered to.
+  dimension: delivery_city is city
+  #(doc) Region the shipment was delivered to.
+  dimension: delivery_region is region
+  #(doc) Carrier charge for the shipments, in US dollars.
+  measure: carrier_charge is charge.sum()
+}

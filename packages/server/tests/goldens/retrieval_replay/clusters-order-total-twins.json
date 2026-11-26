@@ -1,0 +1,253 @@
+{
+  "case": "clusters-order-total-twins",
+  "about": "One measure that a source and its twin (same fields, another name) both hold, among more measures than a cluster keeps per target; twinRule keeps one of the twins.",
+  "request": {
+    "search_targets": [
+      {
+        "target_type": "measure",
+        "search_text": "order total"
+      }
+    ],
+    "scopes": [
+      {
+        "environment": "examples",
+        "package": "replay-clusters"
+      }
+    ]
+  },
+  "response": {
+    "is_error": false,
+    "payload": {
+      "sources": [
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-clusters",
+              "model_path": "clusters.malloy",
+              "source": "orders"
+            },
+            "one_line_summary": "Every order, every channel: the source analysts query.",
+            "docs": "Every order, every channel: the source analysts query.",
+            "joins": [
+              {
+                "name": "customer",
+                "relationship": "one",
+                "doc": "The customer who placed the order."
+              }
+            ]
+          },
+          "relevance": 1,
+          "entities": [
+            {
+              "name": "avg_order_total",
+              "entity_type": "measure",
+              "entity_id": "measure:orders:avg_order_total",
+              "relevance": 0.934276972525265,
+              "description": "Average order total per order.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "order total",
+                  "relevance": 0.9343,
+                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "discounted_order_total",
+              "entity_type": "measure",
+              "entity_id": "measure:orders:discounted_order_total",
+              "relevance": 1,
+              "description": "Order total of orders with a discount.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "order total",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "min_order_total",
+              "entity_type": "measure",
+              "entity_id": "measure:orders:min_order_total",
+              "relevance": 0.9407126226881785,
+              "description": "Smallest order total.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "order total",
+                  "relevance": 0.9407,
+                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "net_order_total",
+              "entity_type": "measure",
+              "entity_id": "measure:orders:net_order_total",
+              "relevance": 0.9176252623679365,
+              "description": "Order total after discounts.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "order total",
+                  "relevance": 0.9176,
+                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "store_order_total",
+              "entity_type": "measure",
+              "entity_id": "measure:orders:store_order_total",
+              "relevance": 0.9489768426454551,
+              "description": "Order total of store orders only.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "order total",
+                  "relevance": 0.949,
+                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "web_order_total",
+              "entity_type": "measure",
+              "entity_id": "measure:orders:web_order_total",
+              "relevance": 0.9354144559802671,
+              "description": "Order total of web orders only.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "order total",
+                  "relevance": 0.9354,
+                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "ranking": "relevance",
+      "total_available": 1,
+      "returned": 1,
+      "retrieval": "semantic",
+      "engine": "fcj",
+      "clusters": [
+        {
+          "home": {
+            "source": "orders",
+            "model_path": "clusters.malloy"
+          },
+          "reach": [
+            {
+              "source": "customers",
+              "joins": [
+                "customer"
+              ]
+            },
+            {
+              "source": "cities",
+              "joins": [
+                "customer.city_row"
+              ]
+            },
+            {
+              "source": "states",
+              "joins": [
+                "customer.city_row.state_row"
+              ]
+            }
+          ],
+          "twins": [
+            "store_orders",
+            "web_orders"
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "measure:orders:avg_order_total",
+              "measure:orders:discounted_order_total",
+              "measure:orders:min_order_total",
+              "measure:orders:net_order_total",
+              "measure:orders:store_order_total",
+              "measure:orders:web_order_total"
+            ]
+          }
+        }
+      ],
+      "unresolved_targets": []
+    }
+  },
+  "traffic": {
+    "embedding_calls": 1,
+    "embedded_texts": [
+      "order total"
+    ],
+    "judge_calls": 1,
+    "judge": [
+      {
+        "system_sha256": "96ec55a0079d6c38dce4bc7e8b4110adfbe3b6a82827f3df398765ade991c146",
+        "prompt_sha256": "a2b653c3958029c530056eb610be4b5e1fce967251abb543f5c123beb94e9bca",
+        "prompt": [
+          "Home source: orders - Every order, every channel: the source analysts query.",
+          "Sources its joins reach: customers, cities, states",
+          "Sources that give the same answer under another name: store_orders, web_orders",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"order total\"",
+          "  [1] discounted_order_total (measure, number; source orders; own field): Order total of orders with a discount.",
+          "  [2] discounted_order_total (measure, number; source store_orders; own field): Order total of orders with a discount.",
+          "  [3] store_order_total (measure, number; source orders; own field): Order total of store orders only.",
+          "  [4] min_order_total (measure, number; source store_orders; own field): Smallest order total.",
+          "  [5] min_order_total (measure, number; source orders; own field): Smallest order total.",
+          "  [6] discounted_order_total (measure, number; source web_orders; own field): Order total of orders with a discount.",
+          "  [7] web_order_total (measure, number; source orders; own field): Order total of web orders only.",
+          "  [8] avg_order_total (measure, number; source orders; own field): Average order total per order.",
+          "  [9] min_order_total (measure, number; source web_orders; own field): Smallest order total.",
+          "  [10] net_order_total (measure, number; source orders; own field): Order total after discounts.",
+          "</targets>",
+          "",
+          "Also in this group:",
+          "  [11] orders (source; source orders; own field): Every order, every channel: the source analysts query. | added because: the home source",
+          "  [12] total (dimension, number; source orders; own field): (no doc; name in words: total) | added because: discounted_order_total is computed from it",
+          "  [13] discount (dimension, number; source orders; own field): (no doc; name in words: discount) | added because: discounted_order_total is computed from it",
+          "  [14] total (dimension, number; source store_orders; own field): (no doc; name in words: total) | added because: discounted_order_total is computed from it",
+          "  [15] discount (dimension, number; source store_orders; own field): (no doc; name in words: discount) | added because: discounted_order_total is computed from it",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                8,
+                1,
+                2,
+                6,
+                5,
+                4,
+                9,
+                10,
+                3,
+                7
+              ],
+              "reason": "stand-in: 10 candidate(s) scored 2 or more",
+              "best": 8
+            }
+          ],
+          "caveats": []
+        }
+      }
+    ]
+  }
+}

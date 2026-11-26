@@ -1,6 +1,46 @@
 {
-  "about": "Each package's index build under the stand-in providers, with the warm-up call that started it (one query embedding). Timings are removed.",
+  "about": "Each package's index build under the stand-in providers, with the warm-up call that started it, which answers while the build runs. Timings are removed. The texts and prompts themselves are in _index_inputs.<package>.json.",
   "storefront": {
+    "warm_up": {
+      "request": {
+        "search_targets": [
+          {
+            "target_type": "measure",
+            "search_text": "warm up"
+          }
+        ],
+        "scopes": [
+          {
+            "environment": "examples",
+            "package": "storefront"
+          }
+        ]
+      },
+      "response": {
+        "is_error": false,
+        "payload": {
+          "sources": [],
+          "ranking": "relevance",
+          "total_available": 0,
+          "returned": 0,
+          "retrieval": "indexing",
+          "skills": [
+            {
+              "name": "malloy-phrase-detection",
+              "description": "How to turn a storefront question into get_context search targets, including the shop vocabulary that does not appear anywhere in the model. Replaces the built-in phrase-detection guide for this package."
+            },
+            {
+              "name": "storefront-conventions",
+              "description": "What storefront's measures actually count, and the four places a reasonable reading of them is wrong. Read before answering any revenue, order, margin, or region question against this package."
+            }
+          ],
+          "skills_note": "This package ships its own guidance, listed above. Read the relevant one before relying on names or conventions from this package. If it is already loaded as a skill, use that; otherwise fetch it with get_skill(skill_name, scopes), and if that tool is not available to you, proceed and say which guidance you could not read. A guide whose name matches a built-in one replaces it here.",
+          "warnings": [
+            "This package's search index is still being built, so there are no results yet. Nothing is wrong: ask the same question again in a few seconds. A request with no search_text (a listing) works now."
+          ]
+        }
+      }
+    },
     "report": {
       "catalog": {
         "sources": 7,
@@ -113,6 +153,35 @@
     }
   },
   "replay-values": {
+    "warm_up": {
+      "request": {
+        "search_targets": [
+          {
+            "target_type": "measure",
+            "search_text": "warm up"
+          }
+        ],
+        "scopes": [
+          {
+            "environment": "examples",
+            "package": "replay-values"
+          }
+        ]
+      },
+      "response": {
+        "is_error": false,
+        "payload": {
+          "sources": [],
+          "ranking": "relevance",
+          "total_available": 0,
+          "returned": 0,
+          "retrieval": "indexing",
+          "warnings": [
+            "This package's search index is still being built, so there are no results yet. Nothing is wrong: ask the same question again in a few seconds. A request with no search_text (a listing) works now."
+          ]
+        }
+      }
+    },
     "report": {
       "catalog": {
         "sources": 1,
@@ -195,6 +264,788 @@
       "chat_prompts_sha256": [
         "questions 10d935c5569a8457f44d30d62beb902bdbfe416b3b7a690a656642f9a722d960",
         "source_summary 1582bba57aed74281a9f1e0381ba2845eda95ff8697cf946746364b945c0572e"
+      ]
+    }
+  },
+  "replay-many": {
+    "warm_up": {
+      "request": {
+        "search_targets": [
+          {
+            "target_type": "measure",
+            "search_text": "warm up"
+          }
+        ],
+        "scopes": [
+          {
+            "environment": "examples",
+            "package": "replay-many"
+          }
+        ]
+      },
+      "response": {
+        "is_error": false,
+        "payload": {
+          "sources": [],
+          "ranking": "relevance",
+          "total_available": 0,
+          "returned": 0,
+          "retrieval": "indexing",
+          "warnings": [
+            "This package's search index is still being built, so there are no results yet. Nothing is wrong: ask the same question again in a few seconds. A request with no search_text (a listing) works now."
+          ]
+        }
+      }
+    },
+    "report": {
+      "catalog": {
+        "sources": 11,
+        "nodes": {
+          "source": 11,
+          "dimension": 53,
+          "measure": 27,
+          "view": 4,
+          "join": 1
+        },
+        "edges": {
+          "contains": 85,
+          "joins": 1,
+          "extends": 3,
+          "depends": 17,
+          "uses": 8
+        },
+        "multiFileNodes": 0,
+        "indexedDimensions": 0,
+        "gatedSources": 0,
+        "unresolvedReferences": 20,
+        "copiesFolded": 0,
+        "copiesKeptApart": 0,
+        "hiddenSources": 0,
+        "joinPaths": 1,
+        "deepestJoinPath": 1,
+        "joinPathsCapped": 0,
+        "joinedCopiesDropped": 0,
+        "unservedCopiesAdded": 0,
+        "unservedCopiesCapped": 0,
+        "unservedWalkCapped": 0
+      },
+      "summaries": {
+        "stored": 11,
+        "sources": 11
+      },
+      "docParts": {
+        "longDocs": 7,
+        "byModel": 7,
+        "byRules": 0
+      },
+      "questions": {
+        "nodes": 84,
+        "written": 84,
+        "reused": 0,
+        "missing": 0
+      },
+      "vectors": {
+        "rows": 349,
+        "embedded": 349,
+        "reused": 0,
+        "deleted": 0,
+        "charsEmbedded": 26729,
+        "dims": 64
+      },
+      "keywordDocs": 96,
+      "values": {
+        "dimensionsRead": 0,
+        "dimensionsReused": 0,
+        "valuesFromData": 0,
+        "valuesFromDocs": 0,
+        "cut": [],
+        "skipped": [],
+        "failed": []
+      },
+      "valueVectors": {
+        "values": 0,
+        "embedded": 0,
+        "reused": 0,
+        "deleted": 0,
+        "charsEmbedded": 0
+      }
+    },
+    "traffic": {
+      "embedding_calls": 2,
+      "embedded_texts": 349,
+      "embedded_texts_sha256": "9dea3befa51842ec1ab16c4d3808b80c452f88c7237e21d6578109946458bfac",
+      "chat_calls_by_kind": {
+        "doc_parts": 1,
+        "questions": 6,
+        "source_summary": 11
+      },
+      "chat_prompts_sha256": [
+        "doc_parts 303b043565cb5c87fb34a601c5c8d57af626f6019bc5e670302cfcc3c1f33521",
+        "questions 2095adb9acd60c0a6a88c4bcb46d251ebfa040aae029eab0ad960e6bd0b745a0",
+        "questions 22e183b8149d3700c21f6d72f9b5d55dc0b24fde7db55276ed84cc211521b39f",
+        "questions 84427ff8382e300f0540dc221844260f1f9885c1a032213ef84a55a32f060989",
+        "questions b96eb6386e9442a8d47032608efe693f361a87fc93cb6b591c01035909d55c63",
+        "questions d8301d4d9afd0b5340c2da2e8cdf8846171388519f48d107ac3f3c74df845224",
+        "questions eb6b611a6d35e6e315cebfb31f9d06937149fd236ee222f8a230eac92d9320dc",
+        "source_summary 4c69a00167c7e7eb55e14afeef656e1fe7737a3695c2c8b8b2d2ae8dd7790469",
+        "source_summary 4c701bcacbff346ac20fac208ded96810f26071351ca8cba8db5eac588de6681",
+        "source_summary 4cb5a3d8ef7838dc658be8b0749803f100bce9c19ff9ae98fdd7a23065e1e31e",
+        "source_summary 56da8ccd3f3f9f3e742c15385de7bd33c8f6af7cbfd3d34a3ce88f9b5b472395",
+        "source_summary 5d263c3c1403e26022fd83c0753cee9776154f932faddb66867b21049cddf095",
+        "source_summary 6a9e494f55d3bcbe0bb4ae90842c1e8f2bc989d7e15b58dedb023b7bfcff4b9a",
+        "source_summary 9b2749dc5ef382a55ea7d24d1d9d3059133aeda1b2780afb0232cc2770cbd437",
+        "source_summary b23c659992916341b6bc3886784ef73c948ae54e055649d9b527dabff23e67b9",
+        "source_summary ccd5f7424fe70cdf6a787adfc99953503622f090f4e59b5a4a8c6e0f12200afb",
+        "source_summary eb500dfd6252979fbeef5e2ecaaae4b4e7686f91e3f2e6fde624ca0272fed4fc",
+        "source_summary fd2ad335d504e220fe34bef210ddacb62d1eb4d8ef079571316398a64fcadcc4"
+      ]
+    }
+  },
+  "replay-judge-off": {
+    "warm_up": {
+      "request": {
+        "search_targets": [
+          {
+            "target_type": "measure",
+            "search_text": "warm up"
+          }
+        ],
+        "scopes": [
+          {
+            "environment": "examples",
+            "package": "replay-judge-off"
+          }
+        ]
+      },
+      "response": {
+        "is_error": false,
+        "payload": {
+          "sources": [],
+          "ranking": "relevance",
+          "total_available": 0,
+          "returned": 0,
+          "retrieval": "indexing",
+          "warnings": [
+            "This package's search index is still being built, so there are no results yet. Nothing is wrong: ask the same question again in a few seconds. A request with no search_text (a listing) works now."
+          ]
+        }
+      }
+    },
+    "report": {
+      "catalog": {
+        "sources": 11,
+        "nodes": {
+          "source": 11,
+          "dimension": 53,
+          "measure": 27,
+          "view": 4,
+          "join": 1
+        },
+        "edges": {
+          "contains": 85,
+          "joins": 1,
+          "extends": 3,
+          "depends": 17,
+          "uses": 8
+        },
+        "multiFileNodes": 0,
+        "indexedDimensions": 0,
+        "gatedSources": 0,
+        "unresolvedReferences": 20,
+        "copiesFolded": 0,
+        "copiesKeptApart": 0,
+        "hiddenSources": 0,
+        "joinPaths": 1,
+        "deepestJoinPath": 1,
+        "joinPathsCapped": 0,
+        "joinedCopiesDropped": 0,
+        "unservedCopiesAdded": 0,
+        "unservedCopiesCapped": 0,
+        "unservedWalkCapped": 0
+      },
+      "summaries": {
+        "stored": 11,
+        "sources": 11
+      },
+      "docParts": {
+        "longDocs": 7,
+        "byModel": 7,
+        "byRules": 0
+      },
+      "questions": {
+        "nodes": 84,
+        "written": 84,
+        "reused": 0,
+        "missing": 0
+      },
+      "vectors": {
+        "rows": 349,
+        "embedded": 349,
+        "reused": 0,
+        "deleted": 0,
+        "charsEmbedded": 26729,
+        "dims": 64
+      },
+      "keywordDocs": 96,
+      "values": {
+        "dimensionsRead": 0,
+        "dimensionsReused": 0,
+        "valuesFromData": 0,
+        "valuesFromDocs": 0,
+        "cut": [],
+        "skipped": [],
+        "failed": []
+      },
+      "valueVectors": {
+        "values": 0,
+        "embedded": 0,
+        "reused": 0,
+        "deleted": 0,
+        "charsEmbedded": 0
+      }
+    },
+    "traffic": {
+      "embedding_calls": 2,
+      "embedded_texts": 349,
+      "embedded_texts_sha256": "9dea3befa51842ec1ab16c4d3808b80c452f88c7237e21d6578109946458bfac",
+      "chat_calls_by_kind": {
+        "doc_parts": 1,
+        "questions": 6,
+        "source_summary": 11
+      },
+      "chat_prompts_sha256": [
+        "doc_parts 303b043565cb5c87fb34a601c5c8d57af626f6019bc5e670302cfcc3c1f33521",
+        "questions 2095adb9acd60c0a6a88c4bcb46d251ebfa040aae029eab0ad960e6bd0b745a0",
+        "questions 22e183b8149d3700c21f6d72f9b5d55dc0b24fde7db55276ed84cc211521b39f",
+        "questions 84427ff8382e300f0540dc221844260f1f9885c1a032213ef84a55a32f060989",
+        "questions b96eb6386e9442a8d47032608efe693f361a87fc93cb6b591c01035909d55c63",
+        "questions d8301d4d9afd0b5340c2da2e8cdf8846171388519f48d107ac3f3c74df845224",
+        "questions eb6b611a6d35e6e315cebfb31f9d06937149fd236ee222f8a230eac92d9320dc",
+        "source_summary 4c69a00167c7e7eb55e14afeef656e1fe7737a3695c2c8b8b2d2ae8dd7790469",
+        "source_summary 4c701bcacbff346ac20fac208ded96810f26071351ca8cba8db5eac588de6681",
+        "source_summary 4cb5a3d8ef7838dc658be8b0749803f100bce9c19ff9ae98fdd7a23065e1e31e",
+        "source_summary 56da8ccd3f3f9f3e742c15385de7bd33c8f6af7cbfd3d34a3ce88f9b5b472395",
+        "source_summary 5d263c3c1403e26022fd83c0753cee9776154f932faddb66867b21049cddf095",
+        "source_summary 6a9e494f55d3bcbe0bb4ae90842c1e8f2bc989d7e15b58dedb023b7bfcff4b9a",
+        "source_summary 9b2749dc5ef382a55ea7d24d1d9d3059133aeda1b2780afb0232cc2770cbd437",
+        "source_summary b23c659992916341b6bc3886784ef73c948ae54e055649d9b527dabff23e67b9",
+        "source_summary ccd5f7424fe70cdf6a787adfc99953503622f090f4e59b5a4a8c6e0f12200afb",
+        "source_summary eb500dfd6252979fbeef5e2ecaaae4b4e7686f91e3f2e6fde624ca0272fed4fc",
+        "source_summary fd2ad335d504e220fe34bef210ddacb62d1eb4d8ef079571316398a64fcadcc4"
+      ]
+    }
+  },
+  "replay-custom-judge": {
+    "warm_up": {
+      "request": {
+        "search_targets": [
+          {
+            "target_type": "measure",
+            "search_text": "warm up"
+          }
+        ],
+        "scopes": [
+          {
+            "environment": "examples",
+            "package": "replay-custom-judge"
+          }
+        ]
+      },
+      "response": {
+        "is_error": false,
+        "payload": {
+          "sources": [],
+          "ranking": "relevance",
+          "total_available": 0,
+          "returned": 0,
+          "retrieval": "indexing",
+          "warnings": [
+            "This package's search index is still being built, so there are no results yet. Nothing is wrong: ask the same question again in a few seconds. A request with no search_text (a listing) works now."
+          ]
+        }
+      }
+    },
+    "report": {
+      "catalog": {
+        "sources": 11,
+        "nodes": {
+          "source": 11,
+          "dimension": 53,
+          "measure": 27,
+          "view": 4,
+          "join": 1
+        },
+        "edges": {
+          "contains": 85,
+          "joins": 1,
+          "extends": 3,
+          "depends": 17,
+          "uses": 8
+        },
+        "multiFileNodes": 0,
+        "indexedDimensions": 0,
+        "gatedSources": 0,
+        "unresolvedReferences": 20,
+        "copiesFolded": 0,
+        "copiesKeptApart": 0,
+        "hiddenSources": 0,
+        "joinPaths": 1,
+        "deepestJoinPath": 1,
+        "joinPathsCapped": 0,
+        "joinedCopiesDropped": 0,
+        "unservedCopiesAdded": 0,
+        "unservedCopiesCapped": 0,
+        "unservedWalkCapped": 0
+      },
+      "summaries": {
+        "stored": 11,
+        "sources": 11
+      },
+      "docParts": {
+        "longDocs": 7,
+        "byModel": 7,
+        "byRules": 0
+      },
+      "questions": {
+        "nodes": 84,
+        "written": 84,
+        "reused": 0,
+        "missing": 0
+      },
+      "vectors": {
+        "rows": 349,
+        "embedded": 0,
+        "reused": 0,
+        "deleted": 0,
+        "charsEmbedded": 0,
+        "dims": 0,
+        "skipped": "no embedding provider is configured"
+      },
+      "keywordDocs": 96,
+      "values": {
+        "dimensionsRead": 0,
+        "dimensionsReused": 0,
+        "valuesFromData": 0,
+        "valuesFromDocs": 0,
+        "cut": [],
+        "skipped": [],
+        "failed": []
+      },
+      "valueVectors": {
+        "values": 0,
+        "embedded": 0,
+        "reused": 0,
+        "deleted": 0,
+        "charsEmbedded": 0,
+        "skipped": "no embedding provider is configured"
+      }
+    },
+    "traffic": {
+      "embedding_calls": 0,
+      "embedded_texts": 0,
+      "embedded_texts_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "chat_calls_by_kind": {
+        "doc_parts": 1,
+        "questions": 6,
+        "source_summary": 11
+      },
+      "chat_prompts_sha256": [
+        "doc_parts 303b043565cb5c87fb34a601c5c8d57af626f6019bc5e670302cfcc3c1f33521",
+        "questions 2095adb9acd60c0a6a88c4bcb46d251ebfa040aae029eab0ad960e6bd0b745a0",
+        "questions 22e183b8149d3700c21f6d72f9b5d55dc0b24fde7db55276ed84cc211521b39f",
+        "questions 84427ff8382e300f0540dc221844260f1f9885c1a032213ef84a55a32f060989",
+        "questions b96eb6386e9442a8d47032608efe693f361a87fc93cb6b591c01035909d55c63",
+        "questions d8301d4d9afd0b5340c2da2e8cdf8846171388519f48d107ac3f3c74df845224",
+        "questions eb6b611a6d35e6e315cebfb31f9d06937149fd236ee222f8a230eac92d9320dc",
+        "source_summary 4c69a00167c7e7eb55e14afeef656e1fe7737a3695c2c8b8b2d2ae8dd7790469",
+        "source_summary 4c701bcacbff346ac20fac208ded96810f26071351ca8cba8db5eac588de6681",
+        "source_summary 4cb5a3d8ef7838dc658be8b0749803f100bce9c19ff9ae98fdd7a23065e1e31e",
+        "source_summary 56da8ccd3f3f9f3e742c15385de7bd33c8f6af7cbfd3d34a3ce88f9b5b472395",
+        "source_summary 5d263c3c1403e26022fd83c0753cee9776154f932faddb66867b21049cddf095",
+        "source_summary 6a9e494f55d3bcbe0bb4ae90842c1e8f2bc989d7e15b58dedb023b7bfcff4b9a",
+        "source_summary 9b2749dc5ef382a55ea7d24d1d9d3059133aeda1b2780afb0232cc2770cbd437",
+        "source_summary b23c659992916341b6bc3886784ef73c948ae54e055649d9b527dabff23e67b9",
+        "source_summary ccd5f7424fe70cdf6a787adfc99953503622f090f4e59b5a4a8c6e0f12200afb",
+        "source_summary eb500dfd6252979fbeef5e2ecaaae4b4e7686f91e3f2e6fde624ca0272fed4fc",
+        "source_summary fd2ad335d504e220fe34bef210ddacb62d1eb4d8ef079571316398a64fcadcc4"
+      ]
+    }
+  },
+  "replay-clusters": {
+    "warm_up": {
+      "request": {
+        "search_targets": [
+          {
+            "target_type": "measure",
+            "search_text": "warm up"
+          }
+        ],
+        "scopes": [
+          {
+            "environment": "examples",
+            "package": "replay-clusters"
+          }
+        ]
+      },
+      "response": {
+        "is_error": false,
+        "payload": {
+          "sources": [],
+          "ranking": "relevance",
+          "total_available": 0,
+          "returned": 0,
+          "retrieval": "indexing",
+          "warnings": [
+            "This package's search index is still being built, so there are no results yet. Nothing is wrong: ask the same question again in a few seconds. A request with no search_text (a listing) works now."
+          ]
+        }
+      }
+    },
+    "report": {
+      "catalog": {
+        "sources": 10,
+        "nodes": {
+          "source": 10,
+          "dimension": 36,
+          "join": 5,
+          "measure": 38
+        },
+        "edges": {
+          "contains": 79,
+          "joins": 5,
+          "extends": 2,
+          "depends": 41,
+          "uses": 0
+        },
+        "multiFileNodes": 0,
+        "indexedDimensions": 0,
+        "gatedSources": 0,
+        "unresolvedReferences": 14,
+        "copiesFolded": 0,
+        "copiesKeptApart": 38,
+        "hiddenSources": 0,
+        "joinPaths": 12,
+        "deepestJoinPath": 3,
+        "joinPathsCapped": 0,
+        "joinedCopiesDropped": 0,
+        "unservedCopiesAdded": 0,
+        "unservedCopiesCapped": 0,
+        "unservedWalkCapped": 0
+      },
+      "summaries": {
+        "stored": 10,
+        "sources": 10
+      },
+      "docParts": {
+        "longDocs": 0,
+        "byModel": 0,
+        "byRules": 0
+      },
+      "questions": {
+        "nodes": 74,
+        "written": 74,
+        "reused": 0,
+        "missing": 0
+      },
+      "vectors": {
+        "rows": 311,
+        "embedded": 311,
+        "reused": 0,
+        "deleted": 0,
+        "charsEmbedded": 24053,
+        "dims": 64
+      },
+      "keywordDocs": 89,
+      "values": {
+        "dimensionsRead": 0,
+        "dimensionsReused": 0,
+        "valuesFromData": 0,
+        "valuesFromDocs": 0,
+        "cut": [],
+        "skipped": [],
+        "failed": []
+      },
+      "valueVectors": {
+        "values": 0,
+        "embedded": 0,
+        "reused": 0,
+        "deleted": 0,
+        "charsEmbedded": 0
+      }
+    },
+    "traffic": {
+      "embedding_calls": 2,
+      "embedded_texts": 311,
+      "embedded_texts_sha256": "c54dfd6eaf4b7b21e54b6fc772d166d1aed27ca1b1339b4409bd51f257c9abb4",
+      "chat_calls_by_kind": {
+        "questions": 5,
+        "source_summary": 10
+      },
+      "chat_prompts_sha256": [
+        "questions 5305e4f8d2f5bf4dd23a50d7ba4d1dd589600434e9f20d4382b198e7944f6e6a",
+        "questions 798f832f35c229683e4e5106d811a9341df2dc0f250045eb18c7b38ee35c84ac",
+        "questions 9ce51ee8496ca51f45596e70b14499f11e090573b0bacad31e2ad0df74b61f9a",
+        "questions b56c0a642addb49dda8eb919344bd8c6d059003c5b888585305cb7704753701c",
+        "questions cc89ca78dd42cada01d4574744affe4bd37b1bcbf779fbac873f8ae1b7182657",
+        "source_summary 25765409a15c4865db12469778374234ae359eec9c4a7a00d96fd2c296fa458d",
+        "source_summary 28fcbe9641ab536a0ef5b7a5e191db22e4742bfe91875b8515ea3739914edde6",
+        "source_summary 318bd904152d12696f83e05257afbcfff384c239c0fc7747174f5e528574298f",
+        "source_summary 481a6c86c4f7e505d73c18be9e0c3e7a1db8bfe2df6af38cc402a31f01d3cfc4",
+        "source_summary 705abb8183d5571bdf06c6091996810be11f5603cec05a65924a5d9e0e43b193",
+        "source_summary 81e18205dbe40cc1036a1297310f0f24ab27bb11cc4b34716a62cc392dfdc388",
+        "source_summary b0e2ec565fcac2503dc456991f488228e6266c3db6bbf3b32d2d38cd2fbb27c7",
+        "source_summary b8805d3d26e526ad876eca16074678e3f617248ce97be90caa030bff10275871",
+        "source_summary e0178233933b5a4bb242ef3932385173b84ee88f17feceed6158518c96119700",
+        "source_summary eec37768bc4cf847f292bc8a298808238b669a243d53c8c46243d66701d85ef6"
+      ]
+    }
+  },
+  "replay-governed": {
+    "warm_up": {
+      "request": {
+        "search_targets": [
+          {
+            "target_type": "measure",
+            "search_text": "warm up"
+          }
+        ],
+        "scopes": [
+          {
+            "environment": "examples",
+            "package": "replay-governed"
+          }
+        ]
+      },
+      "response": {
+        "is_error": false,
+        "payload": {
+          "sources": [],
+          "ranking": "relevance",
+          "total_available": 0,
+          "returned": 0,
+          "retrieval": "indexing",
+          "warnings": [
+            "This package's search index is still being built, so there are no results yet. Nothing is wrong: ask the same question again in a few seconds. A request with no search_text (a listing) works now."
+          ]
+        }
+      }
+    },
+    "report": {
+      "catalog": {
+        "sources": 3,
+        "nodes": {
+          "source": 3,
+          "dimension": 11,
+          "measure": 3
+        },
+        "edges": {
+          "contains": 14,
+          "joins": 0,
+          "extends": 0,
+          "depends": 3,
+          "uses": 0
+        },
+        "multiFileNodes": 0,
+        "indexedDimensions": 2,
+        "gatedSources": 2,
+        "unresolvedReferences": 5,
+        "copiesFolded": 0,
+        "copiesKeptApart": 0,
+        "hiddenSources": 1,
+        "joinPaths": 0,
+        "deepestJoinPath": 0,
+        "joinPathsCapped": 0,
+        "joinedCopiesDropped": 0,
+        "unservedCopiesAdded": 0,
+        "unservedCopiesCapped": 0,
+        "unservedWalkCapped": 0
+      },
+      "summaries": {
+        "stored": 3,
+        "sources": 3
+      },
+      "docParts": {
+        "longDocs": 1,
+        "byModel": 1,
+        "byRules": 0
+      },
+      "questions": {
+        "nodes": 14,
+        "written": 14,
+        "reused": 0,
+        "missing": 0
+      },
+      "vectors": {
+        "rows": 59,
+        "embedded": 59,
+        "reused": 0,
+        "deleted": 0,
+        "charsEmbedded": 3764,
+        "dims": 64
+      },
+      "keywordDocs": 17,
+      "values": {
+        "dimensionsRead": 1,
+        "dimensionsReused": 0,
+        "valuesFromData": 6,
+        "valuesFromDocs": 0,
+        "cut": [],
+        "skipped": [
+          {
+            "dimension": "dimension:tenant_orders@governed.malloy:order_city",
+            "reason": "its source has an access gate; values are read only through a query with the caller's givens"
+          }
+        ],
+        "failed": []
+      },
+      "valueVectors": {
+        "values": 6,
+        "embedded": 6,
+        "reused": 0,
+        "deleted": 0,
+        "charsEmbedded": 98
+      }
+    },
+    "traffic": {
+      "embedding_calls": 2,
+      "embedded_texts": 65,
+      "embedded_texts_sha256": "1f5c7fcd5329fccb75ad977ac94a4f52c4387df64dff8ecddc814fd41f62fd43",
+      "chat_calls_by_kind": {
+        "doc_parts": 1,
+        "questions": 1,
+        "source_summary": 4
+      },
+      "chat_prompts_sha256": [
+        "doc_parts bd4e771cb65b8eed5e73961dc6828dd243a5d42d873d038fd05dc2bc0300bfab",
+        "questions 6006707d8bef27f87db061f0cfaf24d5fc7641ac5cb2bc44318ad40d48f4859f",
+        "source_summary 348513b809367223fac63d347b398d4d100ac2df76d356daa00beeda6aa6b8b0",
+        "source_summary 3899cbe5c61efd1c6e6f875d7c717fba9c6e2a6d506a7ae8cf9d0f4b990008bb",
+        "source_summary 3b995bf115f74662b7c73926a7251cb43c747730bb852d52372301c04ccbba5c",
+        "source_summary ce047888c0ff0422d2d1d3d638e37e573bf1a3dfad68ca58bbfa9ba26a699a50"
+      ]
+    }
+  },
+  "replay-long-docs": {
+    "warm_up": {
+      "request": {
+        "search_targets": [
+          {
+            "target_type": "measure",
+            "search_text": "warm up"
+          }
+        ],
+        "scopes": [
+          {
+            "environment": "examples",
+            "package": "replay-long-docs"
+          }
+        ]
+      },
+      "response": {
+        "is_error": false,
+        "payload": {
+          "sources": [],
+          "ranking": "relevance",
+          "total_available": 0,
+          "returned": 0,
+          "retrieval": "indexing",
+          "warnings": [
+            "This package's search index is still being built, so there are no results yet. Nothing is wrong: ask the same question again in a few seconds. A request with no search_text (a listing) works now."
+          ]
+        }
+      }
+    },
+    "report": {
+      "catalog": {
+        "sources": 3,
+        "nodes": {
+          "source": 3,
+          "dimension": 9,
+          "measure": 36
+        },
+        "edges": {
+          "contains": 45,
+          "joins": 0,
+          "extends": 0,
+          "depends": 72,
+          "uses": 0
+        },
+        "multiFileNodes": 0,
+        "indexedDimensions": 0,
+        "gatedSources": 0,
+        "unresolvedReferences": 0,
+        "copiesFolded": 0,
+        "copiesKeptApart": 0,
+        "hiddenSources": 0,
+        "joinPaths": 0,
+        "deepestJoinPath": 0,
+        "joinPathsCapped": 0,
+        "joinedCopiesDropped": 0,
+        "unservedCopiesAdded": 0,
+        "unservedCopiesCapped": 0,
+        "unservedWalkCapped": 0
+      },
+      "summaries": {
+        "stored": 3,
+        "sources": 3
+      },
+      "docParts": {
+        "longDocs": 36,
+        "byModel": 36,
+        "byRules": 0
+      },
+      "questions": {
+        "nodes": 45,
+        "written": 45,
+        "reused": 0,
+        "missing": 0
+      },
+      "vectors": {
+        "rows": 183,
+        "embedded": 183,
+        "reused": 0,
+        "deleted": 0,
+        "charsEmbedded": 14617,
+        "dims": 64
+      },
+      "keywordDocs": 48,
+      "values": {
+        "dimensionsRead": 0,
+        "dimensionsReused": 0,
+        "valuesFromData": 0,
+        "valuesFromDocs": 0,
+        "cut": [],
+        "skipped": [],
+        "failed": []
+      },
+      "valueVectors": {
+        "values": 0,
+        "embedded": 0,
+        "reused": 0,
+        "deleted": 0,
+        "charsEmbedded": 0
+      }
+    },
+    "traffic": {
+      "embedding_calls": 1,
+      "embedded_texts": 183,
+      "embedded_texts_sha256": "3c29c4e54f70ae5325a0dea37b8ff60d73b572d5f04c308c177ad4db776a6786",
+      "chat_calls_by_kind": {
+        "doc_parts": 4,
+        "questions": 3,
+        "source_summary": 3
+      },
+      "chat_prompts_sha256": [
+        "doc_parts 3c02863611839ef6684e1dd99ade20c7e58a8ebcc12399332d725fbb1d1e778f",
+        "doc_parts 5ff839832b81070bf58d0d1bb4600669d9842403e9f90cb50838f8c8397d2b69",
+        "doc_parts 9b03bcf1a2f77844e1e2eba509760e4f7e19c5b689d9cabfb13aab8e5e2ef94d",
+        "doc_parts db76f60219f9b3be64c680f30e2b7a30dde8f2f4bfb785466dd3f29d77213255",
+        "questions 26fcbba948dff5bdf7f36c60139cae03a0a474343bf69edd8a3d7fee049ce876",
+        "questions 44ac6c70c3a5e5f270d58acbaf2b60a8d667b44f47ae635fa47f969c09559229",
+        "questions aa369ab37b419144ab571252b626848810598f7f4f65fa7f59b7985f07b8c60f",
+        "source_summary 903478dfc7c9838ec8d2d2c28ab88463c06ee5fb23e78be39162de631426ff03",
+        "source_summary ba6a19d60e0ee7be1580f896dab456c877b6f61d2ec68ba0b1abc81bf9f64beb",
+        "source_summary d910f5da330723ea17c592a6183416f9ac784dfb67b90ed1b3c349c638053aed"
       ]
     }
   }

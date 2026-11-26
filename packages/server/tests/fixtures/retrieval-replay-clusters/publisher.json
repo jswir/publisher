@@ -1,0 +1,8 @@
+{
+   "name": "replay-clusters",
+   "version": "1.0.0",
+   "description": "Synthetic fixture for the retrieval replay, searched with connect: clusters, collapseCopies and twinRule on: a joined star with two twins, and islands that each answer one target.",
+   "retrieval": {
+      "fcj": { "connect": "clusters", "collapseCopies": true, "twinRule": true }
+   }
+}

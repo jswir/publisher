@@ -1,0 +1,388 @@
+{
+  "case": "clusters-joined-dimension",
+  "about": "A measure on the home and a dimension one join away: the joined field is on the home's card, its score discounted per hop.",
+  "request": {
+    "search_targets": [
+      {
+        "target_type": "measure",
+        "search_text": "order total"
+      },
+      {
+        "target_type": "dimension",
+        "search_text": "customer segment"
+      }
+    ],
+    "scopes": [
+      {
+        "environment": "examples",
+        "package": "replay-clusters"
+      }
+    ]
+  },
+  "response": {
+    "is_error": false,
+    "payload": {
+      "sources": [
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "replay-clusters",
+              "model_path": "clusters.malloy",
+              "source": "orders"
+            },
+            "one_line_summary": "Every order, every channel: the source analysts query.",
+            "docs": "Every order, every channel: the source analysts query.",
+            "joins": [
+              {
+                "name": "customer",
+                "relationship": "one",
+                "doc": "The customer who placed the order."
+              }
+            ]
+          },
+          "relevance": 1,
+          "entities": [
+            {
+              "name": "avg_order_total",
+              "entity_type": "measure",
+              "entity_id": "measure:orders:avg_order_total",
+              "relevance": 0.9694545454545455,
+              "description": "Average order total per order.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "order total",
+                  "relevance": 0.9695,
+                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "discounted_order_total",
+              "entity_type": "measure",
+              "entity_id": "measure:orders:discounted_order_total",
+              "relevance": 1,
+              "description": "Order total of orders with a discount.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "order total",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "max_order_total",
+              "entity_type": "measure",
+              "entity_id": "measure:orders:max_order_total",
+              "relevance": 0.9398426051560381,
+              "description": "Largest order total.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "order total",
+                  "relevance": 0.9398,
+                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "min_order_total",
+              "entity_type": "measure",
+              "entity_id": "measure:orders:min_order_total",
+              "relevance": 0.9786503547834597,
+              "description": "Smallest order total.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "order total",
+                  "relevance": 0.9787,
+                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "net_order_total",
+              "entity_type": "measure",
+              "entity_id": "measure:orders:net_order_total",
+              "relevance": 0.9635294117647059,
+              "description": "Order total after discounts.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "order total",
+                  "relevance": 0.9635,
+                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "order_discount_total",
+              "entity_type": "measure",
+              "entity_id": "measure:orders:order_discount_total",
+              "relevance": 0.9123989769820972,
+              "description": "Discounts given on orders.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "order total",
+                  "relevance": 0.9124,
+                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "order_shipping_total",
+              "entity_type": "measure",
+              "entity_id": "measure:orders:order_shipping_total",
+              "relevance": 0.8928,
+              "description": "Shipping charged on orders.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "order total",
+                  "relevance": 0.8928,
+                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "store_order_total",
+              "entity_type": "measure",
+              "entity_id": "measure:orders:store_order_total",
+              "relevance": 0.9765,
+              "description": "Order total of store orders only.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "order total",
+                  "relevance": 0.9765,
+                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "web_order_total",
+              "entity_type": "measure",
+              "entity_id": "measure:orders:web_order_total",
+              "relevance": 0.9614769230769231,
+              "description": "Order total of web orders only.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "order total",
+                  "relevance": 0.9615,
+                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "order_count",
+              "entity_type": "measure",
+              "entity_id": "measure:orders:order_count",
+              "relevance": 0.9462622950819672,
+              "description": "Number of orders.",
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "order total",
+                  "relevance": 0.9463,
+                  "match_reason": "stand-in: 10 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customer.customer_segment",
+              "entity_type": "dimension",
+              "entity_id": "dimension:orders:customer.customer_segment",
+              "relevance": 0.922072131147541,
+              "description": "Market segment of the customer: retail or wholesale. Reached from orders through customer, a left join: a orders row with no match keeps a null here, so grouping or counting by it follows orders's rows.",
+              "data_type": "string",
+              "relationship": "one",
+              "join_path": "customer",
+              "matched_targets": [
+                {
+                  "search_text": "customer segment",
+                  "relevance": 0.9221,
+                  "match_reason": "stand-in: 3 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customer.customer_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:orders:customer.customer_id",
+              "relevance": 0.9,
+              "description": "Reached from orders through customer, a left join: a orders row with no match keeps a null here, so grouping or counting by it follows orders's rows.",
+              "data_type": "number",
+              "relationship": "one",
+              "join_path": "customer",
+              "matched_targets": [
+                {
+                  "search_text": "customer segment",
+                  "relevance": 0.9,
+                  "match_reason": "stand-in: 3 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "customer_id",
+              "entity_type": "dimension",
+              "entity_id": "dimension:orders:customer_id",
+              "relevance": 0.9765,
+              "data_type": "number",
+              "matched_targets": [
+                {
+                  "search_text": "customer segment",
+                  "relevance": 0.9765,
+                  "match_reason": "stand-in: 3 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "ranking": "relevance",
+      "total_available": 1,
+      "returned": 1,
+      "retrieval": "semantic",
+      "engine": "fcj",
+      "clusters": [
+        {
+          "home": {
+            "source": "orders",
+            "model_path": "clusters.malloy"
+          },
+          "reach": [
+            {
+              "source": "customers",
+              "joins": [
+                "customer"
+              ]
+            },
+            {
+              "source": "cities",
+              "joins": [
+                "customer.city_row"
+              ]
+            },
+            {
+              "source": "states",
+              "joins": [
+                "customer.city_row.state_row"
+              ]
+            }
+          ],
+          "covers": [
+            0,
+            1
+          ],
+          "picks": {
+            "0": [
+              "measure:orders:avg_order_total",
+              "measure:orders:discounted_order_total",
+              "measure:orders:max_order_total",
+              "measure:orders:min_order_total",
+              "measure:orders:net_order_total",
+              "measure:orders:order_discount_total",
+              "measure:orders:order_shipping_total",
+              "measure:orders:store_order_total",
+              "measure:orders:web_order_total",
+              "measure:orders:order_count"
+            ],
+            "1": [
+              "dimension:orders:customer.customer_segment",
+              "dimension:orders:customer.customer_id",
+              "dimension:orders:customer_id"
+            ]
+          }
+        }
+      ],
+      "unresolved_targets": []
+    }
+  },
+  "traffic": {
+    "embedding_calls": 1,
+    "embedded_texts": [
+      "customer segment",
+      "order total"
+    ],
+    "judge_calls": 1,
+    "judge": [
+      {
+        "system_sha256": "96ec55a0079d6c38dce4bc7e8b4110adfbe3b6a82827f3df398765ade991c146",
+        "prompt_sha256": "7d43c958b9085abb9a8aebd8c306d820f211ce45231744925706e4de6fdb4c19",
+        "prompt": [
+          "Home source: orders - Every order, every channel: the source analysts query.",
+          "Sources its joins reach: customers, cities, states",
+          "",
+          "<targets>",
+          "Target 1 (measure): \"order total\"",
+          "  [1] discounted_order_total (measure, number; source orders; own field): Order total of orders with a discount.",
+          "  [2] min_order_total (measure, number; source orders; own field): Smallest order total.",
+          "  [3] store_order_total (measure, number; source orders; own field): Order total of store orders only.",
+          "  [4] avg_order_total (measure, number; source orders; own field): Average order total per order.",
+          "  [5] net_order_total (measure, number; source orders; own field): Order total after discounts.",
+          "  [6] web_order_total (measure, number; source orders; own field): Order total of web orders only.",
+          "  [7] order_count (measure, number; source orders; own field): Number of orders.",
+          "  [8] max_order_total (measure, number; source orders; own field): Largest order total.",
+          "  [9] order_discount_total (measure, number; source orders; own field): Discounts given on orders.",
+          "  [10] order_shipping_total (measure, number; source orders; own field): Shipping charged on orders.",
+          "Target 2 (dimension): \"customer segment\"",
+          "  [11] customer_id (dimension, number; source orders; own field): (no doc; name in words: customer id)",
+          "  [12] customer_segment (dimension, string; source customers; through orders.customer (a left join from orders)): Market segment of the customer: retail or wholesale.",
+          "  [13] customer_id (dimension, number; source customers; through orders.customer (a left join from orders)): (no doc; name in words: customer id)",
+          "  [14] billing_city (dimension, string; source customers; through orders.customer (a left join from orders)): City the customer is billed in.",
+          "  [15] discount (dimension, number; source orders; own field): (no doc; name in words: discount)",
+          "  [16] shipping (dimension, number; source orders; own field): (no doc; name in words: shipping)",
+          "  [17] tax (dimension, number; source orders; own field): (no doc; name in words: tax)",
+          "  [18] total (dimension, number; source orders; own field): (no doc; name in words: total)",
+          "  [19] order_id (dimension, number; source orders; own field): (no doc; name in words: order id)",
+          "  [20] order_channel (dimension, string; source orders; own field): Channel the order came through: web or store.",
+          "</targets>",
+          "",
+          "Also in this group:",
+          "  [21] orders (source; source orders; own field): Every order, every channel: the source analysts query. | added because: the home source",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                4,
+                1,
+                8,
+                2,
+                5,
+                9,
+                10,
+                3,
+                6,
+                7
+              ],
+              "reason": "stand-in: 10 candidate(s) scored 2 or more",
+              "best": 4
+            },
+            {
+              "target": 2,
+              "candidates": [
+                12,
+                13,
+                11
+              ],
+              "reason": "stand-in: 3 candidate(s) scored 2 or more",
+              "best": 12
+            }
+          ],
+          "caveats": []
+        }
+      }
+    ]
+  }
+}

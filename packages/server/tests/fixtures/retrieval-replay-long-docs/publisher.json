@@ -1,0 +1,10 @@
+{
+   "name": "replay-long-docs",
+   "version": "1.0.0",
+   "description": "Synthetic fixture for the retrieval replay: three ledgers with a dozen long-documented measures each, so the cards of one answer do not fit one 35,000-character page together, and a target has more candidates than perTarget keeps. listUnion is 0, so the judge sees exactly the find stage's top listTopK.",
+   "retrieval": {
+      "fcj": {
+         "listUnion": 0
+      }
+   }
+}

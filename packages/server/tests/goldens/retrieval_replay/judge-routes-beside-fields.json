@@ -1,0 +1,278 @@
+{
+  "case": "judge-routes-beside-fields",
+  "about": "The judge picks every route shown beside each field it picks (zzroutes): past dropRoutesAt, the routes are dropped and the fields kept.",
+  "request": {
+    "search_targets": [
+      {
+        "target_type": "dimension",
+        "search_text": "state and city zzroutes"
+      }
+    ],
+    "scopes": [
+      {
+        "environment": "examples",
+        "package": "storefront"
+      }
+    ]
+  },
+  "response": {
+    "is_error": false,
+    "payload": {
+      "sources": [
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "storefront.malloy",
+              "source": "customers"
+            },
+            "one_line_summary": "People who have placed orders — one row per customer, keyed by `customer_id`.",
+            "docs": "People who have placed orders — one row per customer, keyed by `customer_id`",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "city",
+              "entity_type": "dimension",
+              "entity_id": "dimension:customers:city",
+              "relevance": 0.9067360379149754,
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "state and city zzroutes",
+                  "relevance": 0.9067,
+                  "match_reason": "stand-in: 12 candidate(s) scored 2 or more"
+                }
+              ]
+            },
+            {
+              "name": "state",
+              "entity_type": "dimension",
+              "entity_id": "dimension:customers:state",
+              "relevance": 0.8732819878820279,
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "state and city zzroutes",
+                  "relevance": 0.8733,
+                  "match_reason": "stand-in: 12 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 0.9067360379149754
+        },
+        {
+          "source_info": {
+            "resource_id": {
+              "environment": "examples",
+              "package": "storefront",
+              "model_path": "storefront.malloy",
+              "source": "regions"
+            },
+            "one_line_summary": "Sales region for each US state, one row per state, keyed by `state`.",
+            "docs": "Sales region for each US state, one row per state, keyed by `state`",
+            "joins": []
+          },
+          "entities": [
+            {
+              "name": "state",
+              "entity_type": "dimension",
+              "entity_id": "dimension:regions:state",
+              "relevance": 1,
+              "data_type": "string",
+              "matched_targets": [
+                {
+                  "search_text": "state and city zzroutes",
+                  "relevance": 1,
+                  "match_reason": "stand-in: 12 candidate(s) scored 2 or more"
+                }
+              ]
+            }
+          ],
+          "relevance": 1
+        }
+      ],
+      "ranking": "relevance",
+      "total_available": 2,
+      "returned": 2,
+      "retrieval": "semantic",
+      "engine": "fcj",
+      "clusters": [
+        {
+          "query_from": {
+            "source": "overview",
+            "model_path": "overview.malloy"
+          },
+          "sources": [
+            {
+              "source": "customers",
+              "joins": [
+                "customers"
+              ]
+            },
+            {
+              "source": "regions",
+              "joins": [
+                "regions"
+              ]
+            }
+          ],
+          "covers": [
+            0
+          ],
+          "picks": {
+            "0": [
+              "dimension:customers:city",
+              "dimension:customers:state",
+              "dimension:regions:state"
+            ]
+          }
+        }
+      ],
+      "unresolved_targets": [],
+      "skills": [
+        {
+          "name": "malloy-phrase-detection",
+          "description": "How to turn a storefront question into get_context search targets, including the shop vocabulary that does not appear anywhere in the model. Replaces the built-in phrase-detection guide for this package."
+        },
+        {
+          "name": "storefront-conventions",
+          "description": "What storefront's measures actually count, and the four places a reasonable reading of them is wrong. Read before answering any revenue, order, margin, or region question against this package."
+        }
+      ],
+      "skills_note": "This package ships its own guidance, listed above. Read the relevant one before relying on names or conventions from this package. If it is already loaded as a skill, use that; otherwise fetch it with get_skill(skill_name, scopes), and if that tool is not available to you, proceed and say which guidance you could not read. A guide whose name matches a built-in one replaces it here."
+    }
+  },
+  "traffic": {
+    "embedding_calls": 1,
+    "embedded_texts": [
+      "state and city zzroutes"
+    ],
+    "judge_calls": 1,
+    "judge": [
+      {
+        "system_sha256": "9f5997fde3c4a50ca93d49e0090e8c6b85eab6867ed48888adaf95f6f77a40c2",
+        "prompt_sha256": "4db77bf5250ccaae7158d66a418fd91f7f93c62751752c76aeac9932079cec0b",
+        "prompt": [
+          "Sources with candidates:",
+          "- regions - Sales region for each US state, one row per state, keyed by `state`.",
+          "  Its doc begins: \"Sales region for each US state, one row per state, keyed by `state`\"",
+          "  A query from regions can use none of the other listed sources.",
+          "- overview - The overview report's tiles, each over the order lines its controls select.",
+          "  Its doc begins: \"The overview report's tiles, each over the order lines its controls select\"",
+          "  A query from overview can also use: customers (through overview.customers), products (through overview.products), regions (through overview.regions).",
+          "- order_items - Order line items — the fact table, one row per product sold on an order.",
+          "  Its doc begins: \"Order line items — the fact table, one row per product sold on an order\"",
+          "  A query from order_items can also use: customers (through order_items.customers), products (through order_items.products), regions (through order_items.regions).",
+          "- scoped_orders - Order lines narrowed by the data app's control row.",
+          "  Its doc begins: \"Order lines narrowed by the data app's control row. Every tile queries this.\"",
+          "  A query from scoped_orders can also use: customers (through scoped_orders.customers), products (through scoped_orders.products), regions (through scoped_orders.regions).",
+          "- customers - People who have placed orders — one row per customer, keyed by `customer_id`.",
+          "  Its doc begins: \"People who have placed orders — one row per customer, keyed by `customer_id`\"",
+          "  A query from customers can use none of the other listed sources.",
+          "- brand_suggest - Distinct brands, for the Brand filter control's option list.",
+          "  Its doc begins: \"Distinct brands, for the Brand filter control's option list\"",
+          "  A query from brand_suggest can use none of the other listed sources.",
+          "- products - Catalog of products, one row per product, with cost and retail price.",
+          "  Its doc begins: \"Catalog of products, one row per product, with cost and retail price\"",
+          "  A query from products can use none of the other listed sources.",
+          "",
+          "<targets>",
+          "Target 1 (dimension): \"state and city zzroutes\"",
+          "  From regions (its doc: \"Sales region for each US state, one row per state, keyed by `state`\"):",
+          "    [1] state (dimension, string; source regions): (no doc; name in words: state)",
+          "        [2] order_items.regions.state (route from order_items through regions, join_one): only the regions rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [3] overview.regions.state (route from overview through regions, join_one): only the regions rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [4] scoped_orders.regions.state (route from scoped_orders through regions, join_one): only the regions rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "    [5] region (dimension, string; source regions): (no doc; name in words: region)",
+          "        [6] order_items.regions.region (route from order_items through regions, join_one): only the regions rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [7] overview.regions.region (route from overview through regions, join_one): only the regions rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [8] scoped_orders.regions.region (route from scoped_orders through regions, join_one): only the regions rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "  From overview (its doc: \"The overview report's tiles, each over the order lines its controls select\"):",
+          "    [9] region (dimension, string; source overview): Sales region for the customer's home state",
+          "    [10] brand (dimension, string; source overview): Brand of the item sold",
+          "    [11] gross_margin (dimension, number; source overview): Gross margin on this line (sale price minus product cost)",
+          "    [12] category (dimension, string; source overview): Product category of the item sold",
+          "    [13] created_at (dimension, date; source overview): (no doc; name in words: created at)",
+          "    [14] customer_id (dimension, number; source overview): (no doc; name in words: customer id)",
+          "    [15] id (dimension, number; source overview): (no doc; name in words: id)",
+          "    [16] order_id (dimension, number; source overview): (no doc; name in words: order id)",
+          "    [17] product_id (dimension, number; source overview): (no doc; name in words: product id)",
+          "    [18] sale_price (dimension, number; source overview): (no doc; name in words: sale price)",
+          "    [19] status (dimension, string; source overview): (no doc; name in words: status)",
+          "  From order_items (its doc: \"Order line items — the fact table, one row per product sold on an order\"):",
+          "    [20] region (dimension, string; source order_items): Sales region for the customer's home state",
+          "    [21] brand (dimension, string; source order_items): Brand of the item sold",
+          "    [22] gross_margin (dimension, number; source order_items): Gross margin on this line (sale price minus product cost)",
+          "    [23] category (dimension, string; source order_items): Product category of the item sold",
+          "  From scoped_orders (its doc: \"Order lines narrowed by the data app's control row. Every tile queries this.\"):",
+          "    [24] region (dimension, string; source scoped_orders): Sales region for the customer's home state",
+          "    [25] brand (dimension, string; source scoped_orders): Brand of the item sold",
+          "    [26] gross_margin (dimension, number; source scoped_orders): Gross margin on this line (sale price minus product cost)",
+          "    [27] category (dimension, string; source scoped_orders): Product category of the item sold",
+          "    [28] id (dimension, number; source scoped_orders): (no doc; name in words: id)",
+          "    [29] status (dimension, string; source scoped_orders): (no doc; name in words: status)",
+          "  From customers (its doc: \"People who have placed orders — one row per customer, keyed by `customer_id`\"):",
+          "    [30] city (dimension, string; source customers): (no doc; name in words: city)",
+          "        [31] order_items.customers.city (route from order_items through customers, join_one): only the customers rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [32] overview.customers.city (route from overview through customers, join_one): only the customers rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [33] scoped_orders.customers.city (route from scoped_orders through customers, join_one): only the customers rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "    [34] state (dimension, string; source customers): (no doc; name in words: state)",
+          "        [35] order_items.customers.state (route from order_items through customers, join_one): only the customers rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [36] overview.customers.state (route from overview through customers, join_one): only the customers rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [37] scoped_orders.customers.state (route from scoped_orders through customers, join_one): only the customers rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "    [38] full_name (dimension, string; source customers): (no doc; name in words: full name)",
+          "        [39] order_items.customers.full_name (route from order_items through customers, join_one): only the customers rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [40] overview.customers.full_name (route from overview through customers, join_one): only the customers rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [41] scoped_orders.customers.full_name (route from scoped_orders through customers, join_one): only the customers rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "  From brand_suggest (its doc: \"Distinct brands, for the Brand filter control's option list\"):",
+          "    [42] brand (dimension, string; source brand_suggest): Brand of the item sold",
+          "  From products (its doc: \"Catalog of products, one row per product, with cost and retail price\"):",
+          "    [43] brand (dimension, string; source products): (no doc; name in words: brand)",
+          "        [44] order_items.products.brand (route from order_items through products, join_one): only the products rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [45] overview.products.brand (route from overview through products, join_one): only the products rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [46] scoped_orders.products.brand (route from scoped_orders through products, join_one): only the products rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "    [47] name (dimension, string; source products): (no doc; name in words: name)",
+          "        [48] order_items.products.name (route from order_items through products, join_one): only the products rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [49] overview.products.name (route from overview through products, join_one): only the products rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [50] scoped_orders.products.name (route from scoped_orders through products, join_one): only the products rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "    [51] category (dimension, string; source products): (no doc; name in words: category)",
+          "        [52] order_items.products.category (route from order_items through products, join_one): only the products rows order_items reaches (order_items: \"Order line items — the fact table, one row per product sold on an order\")",
+          "        [53] overview.products.category (route from overview through products, join_one): only the products rows overview reaches (overview: \"The overview report's tiles, each over the order lines its controls select\")",
+          "        [54] scoped_orders.products.category (route from scoped_orders through products, join_one): only the products rows scoped_orders reaches (scoped_orders: \"Order lines narrowed by the data app's control row.\")",
+          "</targets>",
+          "",
+          "Reply with one JSON object and nothing else:",
+          "{\"picks\": [{\"target\": <target number>, \"candidates\": [<candidate numbers, best first>], \"best\": <the one candidate number that best answers the target>, \"reason\": \"<one short sentence>\", \"readings\": <true only when you picked the same field on several sources because the question could mean either set of rows>}, ...], \"caveats\": [\"<one short sentence>\", ...]}",
+          "Give one element per target, with an empty \"candidates\" list for a target this group cannot answer. Use only the candidate numbers listed under that target or under \"Also in this group\". List \"candidates\" best first; \"best\" is one of them, the field on the source whose doc best matches the population or breakdown the target and the question ask for. Leave \"readings\" out unless it is true."
+        ],
+        "reply": {
+          "picks": [
+            {
+              "target": 1,
+              "candidates": [
+                30,
+                31,
+                32,
+                33,
+                34,
+                35,
+                36,
+                37,
+                1,
+                2,
+                3,
+                4
+              ],
+              "reason": "stand-in: 12 candidate(s) scored 2 or more",
+              "best": 30
+            }
+          ],
+          "caveats": []
+        }
+      }
+    ]
+  }
+}

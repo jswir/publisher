@@ -1,0 +1,156 @@
+// Copyright (c) Credible Data Inc.
+// SPDX-License-Identifier: MIT
+
+// Synthetic rows for the retrieval replay (tests/component/retrieval_replay).
+// Eleven sources share the fields `amount` and `region`: four are one base
+// and its extensions, the rest are unrelated tables that happen to use the
+// same words. A search for "total amount" by "region" therefore has many
+// sources to choose from, more than the seven a judge call may be limited to.
+
+#(doc) One row per sale, every channel combined: store, web and partner sales together. The amount is the sale's value in US dollars before tax; the region is the sales region of the selling team.
+source: sales_base is duckdb.sql("""
+  select 1 as sale_id, 'store' as channel, 'West' as region, 'Pacific' as region_name, 120.0 as amount, date '2024-01-05' as sale_date
+  union all select 2, 'web', 'East', 'Atlantic', 80.0, date '2024-02-11'
+  union all select 3, 'partner', 'North', 'Lakes', 45.5, date '2024-03-02'
+  union all select 4, 'web', 'West', 'Pacific', 230.0, date '2024-03-20'
+""") extend {
+  primary_key: sale_id
+  #(doc) Sales region of the selling team, one of North, East or West.
+  dimension: region_code is region
+  #(doc) Long name of the sales region of the selling team.
+  dimension: sales_region_name is region_name
+  #(doc) Channel the sale came through: store, web or partner.
+  dimension: sale_channel is channel
+  #(doc) Total amount of the sales in scope, in US dollars before tax.
+  measure: total_amount is amount.sum()
+  #(doc) Average amount per sale, in US dollars before tax.
+  measure: avg_amount is amount.avg()
+  #(doc) Number of sales.
+  measure: sale_count is count()
+  #(doc) Total amount by sales region.
+  view: amount_by_region is {
+    group_by: region_code
+    aggregate: total_amount
+  }
+}
+
+#(doc) In-store sales only: the rows of sales_base whose channel is store. Use it for per-store questions; for all channels use sales_base.
+source: store_sales is sales_base extend {
+  where: channel = 'store'
+  #(doc) Total amount of in-store sales.
+  measure: store_amount is amount.sum()
+}
+
+#(doc) Web sales only: the rows of sales_base whose channel is web.
+source: web_sales is sales_base extend {
+  where: channel = 'web'
+}
+
+#(doc) Partner sales only: sales made by resellers, the rows of sales_base whose channel is partner.
+source: partner_sales is sales_base extend {
+  where: channel = 'partner'
+  #(doc) Commission owed to the partner on the sale, in US dollars.
+  dimension: partner_commission is amount * 0.1
+}
+
+#(doc) One row per invoice sent to a customer. The amount is the invoiced amount; the region is the billing region of the customer.
+source: invoices is duckdb.sql("""
+  select 1 as invoice_id, 'West' as region, 100 as amount, 'open' as status
+  union all select 2, 'East', 250, 'closed'
+""") extend {
+  primary_key: invoice_id
+  #(doc) Billing region of the invoiced customer.
+  dimension: billing_region is region
+  #(doc) Whether the invoice is open or closed.
+  dimension: invoice_status is status
+  #(doc) Total invoiced amount, in US dollars.
+  measure: invoiced_amount is amount.sum()
+  #(doc) Number of invoices.
+  measure: invoice_count is count()
+}
+
+#(doc) One row per refund paid back to a customer. The amount is the refunded amount.
+source: refunds is duckdb.sql("""
+  select 1 as refund_id, 'West' as region, 100 as amount, 'open' as status
+  union all select 2, 'East', 250, 'closed'
+""") extend {
+  primary_key: refund_id
+  #(doc) Region of the store that paid the refund.
+  dimension: refund_region is region
+  #(doc) Total amount refunded to customers.
+  measure: total_refund_amount is amount.sum()
+  #(doc) Number of refunds.
+  measure: refund_count is count()
+}
+
+#(doc) One row per planned budget line of a region, for the finance plan. Amounts are planned, not actual.
+source: budgets is duckdb.sql("""
+  select 1 as budget_id, 'West' as region, 100 as amount, 'open' as status
+  union all select 2, 'East', 250, 'closed'
+""") extend {
+  primary_key: budget_id
+  #(doc) Region the budget line is planned for.
+  dimension: budget_region is region
+  #(doc) Total planned budget amount.
+  measure: total_budget_amount is amount.sum()
+  #(doc) Number of budget lines.
+  measure: budget_lines is count()
+}
+
+#(doc) One row per parcel shipped from a warehouse. The amount is the freight charge.
+source: shipments is duckdb.sql("""
+  select 1 as shipment_id, 'West' as region, 100 as amount, 'open' as status
+  union all select 2, 'East', 250, 'closed'
+""") extend {
+  primary_key: shipment_id
+  #(doc) Region the parcel was shipped to.
+  dimension: destination_region is region
+  #(doc) Total freight charged for the parcels.
+  measure: total_freight_amount is amount.sum()
+  #(doc) Number of parcels shipped.
+  measure: shipment_count is count()
+}
+
+#(doc) One row per price quote given to a prospect; a quote is not a sale.
+source: quotes is duckdb.sql("""
+  select 1 as quote_id, 'West' as region, 100 as amount, 'open' as status
+  union all select 2, 'East', 250, 'closed'
+""") extend {
+  primary_key: quote_id
+  #(doc) Sales region of the prospect.
+  dimension: quote_region is region
+  #(doc) Total amount quoted to prospects.
+  measure: total_quoted_amount is amount.sum()
+  #(doc) Number of quotes.
+  measure: quote_count is count()
+}
+
+#(doc) One row per commission paid to a sales rep.
+source: commissions is duckdb.sql("""
+  select 1 as commission_id, 'West' as region, 100 as amount, 'open' as status
+  union all select 2, 'East', 250, 'closed'
+""") extend {
+  primary_key: commission_id
+  #(doc) Region of the sales rep paid.
+  dimension: rep_region is region
+  #(doc) Total commission paid to reps.
+  measure: total_commission_amount is amount.sum()
+  #(doc) Number of commission payments.
+  measure: commission_count is count()
+}
+
+#(doc) One row per payment received against an invoice. Reach the invoice's billing region through the invoice join.
+source: payments is duckdb.sql("""
+  select 1 as payment_id, 1 as invoice_id, 100.0 as amount, 'card' as method
+  union all select 2, 2, 250.0, 'wire'
+""") extend {
+  primary_key: payment_id
+  #(doc) The invoice the payment settles.
+  join_one: invoice is invoices on invoice_id = invoice.invoice_id
+  #(doc) How the payment was made: card or wire.
+  dimension: payment_method is method
+  #(doc) Total amount received in payments, in US dollars.
+  measure: total_paid_amount is amount.sum()
+  #(doc) Number of payments.
+  measure: payment_count is count()
+}
