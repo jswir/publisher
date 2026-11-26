@@ -27,7 +27,7 @@ import {
    type FcjIndexFixture,
 } from "../../test_helpers/fcj_index_fixture";
 import { KINDS_BY_TARGET, search } from "../search/find";
-import { routesOf } from "../search/routes";
+import { fieldOf, joinedKey } from "../search/fields";
 import {
    compileJoinFixture,
    storeServing,
@@ -147,6 +147,19 @@ describe("record members (#1526)", () => {
       });
    });
 
+   /** The id a field of customers has offered on orders through its join (box 4). */
+   const reachedFromOrders = (key: string) => {
+      const hop = fixture.index.catalog.joins
+         .get("orders@shop.malloy")
+         ?.find((h) => h.to === "customers@shop.malloy");
+      return hop
+         ? fieldOf(
+              fixture.index.catalog,
+              joinedKey("orders@shop.malloy", hop.path, key),
+           )?.id
+         : undefined;
+   };
+
    it("reaches a joined source's record members through the join, as it does the source's other fields", () => {
       const tier = fixture.index.catalog.nodes.get(
          "dimension:customers@shop.malloy:profile.tier",
@@ -159,9 +172,9 @@ describe("record members (#1526)", () => {
          ),
       ).toBe(false);
       // ...but reached from it, like customer.id is.
-      expect(routesOf(fixture.index.catalog, tier)).toEqual([
+      expect(reachedFromOrders(tier.key)).toBe(
          "dimension:orders:customer.profile.tier",
-      ]);
+      );
    });
 
    it("says many for a repeated-record member, and names its route from the joining source", () => {
@@ -169,9 +182,9 @@ describe("record members (#1526)", () => {
          "dimension:customers@shop.malloy:items.sku",
       )!;
       expect(sku.relationship).toBe("many");
-      expect(routesOf(fixture.index.catalog, sku)).toEqual([
+      expect(reachedFromOrders(sku.key)).toBe(
          "dimension:orders:customer.items.sku",
-      ]);
+      );
    });
 
    it("lists a renamed record's members under the new name when the raw column is hidden", () => {

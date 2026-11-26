@@ -14,7 +14,6 @@ import {
    search,
    type Target,
 } from "./find";
-import { routesOf } from "./routes";
 import { toUnit } from "../index/vectors";
 import type { CatalogNode } from "../model/catalog";
 
@@ -163,19 +162,5 @@ describe("find", () => {
       });
       expect(r.lists.close).toBe(0);
       expect(top(r, 1)).toEqual(["measure:flights@travel.malloy:flight_count"]);
-   });
-});
-
-describe("helpers", () => {
-   it("names every route to a field, two joins deep", () => {
-      const node = f.index.catalog.nodes.get(
-         "dimension:airports@travel.malloy:airport_name",
-      )!;
-      expect(routesOf(f.index.catalog, node)).toEqual([
-         "dimension:flights:arrival.airport_name",
-         "dimension:flights:origin.airport_name",
-         "dimension:legs:flight.arrival.airport_name",
-         "dimension:legs:flight.origin.airport_name",
-      ]);
    });
 });

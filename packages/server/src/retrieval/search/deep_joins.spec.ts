@@ -16,7 +16,6 @@ import {
    type JoinHop,
 } from "../model/catalog";
 import { catalogReportLine } from "../index/catalog_store";
-import { routesOf } from "./routes";
 
 const hop = (to: string, alias: string, fanout: JoinHop["fanout"] = "one") => ({
    to,
@@ -156,32 +155,13 @@ describe("join walk on a compiled package", () => {
       ]);
    });
 
-   it("indexed: lists routes two joins deep and keeps the joined copies of a raw-table join", () => {
-      const region = indexed.nodes.get(
-         "dimension:regions@deep.malloy:region_name",
-      )!;
-      expect(routesOf(indexed, region)).toEqual([
-         "dimension:customers:region.region_name",
-         "dimension:orders:customer.region.region_name",
-      ]);
+   it("keeps the joined copies of a raw-table join", () => {
       expect(
          indexed.nodes.has(
             "dimension:shipments@deep.malloy:shipped_order.date_dim.yr",
          ),
       ).toBe(true);
       expect(indexed.report.joinedCopiesDropped).toBe(0);
-   });
-
-   it("routes: lists every route at any depth", () => {
-      const region = routes.nodes.get(
-         "dimension:regions@deep.malloy:region_name",
-      )!;
-      expect(routesOf(routes, region)).toEqual([
-         "dimension:customers:region.region_name",
-         "dimension:orders:customer.region.region_name",
-         "dimension:shipments:shipped_order.customer.region.region_name",
-         "dimension:parcels:shipment.shipped_order.customer.region.region_name",
-      ]);
    });
 
    it("routes: a raw-table join's fields stay on the source that joins it, and the copies further out become its routes", () => {
@@ -196,15 +176,6 @@ describe("join walk on a compiled package", () => {
          ),
       ).toBe(false);
       expect(routes.report.joinedCopiesDropped).toBe(2);
-      const year = routes.nodes.get(
-         "dimension:orders@deep.malloy:date_dim.yr",
-      )!;
-      // The route's id is the id the dropped copy had, so a label naming the
-      // copy is still met by the field.
-      expect(routesOf(routes, year)).toEqual([
-         "dimension:shipments:shipped_order.date_dim.yr",
-         "dimension:parcels:shipment.shipped_order.date_dim.yr",
-      ]);
       expect(catalogReportLine(routes.report)).toBe(
          "7 sources; nodes: 7 source, 19 dimension, 6 join, 2 measure; edges: 27 contains, 5 joins, 1 extends, 0 depends, 0 uses; 0 nodes resolve in more than one file; 0 #(index) dimensions; 0 gated sources; 3 field references resolved to no node; 11 join paths, the longest 4 joins; 3 inherited copies folded (same rows), 0 kept on their own source (other rows); 2 joined copies left out (searched on their own source, reached by route)",
       );
@@ -235,18 +206,5 @@ describe("join walk on a compiled package", () => {
       // labelled.merchant, labelled.account_type (folded into account_kind)
       // and labelled.account_kind, on payments and its two extensions.
       expect(c.report.joinedCopiesDropped).toBe(9);
-      expect(
-         routesOf(
-            c,
-            c.nodes.get("dimension:merchants@payments.malloy:account_kind")!,
-         ),
-      ).toEqual([
-         "dimension:eur_payments:labelled.account_kind",
-         "dimension:eur_payments:merchant_profile.account_kind",
-         "dimension:payments:labelled.account_kind",
-         "dimension:payments:merchant_profile.account_kind",
-         "dimension:plain_payments:labelled.account_kind",
-         "dimension:plain_payments:merchant_profile.account_kind",
-      ]);
    });
 });

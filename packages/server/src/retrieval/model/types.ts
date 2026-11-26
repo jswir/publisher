@@ -212,16 +212,11 @@ export interface ResultEntity {
     */
    values?: Array<{ value: string; score: number; searchText: string }>;
    /**
-    * fcj engine, provisional `alsoLikely`: the row is not a judge pick but a
-    * field returned beside them, and this is why. Serialized as
+    * The row is not a judge pick but a field returned beside them (a date
+    * field for a period the question names), and this is why. Serialized as
     * `also_likely: true` and `also_likely_reason`.
     */
    alsoLikely?: string;
-   /**
-    * fcj engine, provisional `joinedCopies: "routes"`: how the answer's other
-    * sources reach this field, each with the id the field has there.
-    */
-   routes?: Array<{ id: string; from: string; path: string }>;
 }
 
 /** A join as reported in source context: enough to write the traversal. */

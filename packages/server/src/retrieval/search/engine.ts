@@ -65,7 +65,6 @@ import {
    withoutDropped,
 } from "./pages";
 import { valueFetcherFor } from "./values";
-import { routesOf } from "./routes";
 import { authorize, targetsOf } from "./authorize";
 import { buildQueries } from "./queries";
 import { search, type Hits } from "./find";
@@ -225,7 +224,6 @@ export function hitsTrace(index: FcjIndex, hits: readonly Hits[]) {
             ...(c.values
                ? { values: c.values.slice(0, 3).map((v) => v.value) }
                : {}),
-            routes: routesOf(index.catalog, node),
          };
       }),
    }));

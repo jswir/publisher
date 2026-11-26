@@ -160,23 +160,13 @@ interface SourceCardEntity {
     */
    values?: Array<{ value: string; relevance: number; search_text: string }>;
    /**
-    * fcj engine (provisional `alsoLikely`): true when the entity is not one of
-    * the judge's picks but a field returned beside them; the reason says why
-    * (a pick's same-named field on another source, or a name the judge's note
-    * wrote). Absent on a pick.
+    * True when the entity is not one of the judge's picks but a field
+    * returned beside them: a date field of the card's source, returned
+    * because the question names a period; the reason says so. Absent on a
+    * pick.
     */
    also_likely?: true;
    also_likely_reason?: string;
-   /**
-    * fcj engine (provisional `joinedCopies: "routes"`): every route from
-    * another source of this answer to the field, shortest first, with the id
-    * the field has there (`dimension:orders:customer.region.name`).
-    */
-   routes?: Array<{
-      entity_id: string;
-      from_source: string;
-      join_path: string;
-   }>;
 }
 
 export interface SourceCard {
@@ -298,15 +288,6 @@ export function toSourceResults(
             : {}),
          ...(r.alsoLikely
             ? { also_likely: true as const, also_likely_reason: r.alsoLikely }
-            : {}),
-         ...(r.routes && r.routes.length > 0
-            ? {
-                 routes: r.routes.map((x) => ({
-                    entity_id: x.id,
-                    from_source: x.from,
-                    join_path: x.path,
-                 })),
-              }
             : {}),
       };
       (entry.entities ??= []).push(entity);
